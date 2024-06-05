@@ -1,0 +1,10 @@
+--- xcodebuild: WARNING: Using the first of multiple matching destinations:
+{ platform:iOS Simulator, id:6ED1C7C3-46C7-4B6A-9577-75B3FFCEB910, OS:17.5, name:iPhone SE (3rd generation) }
+{ platform:iOS Simulator, id:6ED1C7C3-46C7-4B6A-9577-75B3FFCEB910, OS:17.5, name:iPhone SE (3rd generation) }
+** BUILD FAILED **
+
+
+The following build commands failed:
+	CompileSwift normal arm64 (in target 'EXUpdates' from project 'Pods')
+	SwiftCompile normal arm64 Compiling\ ExpoUpdatesAppDelegateSubscriber.swift,\ ExpoUpdatesReactDelegateHandler.swift,\ EXUpdatesCertificateChain.swift,\ EXUpdatesCodeSigningAlgorithm.swift,\ EXUpdatesCodeSigningConfiguration.swift,\ EXUpdatesCodeSigningError.swift,\ EXUpdatesSignatureHeaderInfo.swift,\ UpdatesErrorCode.swift,\ UpdatesLogEntry.swift,\ UpdatesLogger.swift,\ UpdatesLogReader.swift /Users/ganeshprasad/VCApp/node_modules/expo-updates/ios/EXUpdates/ReactDelegateHandler/ExpoUpdatesAppDelegateSubscriber.swift /Users/ganeshprasad/VCApp/node_modules/expo-updates/ios/EXUpdates/ReactDelegateHandler/ExpoUpdatesReactDelegateHandler.swift /Users/ganeshprasad/VCApp/node_modules/expo-updates/ios/EXUpdates/CodeSigning/EXUpdatesCertificateChain.swift /Users/ganeshprasad/VCApp/node_modules/expo-updates/ios/EXUpdates/CodeSigning/EXUpdatesCodeSigningAlgorithm.swift /Users/ganeshprasad/VCApp/node_modules/expo-updates/ios/EXUpdates/CodeSigning/EXUpdatesCodeSigningConfiguration.swift /Users/ganeshprasad/VCApp/node_modules/expo-updates/ios/EXUpdates/CodeSigning/EXUpdatesCodeSigningError.swift /Users/ganeshprasad/VCApp/node_modules/expo-updates/ios/EXUpdates/CodeSigning/EXUpdatesSignatureHeaderInfo.swift /Users/ganeshprasad/VCApp/node_modules/expo-updates/ios/EXUpdates/Logging/UpdatesErrorCode.swift /Users/ganeshprasad/VCApp/node_modules/expo-updates/ios/EXUpdates/Logging/UpdatesLogEntry.swift /Users/ganeshprasad/VCApp/node_modules/expo-updates/ios/EXUpdates/Logging/UpdatesLogger.swift /Users/ganeshprasad/VCApp/node_modules/expo-updates/ios/EXUpdates/Logging/UpdatesLogReader.swift (in target 'EXUpdates' from project 'Pods')
+(2 failures)

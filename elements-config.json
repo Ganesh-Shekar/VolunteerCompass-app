@@ -1,0 +1,9 @@
+{
+  "theme": "default",
+  "components": {
+    "directory": "src/components",
+    "installed": [
+      "radio buttons"
+    ]
+  }
+}

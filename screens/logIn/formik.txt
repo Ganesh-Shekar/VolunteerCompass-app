@@ -1,0 +1,107 @@
+import React from 'react';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
+import { Formik } from 'formik';
+
+const LoginScreen = ({ onLogin }) => {
+  const validateEmail = (email) => {
+    const emailRegex = /\S+@\S+\.\S+/;
+    if (!emailRegex.test(email)) {
+      return 'Invalid email address';
+    } else if (!email.endsWith('@example.com')) {
+      return 'Email domain must be @example.com';
+    }
+  };
+
+  const validatePassword = (password) => {
+    if (password.length < 8) {
+      return 'Password must be at least 8 characters long';
+    }
+  };
+
+  const handleLogin = (values) => {
+    onLogin(values);
+  };
+
+  return (
+    <View style={styles.container}>
+      <Formik
+        initialValues={{ email: '', password: '' }}
+        onSubmit={handleLogin}
+        validateOnBlur={false}
+        validateOnChange={false}
+        validate={({ email, password }) => {
+          const errors = {};
+          const emailError = validateEmail(email);
+          const passwordError = validatePassword(password);
+          if (emailError) {
+            errors.email = emailError;
+          }
+          if (passwordError) {
+            errors.password = passwordError;
+          }
+          return errors;
+        }}
+      >
+        {({ values, handleChange, handleSubmit, errors, touched }) => (
+          <>
+            <TextInput
+              style={styles.input}
+              placeholder="Email"
+              keyboardType="email-address"
+              onChangeText={handleChange('email')}
+              value={values.email}
+            />
+            {errors.email && touched.email && <Text style={styles.error}>{errors.email}</Text>}
+            <TextInput
+              style={styles.input}
+              placeholder="Password"
+              secureTextEntry
+              onChangeText={handleChange('password')}
+              value={values.password}
+            />
+            {errors.password && touched.password && <Text style={styles.error}>{errors.password}</Text>}
+            <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+              <Text style={styles.buttonText}>Login</Text>
+            </TouchableOpacity>
+          </>
+        )}
+      </Formik>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 12,
+  },
+  input: {
+    width: '80%',
+    height: 40,
+    margin: 12,
+    borderWidth: 1,
+    padding: 10,
+  },
+  button: {
+    backgroundColor: '#4CAF50',
+    padding: 10,
+    margin: 12,
+    width: '80%',
+    alignItems: 'center',
+    padding: 12,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+  },
+  error: {
+    color: 'red',
+    fontSize: 12,
+    marginLeft: 12,
+    marginBottom: 6,
+  },
+});
+
+export default LoginScreen;
