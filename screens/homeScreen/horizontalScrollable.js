@@ -6,6 +6,7 @@ import {
   StatusBar,
   TouchableOpacity,
   Image,
+  StyleSheet,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
@@ -66,11 +67,13 @@ const HorizontalScrollable = ({ title, categoryId, data }) => {
                 onPress={() => handleImagePress(ngo)}
               >
                 <View style={{ marginHorizontal: 6 }}>
+                  <View style={styles.imageContainer}>
                   <Image
                     source={{ uri: "https://picsum.photos/200" }}
-                    style={{ width: 150, height: 150, borderRadius: 50 }}
+                    style={styles.image}
                   />
-                  <Text style={{ textAlign: "center", marginTop: 5 }}>
+                  </View>
+                  <Text style={{ textAlign: "center", marginTop: 5, fontSize: 17 }}>
                     {ngo.ngo_display_name}
                   </Text>
                 </View>
@@ -81,5 +84,23 @@ const HorizontalScrollable = ({ title, categoryId, data }) => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  image: {
+    width: 150,
+    height: 150,
+    borderRadius: 50,
+  },
+  imageContainer: {
+    shadowColor: "grey",
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.65,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+});
 
 export default HorizontalScrollable;

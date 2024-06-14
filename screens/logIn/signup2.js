@@ -18,7 +18,7 @@ import { Dropdown } from "react-native-element-dropdown";
 import {
   signUpNgo,
   signUpUser,
-  getAllCategories,
+  getCategories,
 } from "../../backend/getApiRequests";
 
 import { Formik } from "formik";
@@ -38,7 +38,7 @@ const ngoSignUpValidationSchema = yup.object().shape({
 
   number: yup
     .string()
-    .min(10, "Phone number must be atleast 10 digits")
+    .min(10, "Phone number must be at least 10 digits")
     .max(19, "Phone number can be maximum 19 digits")
     .required("Phone number is required"),
 
@@ -94,18 +94,18 @@ const Signup = () => {
   const navigation = useNavigation();
   const [selectedValue, setSelectedValue] = useState("NGO"); // for radio buttons
   const [data, setData] = useState([]);
-  const [category, setCategory] = useState(null)
+  const [category, setCategory] = useState(null);
 
   const ngoRequestObject = {
-    userName: null,
-    contact_email: null,
-    number: null,
-    password: null,
-    ngoConfirmPassword: null,
-    address: null,
+    userName: "",
+    ngoEmail: "",
+    number: "",
+    ngoPassword: "",
+    ngoConfirmPassword: "",
+    address: "",
     category: null,
   };
-  
+
   const userRequestObject = {
     firstName: "",
     lastName: "",
@@ -120,19 +120,18 @@ const Signup = () => {
   }, []);
 
   const fetchCategories = async () => {
-    await getAllCategories()
-      .then((res) => {
-        if (res != null || res != undefined) {
-          const formattedCategories = res.map((item) => ({
-            label: item.name,
-            value: item.name,
-          }));
-          setData(formattedCategories);
-        }
-      })
-      .catch(async (error) => {
-        console.log(error);
-      });
+    try {
+      const res = await getCategories();
+      if (res !== null && res !== undefined) {
+        const formattedCategories = res.map((item) => ({
+          label: item.name,
+          value: item.name,
+        }));
+        setData(formattedCategories);
+      }
+    } catch (error) {
+      console.log('Error fetching categories: ', error);
+    }
   };
 
   const registerNGO = async (userInfo) => {
@@ -152,7 +151,7 @@ const Signup = () => {
       });
   };
 
-  const registerUser = async () => {
+  const registerUser = async (userInfo) => {
     // const url = "https://volcomp.pythonanywhere.com/signup-user";
     // let response = fetch(url, {
     //   method: "POST",
@@ -170,17 +169,31 @@ const Signup = () => {
     // if (result) {
     //   console.warn("Successfully signed up user");
     // }
+    await signUpUser(userInfo)
+      .then((response) => {
+        console.log(
+          "===============>signUpUser: response" + JSON.stringify(response)
+        );
+        if (response != null || response != undefined) {
+          Alert.alert("User registered successfully");
+          navigation.replace("Login");
+        }
+      })
+      .catch(async (err) => {
+        console.log("===============>signUpUser: catch" + JSON.stringify(err));
+        Alert.alert(err);
+      });
   };
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="bg-white h-full w-full">
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      className="bg-white h-full w-full"
+    >
       {/* Background */}
       {/* <Image className="w-full h-full absolute" source={require('../../assets/images/background.png')}/> */}
 
-      <ScrollView
-        
-        showsVerticalScrollIndicator={false}
-      >
+      <ScrollView showsVerticalScrollIndicator={false}>
         {/* handshake */}
         {/* <View className="flex-row justify-around w-full absolute">
             <Image className="h-[250] w-[250]" source={require('../../assets/images/handshake2.png')}/>
@@ -245,17 +258,24 @@ const Signup = () => {
               // Handle form submission
               console.log(JSON.stringify(values)); // You can replace this with your submission logic
               const tempRequestObject = {
-                ngo_display_name: ngoRequestObject.userName,
-                contact_email: ngoRequestObject.ngoEmail,
-                contact_number: ngoRequestObject.number,
-                password: ngoRequestObject.password,
-                address: ngoRequestObject.address,
-                category: ngoRequestObject.category
+                ngo_display_name: values.userName,
+                contact_email: values.ngoEmail,
+                contact_number: values.number,
+                password: values.ngoPassword,
+                address: values.address,
+                category: values.category,
+              };
+              const userRequestObject = {
+                first_name: values.firstName,
+                last_name: values.lastName,
+                contact_email: values.userEmail,
+                password: values.userPassword,
+                age: values.age,
               };
 
               selectedValue === "NGO"
                 ? registerNGO(tempRequestObject)
-                : registerUser;
+                : registerUser(userRequestObject);
             }}
           >
             {({
@@ -265,6 +285,7 @@ const Signup = () => {
               values,
               errors,
               touched,
+              setFieldValue,
             }) => (
               <View>
                 {selectedValue === "NGO" ? (
@@ -311,7 +332,6 @@ const Signup = () => {
                       <TextInput
                         placeholder="Password"
                         placeholderTextColor={"gray"}
-                        secureTextEntry
                         value={values.ngoPassword}
                         onChangeText={handleChange("ngoPassword")}
                         onBlur={handleBlur("ngoPassword")}
@@ -326,6 +346,7 @@ const Signup = () => {
                       <TextInput
                         placeholder="Confirm Password"
                         placeholderTextColor={"gray"}
+                        secureTextEntry
                         value={values.ngoConfirmPassword}
                         onChangeText={handleChange("ngoConfirmPassword")}
                         onBlur={handleBlur("ngoConfirmPassword")}
@@ -339,7 +360,6 @@ const Signup = () => {
                     </View>
                     <View className="bg-black/5 p-3 rounded-2xl w-full">
                       <TextInput
-                        multiline
                         placeholder="Address"
                         placeholderTextColor={"gray"}
                         value={values.address}
@@ -350,6 +370,7 @@ const Signup = () => {
                         <Text style={styles.errorTxt}>{errors.address}</Text>
                       )}
                     </View>
+
                     <View className="bg-black/5 p-3 rounded-2xl w-full">
                       <Dropdown
                         style={styles.dropdown}
@@ -362,26 +383,34 @@ const Signup = () => {
                         maxHeight={300}
                         labelField="label"
                         valueField="value"
-                        placeholder="Select a Category"
+                        placeholder={"Select Category"}
                         searchPlaceholder="Search..."
-                        value={values.category}
-                        onBlur={handleBlur("category")}
-                        onChange={item => {
-                          console.log(JSON.stringify(item));
-                          handleChange("category")
+                        value={category}
+                        onChange={(item) => {
+                          setFieldValue("category", item.value); // Correctly set the formik field value
+                          setCategory(item.value);
                         }}
                       />
-
                       {touched.category && errors.category && (
                         <Text style={styles.errorTxt}>{errors.category}</Text>
                       )}
                     </View>
+
+                    <TouchableOpacity
+                      className="w-full p-3 rounded-2xl mb-3"
+                      onPress={handleSubmit}
+                      style={{backgroundColor: "#20a963"}}
+                    >
+                      <Text className="text-xl font-bold text-white text-center">
+                        Sign Up
+                      </Text>
+                    </TouchableOpacity>
                   </View>
                 ) : (
                   <View className="flex items-center mx-4 space-y-4">
                     <View className="bg-black/5 p-3 rounded-2xl w-full">
                       <TextInput
-                        placeholder="First Name"
+                        placeholder="First name"
                         placeholderTextColor={"gray"}
                         value={values.firstName}
                         onChangeText={handleChange("firstName")}
@@ -393,7 +422,7 @@ const Signup = () => {
                     </View>
                     <View className="bg-black/5 p-3 rounded-2xl w-full">
                       <TextInput
-                        placeholder="Last Name"
+                        placeholder="Last name"
                         placeholderTextColor={"gray"}
                         value={values.lastName}
                         onChangeText={handleChange("lastName")}
@@ -420,7 +449,6 @@ const Signup = () => {
                       <TextInput
                         placeholder="Password"
                         placeholderTextColor={"gray"}
-                        secureTextEntry
                         value={values.userPassword}
                         onChangeText={handleChange("userPassword")}
                         onBlur={handleBlur("userPassword")}
@@ -433,8 +461,9 @@ const Signup = () => {
                     </View>
                     <View className="bg-black/5 p-3 rounded-2xl w-full">
                       <TextInput
-                        placeholder="Re-enter Password"
+                        placeholder="Confirm Password"
                         placeholderTextColor={"gray"}
+                        secureTextEntry
                         value={values.userConfirmPassword}
                         onChangeText={handleChange("userConfirmPassword")}
                         onBlur={handleBlur("userConfirmPassword")}
@@ -448,9 +477,9 @@ const Signup = () => {
                     </View>
                     <View className="bg-black/5 p-3 rounded-2xl w-full">
                       <TextInput
+                        inputMode="numeric"
                         placeholder="Age"
                         placeholderTextColor={"gray"}
-                        inputMode="numeric"
                         value={values.age}
                         onChangeText={handleChange("age")}
                         onBlur={handleBlur("age")}
@@ -459,19 +488,18 @@ const Signup = () => {
                         <Text style={styles.errorTxt}>{errors.age}</Text>
                       )}
                     </View>
+
+                    <TouchableOpacity
+                      className="w-full p-3 rounded-2xl mb-3"
+                      onPress={handleSubmit}
+                      style={{backgroundColor: "#20a963"}}
+                    >
+                      <Text className="text-xl font-bold text-white text-center">
+                        Sign Up
+                      </Text>
+                    </TouchableOpacity>
                   </View>
                 )}
-                <View style={{ marginHorizontal: 15, marginTop: 15 }}>
-                  <TouchableOpacity
-                    className="w-full p-3 rounded-2xl mb-3"
-                    style={{backgroundColor: "#20a963"}}
-                    onPress={handleSubmit}
-                  >
-                    <Text className="text-xl font-bold text-white text-center">
-                      Sign Up
-                    </Text>
-                  </TouchableOpacity>
-                </View>
               </View>
             )}
           </Formik>
@@ -484,12 +512,13 @@ const Signup = () => {
                 onPress={() => navigation.replace("Login")}
                 className="pr-1 pb-1"
               >
-                <Text style={{color:"#20a963"}}>Login</Text>
+                <Text style={{ color: "#20a963" }}>Login</Text>
               </TouchableOpacity>
             </View>
           </View>
         </View>
       </ScrollView>
+      <StatusBar style="auto" />
     </KeyboardAvoidingView>
   );
 };
@@ -503,29 +532,36 @@ const styles = StyleSheet.create({
     fontWeight: "normal",
     marginTop: 5,
   },
+
   dropdown: {
     borderBottomColor: "gray",
     borderBottomWidth: 0.5,
   },
+
   placeholderStyle: {
     fontSize: 14.5,
     color: "gray",
   },
+
   selectedTextStyle: {
     fontSize: 14.5,
   },
+
   iconStyle: {
     width: 20,
     height: 20,
   },
+
   inputSearchStyle: {
     height: 40,
     fontSize: 14.5,
   },
+
   radioButton: {
     borderWidth: Platform.OS === "ios" ? 2 : null,
     borderColor: "black",
-    borderRadius: 9999,
+    borderRadius: 999,
     marginRight: 5,
+    padding: 0.1
   },
 });

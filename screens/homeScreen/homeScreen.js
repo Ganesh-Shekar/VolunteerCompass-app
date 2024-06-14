@@ -28,6 +28,7 @@ import { getNgoNames } from "../../backend/getApiRequests";
 import { getNgoBasedOnCategory } from "../../backend/getApiRequests";
 import { useNavigation } from "@react-navigation/native";
 import Autocomplete from "react-native-autocomplete-input";
+import Icon from "react-native-vector-icons/FontAwesome";
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -124,7 +125,7 @@ const HomeScreen = () => {
         <View style={{ flex: 1 }}>
           {!isSearchBarEmpty &&
           (!searchResults || searchResults.length === 0) ? (
-            <Text style={{ textAlign: "center", marginTop: 5, fontSize: 20 }}>
+            <Text style={{ textAlign: "center", marginTop: 50, fontSize: 25 }}>
               No result found
             </Text>
           ) : (
@@ -141,21 +142,27 @@ const HomeScreen = () => {
                 data={searchQuery ? searchResults : null}
                 isSearchBarEmpty={isSearchBarEmpty}
               />
+              <View style={styles.BottomText}>
+              <Text className={"pt-10 mx-10 font-bold text-2xl content-center"}>
+                No act of kindness,
+              </Text>
+              <Text className={"mx-9 font-bold text-2xl content-center"}>
+                {" "}
+                no matter how small,
+              </Text>
+              <Text className={"mx-10 font-bold text-3xl "}>
+                is ever wasted!
+              </Text>
+              <TouchableOpacity>
+                <HeartIcon
+                  size={60}
+                  style={{ marginTop: 10 }}
+                />
+              </TouchableOpacity>
+              </View>
             </>
           )}
         </View>
-
-        <Text className={"pt-10 mx-10 font-bold text-2xl content-center"}>
-          No act of kindness,
-        </Text>
-        <Text className={"mx-9 font-bold text-2xl content-center"}>
-          {" "}
-          no matter how small,
-        </Text>
-        <Text className={"mx-10 font-bold text-3xl "}>is ever wasted!</Text>
-        <TouchableOpacity>
-          <HeartIcon size={60} style={{ marginTop: 10, marginLeft: 165 }} />
-        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
@@ -164,13 +171,27 @@ const HomeScreen = () => {
 //styling for the search bar
 const styles = StyleSheet.create({
   searchContainer: {
+    shadowColor: "black",  
+    shadowOffset: {
+      width: 0,
+      height: 8,
+    },
+    shadowOpacity: 0.25, 
+    shadowRadius: 3.84,
+    elevation: 2,
     flex: 1,
     zIndex: 1,
     position: "relative",
     margin: 10,
-    borderColor: "black",
+    borderColor: "grey",
     borderWidth: 1,
     borderRadius: 3,
+  },
+  BottomText:{
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 20,
+    marginBottom: 20,
   },
 });
 
