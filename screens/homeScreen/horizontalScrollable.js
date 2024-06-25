@@ -11,8 +11,14 @@ import {
 import React, { useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { getNgoBasedOnCategory } from "../../backend/getApiRequests";
+import { RFValue } from "react-native-responsive-fontsize";
+//import { useFonts } from "expo-font";
 
 const HorizontalScrollable = ({ title, categoryId, data }) => {
+  const image_num = 100;
+  // const [loadedFonts] = useFonts({
+  //   OpenSans: require("../../assets/fonts/Open Sans.ttf"),
+  // });
   const [ngoDetails, setNgoDetails] = useState([]);
   const navigation = useNavigation();
   const handleImagePress = (ngoData) => {
@@ -44,10 +50,10 @@ const HorizontalScrollable = ({ title, categoryId, data }) => {
         0 && (
         <Text
           style={{
-            fontSize: 20,
+            fontSize: RFValue(16),
             fontWeight: "bold",
-            marginVertical: 10,
-            marginLeft: 10,
+            marginVertical: RFValue(12),
+            marginLeft: RFValue(12),
           }}
         >
           {title}
@@ -57,7 +63,7 @@ const HorizontalScrollable = ({ title, categoryId, data }) => {
         <ScrollView
           horizontal={true}
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: 10, flexGrow: 1 }}
+          contentContainerStyle={{ paddingHorizontal: RFValue(8), flexGrow: 1 }}
         >
           {ngoDetails
             .filter((ngo) => ngo.category_id === categoryId)
@@ -66,14 +72,25 @@ const HorizontalScrollable = ({ title, categoryId, data }) => {
                 key={ngo.ngo_id}
                 onPress={() => handleImagePress(ngo)}
               >
-                <View style={{ marginHorizontal: 6 }}>
+                <View style={{ marginHorizontal: RFValue(6), width: "100%" }}>
                   <View style={styles.imageContainer}>
-                  <Image
-                    source={{ uri: "https://picsum.photos/200" }}
-                    style={styles.image}
-                  />
+                    <Image
+                      source={{ uri: "https://picsum.photos/100" }}
+                      style={styles.image}
+                    />
                   </View>
-                  <Text style={{ textAlign: "center", marginTop: 5, fontSize: 17 }}>
+                  <Text
+                    style={{
+                      textAlign: "center",
+                      marginTop: RFValue(5),
+                      fontSize: RFValue(12),
+                      fontFamily: "OpenSans",
+                      ellipsisoverflow: "hidden",
+                      maxWidth: RFValue(120),
+                    }}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
                     {ngo.ngo_display_name}
                   </Text>
                 </View>
@@ -87,19 +104,20 @@ const HorizontalScrollable = ({ title, categoryId, data }) => {
 
 const styles = StyleSheet.create({
   image: {
-    width: 150,
-    height: 150,
-    borderRadius: 50,
+    width: RFValue(120),
+    height: RFValue(120),
+    borderRadius: RFValue(10),
+    margin: 5,
   },
   imageContainer: {
+    width: "45%",
     shadowColor: "grey",
     shadowOffset: {
       width: 0,
-      height: 3,
+      height: RFValue(3),
     },
-    shadowOpacity: 0.65,
-    shadowRadius: 3.84,
-    elevation: 5,
+    shadowOpacity: RFValue(0.65),
+    shadowRadius: RFValue(3.84),
   },
 });
 

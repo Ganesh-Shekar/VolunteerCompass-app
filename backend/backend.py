@@ -8,6 +8,7 @@ import string
 import constant as const
 import uuid
 from datetime import timedelta, datetime, timezone
+import traceback
 
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import create_refresh_token
@@ -279,7 +280,6 @@ def get_category():
 def get_ngo():
     
     current_user=get_jwt_identity()
-    print("current_user")
     # Get user details for the current user
     user_details_response = supabase.table("user_details").select("*").eq("user_id", current_user).execute()
     user_details = user_details_response.data
@@ -301,7 +301,6 @@ def get_ngo():
                     "ngo_display_name",
                     "working_hours",
                     "category",
-                    "terms_of_working",
                 )
                 .eq("ngo_id", ngoId)
                 .execute()
@@ -571,42 +570,41 @@ def getEvents():
 @jwt_required()
 def search():
     try:
-        current_user = get_jwt_identity()
-
-        # Get user details for the current user
+        current_user=get_jwt_identity() 
         user_details_response = supabase.table("user_details").select("*").eq("user_id", current_user).execute()
         user_details = user_details_response.data
-
         if user_details:
-            query = request.args.get("query")
-            if not query:
-                return jsonify({"error": "Query parameter is missing"}), 400
-            
-            
-            # Perform the search query on the ngo_details table
+            query=request.args.get("query")
             response = (
-                supabase.table("ngo_details")
-                .select("ngo_id", "ngo_display_name", "category_id")
-                .ilike("ngo_display_name", f"%{query}%")
-                .execute()
-            )
-            
-            # Check if the response is successful
-            if response.error:
-                return jsonify({"error": "Error from Supabase", "details": response.error.message}), 500
-
-            # Ensure the response data is valid JSON
-            response_data = response.data
-            if not response_data:
-                return jsonify({"error": "No data found"}), 404
-
+                        supabase.table("ngo_details").select("ngo_id", "ngo_display_name", "category_id").ilike("ngo_display_name", f"*{query}*").execute()
+                    ).data
+            response_data = response
             return jsonify(response_data)
-
-        else:
-            return jsonify({"error": "User details not found"}), 404
-
     except Exception as e:
         return jsonify({"error": "An error occurred during the search", "details": str(e)}), 500
+    # try:
+            # query=request.args.get("query")
+            # response = (
+            #     supabase.table("ngo_details")
+            #     .select("ngo_id", "ngo_display_name", "category_id")
+            #     .ilike("ngo_display_name", f"%{query}%")
+            #     .execute()
+            # )
+            
+            # # Check if the response is successful
+            # if response.error:
+            #     return jsonify({"error": "Error from Supabase", "details": response.error.message}), 500
+
+            # # Ensure the response data is valid JSON
+            # response_data = response.data
+            # if not response_data:
+            #     return jsonify({"error": "No data found"}), 404
+
+            # return jsonify(response_data)
+
+    # except Exception as e:
+    #     print("Traceback:", traceback.format_exc())  # This will print the traceback
+    #     return jsonify({"error": "An error occurred during the search", "details": str(e)}), 500
 
 #To refresh the access token upon expiration
 @app.route("/refresh", methods=["POST"])

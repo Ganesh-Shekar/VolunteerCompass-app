@@ -12,8 +12,8 @@ import {
   Animated,
   useWindowDimensions,
   StyleSheet,
+  Dimensions,
 } from "react-native";
-import { HeartIcon, MagnifyingGlassIcon } from "react-native-heroicons/outline";
 import HorizontalScrollable from "./horizontalScrollable";
 // import { NavigationContainer } from '@react-navigation/native';
 // import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -29,6 +29,17 @@ import { getNgoBasedOnCategory } from "../../backend/getApiRequests";
 import { useNavigation } from "@react-navigation/native";
 import Autocomplete from "react-native-autocomplete-input";
 import Icon from "react-native-vector-icons/FontAwesome";
+import { SearchBar } from "@rneui/themed";
+import { RFValue } from "react-native-responsive-fontsize";
+import DropDownPicker from "react-native-dropdown-picker";
+import { Dropdown } from "react-native-element-dropdown";
+const { width, height } = Dimensions.get("window");
+
+const data = [
+  { label: "Bengaluru", value: "1" },
+  { label: "Delhi", value: "2" },
+  { label: "Mumbai", value: "3" },
+];
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -36,6 +47,20 @@ const HomeScreen = () => {
   const [ngoNames, setNgoNames] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
   const isSearchBarEmpty = searchQuery === "";
+
+  const [value, setValue] = useState("1");
+  const [isFocus, setIsFocus] = useState(false);
+
+  const renderLabel = () => {
+    if (value || isFocus) {
+      return (
+        <Text style={[styles.label, isFocus && { color: "blue" }]}>
+          Dropdown label
+        </Text>
+      );
+    }
+    return null;
+  };
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -72,11 +97,6 @@ const HomeScreen = () => {
     getNgoSearchResult();
   }, []);
 
-  // const handleSelect = (fruit) => {
-  //   setQuery(fruit.name);
-  //   setFilteredFruits([]);
-  // };
-
   return (
     <SafeAreaView className={"bg-white pt-5 h-full"}>
       <ScrollView
@@ -84,20 +104,61 @@ const HomeScreen = () => {
         alwaysBounceVertical={false}
       >
         <StatusBar />
-        <View className={"flex-row items-top mx-1 bg-white pt-2 px-2"}>
-          <Image
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          {/* <Image
             source={{
               uri: "https://picsum.photos/id/50/200/300",
             }}
             className="h-10 w-10 bg-gray-300 p-4 rounded-full"
-          />
+          /> */}
           <View className="flex-row flex-1">
-            <Text
-              className={"font-bold text-gray-700 text-2xl flex-1 px-3 mt-1"}
-            >
-              Volunteer Compass
-            </Text>
+            <Icon
+              name="map-marker"
+              size={RFValue(20)}
+              color="#f66"
+              style={{ padding: RFValue(10) }}
+            />
 
+            <View
+              style={{ width: width < 450 ? 120 : 200, marginTop: RFValue(12) }}
+            >
+              {/* {renderLabel()} */}
+              <Dropdown
+                style={[styles.dropdown, isFocus && { borderColor: "blue" }]}
+                placeholderStyle={styles.placeholderStyle}
+                selectedTextStyle={styles.selectedTextStyle}
+                inputSearchStyle={styles.inputSearchStyle}
+                iconStyle={styles.iconStyle}
+                data={data}
+                search
+                maxHeight={300}
+                labelField="label"
+                valueField="value"
+                placeholder={!isFocus ? "Select city" : "..."}
+                searchPlaceholder="Search city..."
+                value={value}
+                onFocus={() => setIsFocus(true)}
+                onBlur={() => setIsFocus(false)}
+                onChange={(item) => {
+                  setValue(item.value);
+                  setIsFocus(false);
+                }}
+              />
+            </View>
+          </View>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "flex-end",
+              paddingRight: RFValue(8),
+            }}
+          >
             <InfoIcon />
             <AccountIcon />
           </View>
@@ -105,7 +166,7 @@ const HomeScreen = () => {
 
         {/*searchbar for NGOs*/}
         <View style={styles.searchContainer}>
-          <Autocomplete
+          {/* <Autocomplete
             data={ngoNames}
             defaultValue={searchQuery}
             onChangeText={handleSearch}
@@ -120,12 +181,40 @@ const HomeScreen = () => {
                 </TouchableOpacity>
               ),
             }}
+          /> */}
+          <SearchBar
+            placeholder="Search for NGOs..."
+            searchIcon={{ size: RFValue(18) }}
+            clearIcon={{ size: RFValue(18) }}
+            inputStyle={{ color: "black", fontSize: RFValue(13) }}
+            onChangeText={handleSearch}
+            value={ngoNames}
+            lightTheme={true}
+            round={true}
+            containerStyle={{
+              backgroundColor: "none",
+              borderTopWidth: 0,
+              borderBottomWidth: 0,
+            }}
+            inputContainerStyle={{
+              backgroundColor: "#F5F5F5",
+              borderBottomWidth: 0,
+              paddingVertical: width < 450 ? 0 : 10,
+              // padding: RFValue(2),
+            }}
           />
         </View>
+
         <View style={{ flex: 1 }}>
           {!isSearchBarEmpty &&
           (!searchResults || searchResults.length === 0) ? (
-            <Text style={{ textAlign: "center", marginTop: 50, fontSize: 25 }}>
+            <Text
+              style={{
+                textAlign: "center",
+                marginTop: RFValue(20),
+                fontSize: RFValue(18),
+              }}
+            >
               No result found
             </Text>
           ) : (
@@ -142,24 +231,6 @@ const HomeScreen = () => {
                 data={searchQuery ? searchResults : null}
                 isSearchBarEmpty={isSearchBarEmpty}
               />
-              <View style={styles.BottomText}>
-              <Text className={"pt-10 mx-10 font-bold text-2xl content-center"}>
-                No act of kindness,
-              </Text>
-              <Text className={"mx-9 font-bold text-2xl content-center"}>
-                {" "}
-                no matter how small,
-              </Text>
-              <Text className={"mx-10 font-bold text-3xl "}>
-                is ever wasted!
-              </Text>
-              <TouchableOpacity>
-                <HeartIcon
-                  size={60}
-                  style={{ marginTop: 10 }}
-                />
-              </TouchableOpacity>
-              </View>
             </>
           )}
         </View>
@@ -171,27 +242,46 @@ const HomeScreen = () => {
 //styling for the search bar
 const styles = StyleSheet.create({
   searchContainer: {
-    shadowColor: "black",  
-    shadowOffset: {
-      width: 0,
-      height: 8,
-    },
-    shadowOpacity: 0.25, 
-    shadowRadius: 3.84,
-    elevation: 2,
+    marginTop: RFValue(5),
     flex: 1,
     zIndex: 1,
-    position: "relative",
-    margin: 10,
-    borderColor: "grey",
-    borderWidth: 1,
-    borderRadius: 3,
   },
-  BottomText:{
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 20,
-    marginBottom: 20,
+  container: {
+    backgroundColor: "white",
+    padding: RFValue(10),
+  },
+  dropdown: {
+    height: RFValue(20),
+    borderColor: "transparent",
+    borderWidth: 0,
+    borderRadius: RFValue(8),
+    paddingHorizontal: RFValue(2),
+  },
+  icon: {
+    marginRight: RFValue(10),
+  },
+  label: {
+    position: "absolute",
+    backgroundColor: "white",
+    left: RFValue(22),
+    top: RFValue(8),
+    zIndex: 999,
+    paddingHorizontal: RFValue(8),
+    fontSize: RFValue(7),
+  },
+  placeholderStyle: {
+    fontSize: RFValue(12),
+  },
+  selectedTextStyle: {
+    fontSize: RFValue(14),
+  },
+  iconStyle: {
+    width: RFValue(20),
+    height: RFValue(20),
+  },
+  inputSearchStyle: {
+    height: RFValue(40),
+    fontSize: RFValue(12),
   },
 });
 

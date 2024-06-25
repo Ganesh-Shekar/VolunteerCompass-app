@@ -17,10 +17,13 @@ import { ChevronLeftIcon } from "react-native-heroicons/outline";
 import BackButton from "../../components/backButton";
 import EventRow from "./EventRow";
 import { getNgoInfo, getAllEventsByNgoId } from "../../backend/getApiRequests";
+import ngoimage from "../../assets/ngoimage.jpg";
+import Icon from "react-native-vector-icons/FontAwesome6";
 
 // const dimensions = Dimensions.get("window").width
 
 const NgoScreen = ({ route }) => {
+  const ngoimage1 = Image.resolveAssetSource(ngoimage).uri;
   const navigation = useNavigation();
 
   const ngoData = route.params["ngoData"];
@@ -71,66 +74,69 @@ const NgoScreen = ({ route }) => {
               style={{
                 flexDirection: "row",
                 alignItems: "center",
-                paddingHorizontal: 10,
-                paddingVertical: 10,
               }}
             >
-              <Image
-                source={{ uri: "https://picsum.photos/1091/300" }}
-                style={styles.image}
-              />
-              <View>
-                <Text style={{ paddingLeft: 10, fontSize: 40 }}>
-                  {data.ngo_display_name}
-                </Text>
-                <Text style={{ paddingLeft: 10, fontSize: 15, color: "gray" }}>
+              <Image source={{ uri: ngoimage1 }} style={styles.image} />
+            </View>
+            <View style={{ paddingVertical: 20, paddingHorizontal: 20 }}>
+              <Text
+                style={{ flexShrink: 1, fontSize: 26, textAlign: "center", fontFamily: 'Open Sans' }}
+              >
+                {data.ngo_display_name}
+              </Text>
+              <Text style={{ fontSize: 15, color: "gray", textTransform: "capitalize", fontWeight: 500, textAlign: 'center'}}>
                   {data.category}
                 </Text>
-              </View>
-            </View>
-            <View>
+
+
               <View style={styles.element}>
-                <Text style={styles.title}>Description</Text>
-                <Text style={styles.paragraph}>
+
+                <Text style={{...styles.paragraph, marginTop: 20, color: "black", marginBottom: 15}}>
                   {data.description}
-                  {/* Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer porttitor lorem id augue egestas convallis. Etiam eu finibus eros, sed iaculis felis. Donec sagittis sollicitudin augue. Proin eleifend blandit pulvinar. Morbi id tincidunt urna, sit amet efficitur purus. Sed non diam at dolor luctus vehicula. Etiam sit amet sapien euismod. */}
+  
                 </Text>
               </View>
-              <View style={styles.element}>
-                <Text style={styles.title}>Address</Text>
-                <Text style={styles.paragraph}>{data.address}</Text>
+              <View style={{...styles.element, flexDirection: "row", marginBottom: 10}}>
+                {/* <Text style={styles.title}>Address</Text> */}
+                <Icon name="location-dot" size={20} color="black" />
+                <Text style={{...styles.paragraph, marginLeft: 10}}>{data.address}</Text>
               </View>
 
               {data.email != null || data.contact_phone != null ? (
                 <View style={styles.element}>
-                  <Text style={styles.title}>Contact</Text>
+                  {/* <Text style={styles.title}>Contact</Text> */}
+                  
                   {data.email != null ? (
-                    <Text style={styles.paragraph}>
+                    <View style={{flexDirection:'row', marginBottom: 10}}>
+                    <Icon name="envelope" size={20} color="black" />
+                    <Text style={{...styles.paragraph, marginLeft: 10}}>
                       Email: {data.contact_email}
                     </Text>
+                    </View>
                   ) : null}
-                  {data.contact_phone != null ? (
-                    <Text style={styles.paragraph}>
+                  {data.contact_phone != null ? (<View style={{flexDirection:'row'}}>
+                    <Icon name="phone" size={20} color="black" />
+                    <Text style={{...styles.paragraph, marginLeft: 10}}>
                       Phone: {data.contact_phone}
                     </Text>
+                    </View>
                   ) : null}
                 </View>
               ) : null}
             </View>
-            <View className="pb-36 bg-white">
-              <Text className="px-6 py-4 text-2xl font-bold">Events</Text>
+            <View className="bg-white" style={{minHeight: 400}}>
+              <Text style={{...styles.title, paddingHorizontal: 20}}>Events</Text>
               {eventDetails && eventDetails.length != 0 ? (
                 eventDetails.map((event, index) => (
                   <View
                     style={{
-                      shadowColor: "#000",
+                      shadowColor: "grey",
                       shadowOffset: {
                         width: 0,
-                        height: 20,
+                        height: 8,
                       },
-                      shadowOpacity: 0.15,
-                      shadowRadius: 3.84,
-                      elevation: 5,
+                      shadowOpacity: 0.10,
+                      shadowRadius: 0.5,
                     }}
                     key={index}
                   >
@@ -142,7 +148,7 @@ const NgoScreen = ({ route }) => {
                   </View>
                 ))
               ) : (
-                <Text style={{ textAlign: "center", fontSize: 20 }}>
+                <Text style={{ textAlign: "center", fontSize: 20, marginTop: 10, alignItems: "center", margin: "auto" }}>
                   No events for this NGO currently
                 </Text>
               )}
@@ -163,26 +169,27 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   title: {
-    fontSize: 25,
-    fontWeight: "bold",
-    paddingLeft: 12.5,
+    paddingTop: 15,
+    fontSize: 22,
+    fontWeight: "600",
   },
-  element: {
-    paddingTop: 10,
-    paddingBottom: 10,
-    paddingHorizontal: 10,
-  },
+  element: {},
   paragraph: {
     alignItems: "center",
-    fontSize: 15,
-    paddingLeft: 20,
+    fontSize: 17,
+    marginTop: 5,
     color: "gray",
   },
   image: {
-    borderRadius: 25,
-    borderWidth: 1,
-    width: 150,
-    height: 150,
+    width: "100%",
+    height: 200,
+  },
+  display: {
+    fontSize: 30,
+    fontWeight: "bold",
+    paddingLeft: 10,
+    flex: 1,
+    flexWrap: "wrap",
   },
 });
 

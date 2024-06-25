@@ -8,6 +8,9 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
+  ImageBackground,
+  Dimensions,
+  PixelRatio,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { StatusBar } from "expo-status-bar";
@@ -15,7 +18,35 @@ import { useNavigation } from "@react-navigation/native";
 import { RegisterLogin, signIn } from "../../backend/getApiRequests";
 import { Form, Formik } from "formik";
 import * as yup from "yup";
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from "react-native-responsive-screen";
+//import { isMobile, isTablet } from "react-device-detect";
+import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import logo from "../../assets/logo.jpeg";
+import white_bg from "../../assets/white_background.jpg";
+const logo1 = Image.resolveAssetSource(logo).uri;
+const white_bg1 = Image.resolveAssetSource(white_bg).uri;
+const { width, height } = Dimensions.get("window");
+
+const pixelRatio = PixelRatio.get();
+const baseFontSize = 6;
+const responsiveFontSize = baseFontSize * pixelRatio;
+
+console.log("Responsive Font Size: ", responsiveFontSize);
+const baseFontSizeMobile = 16;
+const baseFontSizeTablet = 20;
+const isTablet = width >= 600;
+
+const getResponsiveFontSize = () => {
+  if (isTablet) {
+    return Math.round(baseFontSizeTablet * (width / 600)); // Adjust scaling factor as needed
+  } else {
+    return Math.round(baseFontSizeMobile * (width / 360)); // Adjust scaling factor as needed
+  }
+};
 
 const ReviewSchema = yup.object({
   email: yup
@@ -29,6 +60,7 @@ const ReviewSchema = yup.object({
 });
 
 const Login = () => {
+  const responsiveFontSize = getResponsiveFontSize();
   const navigation = useNavigation();
 
   const handleLogin = async (userInfo) => {
@@ -43,6 +75,10 @@ const Login = () => {
         await AsyncStorage.setItem("first_name", response.data["first_name"]);
         await AsyncStorage.setItem("last_name", response.data["last_name"]);
         await AsyncStorage.setItem("email", response.data["contact_email"]);
+        await AsyncStorage.setItem(
+          "phone",
+          JSON.stringify(response.data["phone"])
+        );
         await AsyncStorage.setItem("isLoggedIn", JSON.stringify(true));
         navigation.replace("HomeScreen");
       } else if (response.statusCode === 101 || response.statusCode === 102) {
@@ -55,7 +91,15 @@ const Login = () => {
   };
 
   return (
-    <View className="bg-white h-full w-full" style={styles.transparentBackground}>
+    // <View
+    //   className="bg-white h-full w-full"
+    //   style={styles.transparentBackground}
+    // >
+    <ImageBackground
+      source={{ uri: white_bg1 }}
+      resizemode="cover"
+      style="{styles.image}"
+    >
       <Formik
         initialValues={{ email: "", password: "" }}
         validationSchema={ReviewSchema}
@@ -71,14 +115,24 @@ const Login = () => {
           >
             {/* Title */}
             <View className="flex items-center">
-              <Text className="text-black font-bold tracking-wider text-5xl">
-                Login
-              </Text>
+              <Image
+                source={{ uri: logo1 }}
+                style={{
+                  width: width < 450 ? 200 : 400,
+                  height: width < 450 ? 200 : 400,
+                }}
+              />
             </View>
 
             {/* Form */}
-            <View className="flex items-center mx-4 space-y-4">
-              <View className="bg-black/5 p-5 rounded-2xl w-full">
+            <View
+              className="flex items-center mx-4 space-y-4"
+              style={styles.LoginBlock}
+            >
+              <View
+                className="bg-black/5 p-3 px-5 rounded-2xl w-full"
+                style={styles.Email}
+              >
                 <TextInput
                   placeholder="Email"
                   placeholderTextColor={"gray"}
@@ -86,12 +140,16 @@ const Login = () => {
                   keyboardType="email-address"
                   onChangeText={props.handleChange("email")}
                   onBlur={props.handleBlur("email")}
+                  style={[styles.input, { fontSize: RFValue(14) }]}
                 />
                 {props.touched.email && props.errors.email && (
                   <Text style={styles.errorTxt}>{props.errors.email}</Text>
                 )}
               </View>
-              <View className="bg-black/5 p-5 rounded-2xl w-full mb-3">
+              <View
+                className="bg-black/5 p-3 px-5 rounded-2xl w-full mb-3"
+                style={styles.Password}
+              >
                 <TextInput
                   placeholder="Password"
                   placeholderTextColor={"gray"}
@@ -99,6 +157,7 @@ const Login = () => {
                   value={props.values.password}
                   onChangeText={props.handleChange("password")}
                   onBlur={props.handleBlur("password")}
+                  style={[styles.input, { fontSize: RFValue(14) }]}
                 />
                 {props.touched.password && props.errors.password && (
                   <Text style={styles.errorTxt}>{props.errors.password}</Text>
@@ -106,77 +165,82 @@ const Login = () => {
               </View>
 
               {/* Button */}
-              <View className="w-full">
+              <View className="w-full" style={{ alignItems: "center" }}>
                 <TouchableOpacity
-                  style={{ backgroundColor: "#20a963" }}
+                  style={{
+                    backgroundColor: "#20a963",
+                    width: width < 450 ? "100%" : 600,
+                    // height: width < 450 ? 50 : 60,
+                  }}
                   className="w-full p-3 rounded-2xl mb-3"
                   onPress={props.handleSubmit}
                 >
-                  <Text className="text-xl font-bold text-white text-center">
+                  <Text
+                    className="text-xl font-bold text-white text-center"
+                    style={[styles.input, { fontSize: RFValue(14) }]}
+                  >
                     Login
                   </Text>
                 </TouchableOpacity>
               </View>
               <View className="flex-row justify-center">
-                <Text>Don't have an account? </Text>
+                <Text style={{fontSize: RFValue(12)}}>
+                  Don't have an account?{" "}
+                </Text>
                 <TouchableOpacity
                   onPress={() => navigation.replace("Sign Up")}
                   className="pr-1 pb-1"
                 >
-                  <Text style={{ color: "#20a963" }}>Sign Up</Text>
+                  <Text
+                    style={{ color: "blue", fontSize: RFValue(12) }}
+                  >
+                    Sign Up
+                  </Text>
                 </TouchableOpacity>
               </View>
             </View>
           </KeyboardAvoidingView>
         )}
       </Formik>
-    </View>
+    </ImageBackground>
+    // </View>
   );
 };
 
 const styles = StyleSheet.create({
-  transparentBackground: {
+  LoginBlock: {
     flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.5)', 
+    justifyContent: width < 450 ? "flex-end" : "center",
+    alignItems: "center",
+  },
+  Email: {
+    backgroundColor: "white",
+    width: width < 450 ? "100%" : 600,
+    // height: width < 450 ? 50 : 80,
+    fontSize: responsiveFontSize,
+  },
+  Password: {
+    backgroundColor: "white",
+    width: width < 450 ? "100%" : 600,
+    // height: width < 450 ? 50 : 60,
+    fontSize: width < 450 ? 16 : 600,
+  },
+  image: {
+    flex: 1,
+    resizeMode: "cover",
+    justifyContent: "center",
   },
   container: {
     flex: 1,
+    justifyContent: "flex-end",
     alignItems: "center",
-    justifyContent: "center",
-    padding: 12,
-  },
-  input: {
-    width: "80%",
-    height: 40,
-    margin: 12,
-    borderWidth: 1,
-    padding: 10,
-  },
-  button: {
-    backgroundColor: "#4CAF50",
-    padding: 10,
-    margin: 12,
-    width: "80%",
-    alignItems: "center",
-    padding: 12,
-  },
-  buttonText: {
-    color: "white",
-    fontSize: 16,
+    marginBottom: 36,
   },
   errorTxt: {
-    fontSize: 12,
+    fontSize: 13,
     color: "red",
     fontWeight: "normal",
     marginTop: 5,
-  },
-  titleForm: {
-    height: "100%",
-    width: "100%",
-    display: "flex",
-    justifyContent: "space-around",
-    paddingTop: "10rem",
-    paddingBottom: "2.5rem",
   },
 });
 

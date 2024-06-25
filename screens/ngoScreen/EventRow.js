@@ -25,12 +25,14 @@ export default function EventRow({ event, saved_ngo }) {
   return (
     // {eventDetails.map((eventData) => (
     <View
-      className="flex-row items-center bg-white p-3 rounded-3xl shadow-xl  mb-3 mx-2"
+      className="flex-row items-center bg-white p-3 rounded-2xl shadow-m  mb-3 mx-2"
       style={{
         borderWidth: 1,
+        borderColor: "#e5e5e5",
         flexDirection: "row",
         alignItems: "center",
         marginTop: 10,
+
       }}
     >
       <View className="flex felx-1 space-y-3">
