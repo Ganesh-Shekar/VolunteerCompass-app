@@ -36,7 +36,7 @@ const MyEvents = () => {
     agendaDayTextColor: "black", // Custom color for agenda day text
     agendaDayNumColor: "green", // Custom color for agenda day number
     agendaTodayColor: "red", // Custom color for today's agenda
-    agendaKnobColor: "#38943b", // Custom color for the agenda knob
+    agendaKnobColor: "black", // Custom color for the agenda knob
   };
 
   const renderItem = useCallback((item) => <EventItem item={item} />, []);
@@ -46,7 +46,7 @@ const MyEvents = () => {
       style={{
         marginVertical: 10,
         marginTop: 30,
-        backgroundColor: "#38943b",
+        backgroundColor: "grey",
         marginHorizontal: 10,
         padding: 10,
         borderRadius: 10,

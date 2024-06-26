@@ -14,6 +14,8 @@ import {
   removeVolunteerFromEvent,
   checkUserRegistration,
 } from "../../backend/getApiRequests";
+import { RFValue } from "react-native-responsive-fontsize";
+const { width, height } = Dimensions.get("window"); 
 
 // const VolunteerButtStyle = ({ pressed, title }) => (
 //   <TouchableOpacity onPress={pressed} style={styles.appButtonContainer}>
@@ -107,8 +109,9 @@ const VolunteerButton = ({ event, saved_ngo }) => {
 
       <TouchableOpacity
         style={{
-          paddingBottom: 10,
-          width: Dimensions.get("window").width * 0.9,
+          paddingBottom: RFValue(10),
+          width: width < 450 ? 300 : 500 ,
+          // alignItems: "center",
         }}
         onPress={() => {
           setShowModal(true);
@@ -117,11 +120,11 @@ const VolunteerButton = ({ event, saved_ngo }) => {
         <View
           style={{
             ...styles.screenContainer,
-            backgroundColor: isRegistered ? "red" : "#20A963",
+            backgroundColor: isRegistered ? "#dc3545" : "#28a745",
           }}
           className="flex-row items-center bg-white p-2 rounded-3xl shadow-1xl mb-3 mx-2"
         >
-          <Text style={{ color: "#ffffff", fontSize: 17 }}>
+          <Text style={{ color: "#ffffff", fontSize: RFValue(12) }}>
             {isRegistered ? "Unregister" : "Volunteer"}
           </Text>
         </View>
@@ -142,6 +145,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 10,
     paddingHorizontal: 12,
+    // alignContent: "center",
   },
   appButtonText: {
     fontSize: 18,

@@ -9,6 +9,7 @@ import {
   Platform,
   Alert,
   KeyboardAvoidingView,
+  Dimensions,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
@@ -23,6 +24,9 @@ import {
 
 import { Formik } from "formik";
 import * as yup from "yup";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { RFValue } from "react-native-responsive-fontsize";
+const { width } = Dimensions.get("window");
 
 const ngoSignUpValidationSchema = yup.object().shape({
   userName: yup
@@ -130,7 +134,7 @@ const Signup = () => {
         setData(formattedCategories);
       }
     } catch (error) {
-      console.log('Error fetching categories: ', error);
+      console.log("Error fetching categories: ", error);
     }
   };
 
@@ -189,30 +193,35 @@ const Signup = () => {
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       className="bg-white h-full w-full"
+      // style={{paddingTop: 25}}
     >
       {/* Background */}
       {/* <Image className="w-full h-full absolute" source={require('../../assets/images/background.png')}/> */}
 
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.container}
+      >
         {/* handshake */}
         {/* <View className="flex-row justify-around w-full absolute">
             <Image className="h-[250] w-[250]" source={require('../../assets/images/handshake2.png')}/>
           </View> */}
 
         {/* title and form */}
-        <View className="h-full w-full flex justify-around pt-25 pb-10">
+        <View className="h-full w-full flex" style={{marginTop: 120}}>
           {/* Title */}
-          <View style={{ marginTop: 10 }} className="flex items-center">
-            <Text className="text-black font-bold tracking-wider text-3xl mt-5">
+
+          {/* <View style={{ marginTop: 10 }} className="flex items-center"> */}
+            {/* <Text className="text-black font-bold tracking-wider text-3xl mt-5">
               Sign Up
-            </Text>
-          </View>
-          <View style={{ flexDirection: "row", margin: 15, flexWrap: "wrap" }}>
+            </Text> */}
+          {/* </View> */}
+          <View style={{ flexDirection: "row", flexWrap: "wrap", alignContent: "center", paddingLeft: 10 }}>
             {/* Add a label */}
             <Text
               style={{
                 marginRight: 10,
-                fontSize: 18,
+                fontSize: RFValue(14),
                 textAlign: "center",
                 textAlignVertical: "center",
               }}
@@ -289,20 +298,21 @@ const Signup = () => {
             }) => (
               <View>
                 {selectedValue === "NGO" ? (
-                  <View className="flex items-center mx-4 space-y-4">
-                    <View className="bg-black/5 p-3 rounded-2xl w-full">
+                  <View className="flex items-center mx-4 space-y-4" >
+                    <View className="bg-black/5 p-3 rounded-2xl w-full" style={{width: width < 450 ? "100%" : 600, fontSize: 100}} >
                       <TextInput
                         placeholder="Username"
                         placeholderTextColor={"gray"}
                         value={values.userName}
                         onChangeText={handleChange("userName")}
                         onBlur={handleBlur("userName")}
+                        style={{ fontSize: RFValue(13) }}
                       />
                       {touched.userName && errors.userName && (
                         <Text style={styles.errorTxt}>{errors.userName}</Text>
                       )}
                     </View>
-                    <View className="bg-black/5 p-3 rounded-2xl w-full">
+                    <View className="bg-black/5 p-3 rounded-2xl w-full" style={{width: width < 450 ? "100%" : 600}}>
                       <TextInput
                         placeholder="Email"
                         placeholderTextColor={"gray"}
@@ -310,12 +320,13 @@ const Signup = () => {
                         value={values.ngoEmail}
                         onChangeText={handleChange("ngoEmail")}
                         onBlur={handleBlur("ngoEmail")}
+                        style={{ fontSize: RFValue(13) }}
                       />
                       {touched.ngoEmail && errors.ngoEmail && (
                         <Text style={styles.errorTxt}>{errors.ngoEmail}</Text>
                       )}
                     </View>
-                    <View className="bg-black/5 p-3 rounded-2xl w-full">
+                    <View className="bg-black/5 p-3 rounded-2xl w-full" style={{width: width < 450 ? "100%" : 600}}>
                       <TextInput
                         placeholder="Phone Number"
                         placeholderTextColor={"gray"}
@@ -323,18 +334,20 @@ const Signup = () => {
                         value={values.number}
                         onChangeText={handleChange("number")}
                         onBlur={handleBlur("number")}
+                        style={{ fontSize: RFValue(13) }}
                       />
                       {touched.number && errors.number && (
                         <Text style={styles.errorTxt}>{errors.number}</Text>
                       )}
                     </View>
-                    <View className="bg-black/5 p-3 rounded-2xl w-full">
+                    <View className="bg-black/5 p-3 rounded-2xl w-full" style={{width: width < 450 ? "100%" : 600}}>
                       <TextInput
                         placeholder="Password"
                         placeholderTextColor={"gray"}
                         value={values.ngoPassword}
                         onChangeText={handleChange("ngoPassword")}
                         onBlur={handleBlur("ngoPassword")}
+                        style={{ fontSize: RFValue(13) }}
                       />
                       {touched.ngoPassword && errors.ngoPassword && (
                         <Text style={styles.errorTxt}>
@@ -342,7 +355,7 @@ const Signup = () => {
                         </Text>
                       )}
                     </View>
-                    <View className="bg-black/5 p-3 rounded-2xl w-full">
+                    <View className="bg-black/5 p-3 rounded-2xl w-full" style={{width: width < 450 ? "100%" : 600}}>
                       <TextInput
                         placeholder="Confirm Password"
                         placeholderTextColor={"gray"}
@@ -350,6 +363,7 @@ const Signup = () => {
                         value={values.ngoConfirmPassword}
                         onChangeText={handleChange("ngoConfirmPassword")}
                         onBlur={handleBlur("ngoConfirmPassword")}
+                        style={{ fontSize: RFValue(13) }}
                       />
                       {touched.ngoConfirmPassword &&
                         errors.ngoConfirmPassword && (
@@ -358,20 +372,21 @@ const Signup = () => {
                           </Text>
                         )}
                     </View>
-                    <View className="bg-black/5 p-3 rounded-2xl w-full">
+                    <View className="bg-black/5 p-3 rounded-2xl w-full" style={{width: width < 450 ? "100%" : 600}}>
                       <TextInput
                         placeholder="Address"
                         placeholderTextColor={"gray"}
                         value={values.address}
                         onChangeText={handleChange("address")}
                         onBlur={handleBlur("address")}
+                        style={{ fontSize: RFValue(13) }}
                       />
                       {touched.address && errors.address && (
                         <Text style={styles.errorTxt}>{errors.address}</Text>
                       )}
                     </View>
 
-                    <View className="bg-black/5 p-3 rounded-2xl w-full">
+                    <View className="bg-black/5 p-3 rounded-2xl w-full" style={{width: width < 450 ? "100%" : 600}}>
                       <Dropdown
                         style={styles.dropdown}
                         placeholderStyle={styles.placeholderStyle}
@@ -399,40 +414,42 @@ const Signup = () => {
                     <TouchableOpacity
                       className="w-full p-3 rounded-2xl mb-3"
                       onPress={handleSubmit}
-                      style={{backgroundColor: "#20a963"}}
+                      style={{ backgroundColor: "#20a963" ,width: width < 450 ? "100%" : 600}}
                     >
-                      <Text className="text-xl font-bold text-white text-center">
+                      <Text className="text-xl font-bold text-white text-center" style={{fontSize: RFValue(13)}}>
                         Sign Up
                       </Text>
                     </TouchableOpacity>
                   </View>
                 ) : (
                   <View className="flex items-center mx-4 space-y-4">
-                    <View className="bg-black/5 p-3 rounded-2xl w-full">
+                    <View className="bg-black/5 p-3 rounded-2xl w-full" style={{width: width < 450 ? "100%" : 600}}>
                       <TextInput
                         placeholder="First name"
                         placeholderTextColor={"gray"}
                         value={values.firstName}
                         onChangeText={handleChange("firstName")}
                         onBlur={handleBlur("firstName")}
+                        style={{ fontSize: RFValue(13) }}
                       />
                       {touched.firstName && errors.firstName && (
                         <Text style={styles.errorTxt}>{errors.firstName}</Text>
                       )}
                     </View>
-                    <View className="bg-black/5 p-3 rounded-2xl w-full">
+                    <View className="bg-black/5 p-3 rounded-2xl w-full" style={{width: width < 450 ? "100%" : 600}}>
                       <TextInput
                         placeholder="Last name"
                         placeholderTextColor={"gray"}
                         value={values.lastName}
                         onChangeText={handleChange("lastName")}
                         onBlur={handleBlur("lastName")}
+                        style={{ fontSize: RFValue(13) }}
                       />
                       {touched.lastName && errors.lastName && (
                         <Text style={styles.errorTxt}>{errors.lastName}</Text>
                       )}
                     </View>
-                    <View className="bg-black/5 p-3 rounded-2xl w-full">
+                    <View className="bg-black/5 p-3 rounded-2xl w-full" style={{width: width < 450 ? "100%" : 600}}>
                       <TextInput
                         placeholder="Email"
                         placeholderTextColor={"gray"}
@@ -440,18 +457,20 @@ const Signup = () => {
                         value={values.userEmail}
                         onChangeText={handleChange("userEmail")}
                         onBlur={handleBlur("userEmail")}
+                        style={{ fontSize: RFValue(13) }}
                       />
                       {touched.userEmail && errors.userEmail && (
                         <Text style={styles.errorTxt}>{errors.userEmail}</Text>
                       )}
                     </View>
-                    <View className="bg-black/5 p-3 rounded-2xl w-full">
+                    <View className="bg-black/5 p-3 rounded-2xl w-full" style={{width: width < 450 ? "100%" : 600}}>
                       <TextInput
                         placeholder="Password"
                         placeholderTextColor={"gray"}
                         value={values.userPassword}
                         onChangeText={handleChange("userPassword")}
                         onBlur={handleBlur("userPassword")}
+                        style={{ fontSize: RFValue(13) }}
                       />
                       {touched.userPassword && errors.userPassword && (
                         <Text style={styles.errorTxt}>
@@ -459,7 +478,7 @@ const Signup = () => {
                         </Text>
                       )}
                     </View>
-                    <View className="bg-black/5 p-3 rounded-2xl w-full">
+                    <View className="bg-black/5 p-3 rounded-2xl w-full" style={{width: width < 450 ? "100%" : 600}}>
                       <TextInput
                         placeholder="Confirm Password"
                         placeholderTextColor={"gray"}
@@ -467,6 +486,7 @@ const Signup = () => {
                         value={values.userConfirmPassword}
                         onChangeText={handleChange("userConfirmPassword")}
                         onBlur={handleBlur("userConfirmPassword")}
+                        style={{ fontSize: RFValue(13) }}
                       />
                       {touched.userConfirmPassword &&
                         errors.userConfirmPassword && (
@@ -475,7 +495,7 @@ const Signup = () => {
                           </Text>
                         )}
                     </View>
-                    <View className="bg-black/5 p-3 rounded-2xl w-full">
+                    <View className="bg-black/5 p-3 rounded-2xl w-full" style={{width: width < 450 ? "100%" : 600}}>
                       <TextInput
                         inputMode="numeric"
                         placeholder="Age"
@@ -483,6 +503,7 @@ const Signup = () => {
                         value={values.age}
                         onChangeText={handleChange("age")}
                         onBlur={handleBlur("age")}
+                        style={{ fontSize: RFValue(13) }}
                       />
                       {touched.age && errors.age && (
                         <Text style={styles.errorTxt}>{errors.age}</Text>
@@ -492,9 +513,9 @@ const Signup = () => {
                     <TouchableOpacity
                       className="w-full p-3 rounded-2xl mb-3"
                       onPress={handleSubmit}
-                      style={{backgroundColor: "#20a963"}}
+                      style={{ backgroundColor: "#20a963" ,width: width < 450 ? "100%" : 600}}
                     >
-                      <Text className="text-xl font-bold text-white text-center">
+                      <Text className="text-xl font-bold text-white text-center" style={{fontSize: RFValue(13)}}>
                         Sign Up
                       </Text>
                     </TouchableOpacity>
@@ -507,12 +528,12 @@ const Signup = () => {
           {/* Button */}
           <View style={{ marginHorizontal: 15, marginTop: 5 }}>
             <View className="flex-row justify-center">
-              <Text>Already have an account? </Text>
+              <Text style={{fontSize: RFValue(14)}}>Already have an account? </Text>
               <TouchableOpacity
                 onPress={() => navigation.replace("Login")}
                 className="pr-1 pb-1"
               >
-                <Text style={{ color: "#20a963" }}>Login</Text>
+                <Text style={{ color: "#20a963", fontSize: RFValue(14)}}>Login</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -526,8 +547,13 @@ const Signup = () => {
 export default Signup;
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   errorTxt: {
-    fontSize: 12,
+    fontSize: RFValue(12),
     color: "red",
     fontWeight: "normal",
     marginTop: 5,
@@ -539,7 +565,7 @@ const styles = StyleSheet.create({
   },
 
   placeholderStyle: {
-    fontSize: 14.5,
+    fontSize: RFValue(14.5),
     color: "gray",
   },
 
@@ -562,6 +588,6 @@ const styles = StyleSheet.create({
     borderColor: "black",
     borderRadius: 999,
     marginRight: 5,
-    padding: 0.1
+    padding: 0.1,
   },
 });

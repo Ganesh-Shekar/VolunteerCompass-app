@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import { React, useLayoutEffect, useRef, useState, useEffect } from "react";
+import { React, useLayoutEffect, useState, useEffect } from "react";
 import {
   Text,
   View,
@@ -23,43 +23,49 @@ import AccountIcon from "./accountIcon";
 // import Account from './screens/Account';
 // import Third from './screens/Third';
 // import SecondScreen from './screens/SecondScreen';
-import { getAllCategories } from "../../assets/constants/URLConstants";
+
 import { getNgoNames } from "../../backend/getApiRequests";
-import { getNgoBasedOnCategory } from "../../backend/getApiRequests";
 import { useNavigation } from "@react-navigation/native";
-import Autocomplete from "react-native-autocomplete-input";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { SearchBar } from "@rneui/themed";
 import { RFValue } from "react-native-responsive-fontsize";
-import DropDownPicker from "react-native-dropdown-picker";
 import { Dropdown } from "react-native-element-dropdown";
+import * as Location from "expo-location";
 const { width, height } = Dimensions.get("window");
 
 const data = [
-  { label: "Bengaluru", value: "1" },
-  { label: "Delhi", value: "2" },
-  { label: "Mumbai", value: "3" },
+  { label: "Bengaluru", value: "bengaluru" },
+  { label: "Delhi", value: "delhi" },
+  { label: "Mumbai", value: "mumbai" },
 ];
 
 const HomeScreen = () => {
   const navigation = useNavigation();
   const [searchQuery, setSearchQuery] = useState("");
-  const [ngoNames, setNgoNames] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
   const isSearchBarEmpty = searchQuery === "";
 
-  const [value, setValue] = useState("1");
+  const [value, setValue] = useState("bengaluru");
   const [isFocus, setIsFocus] = useState(false);
 
-  const renderLabel = () => {
-    if (value || isFocus) {
-      return (
-        <Text style={[styles.label, isFocus && { color: "blue" }]}>
-          Dropdown label
-        </Text>
+  const [locationServiceEnabled, setLocationServiceEnabled] = useState(false);
+  const [displayCurrentAddress, setDisplayCurrentAddress] = useState(
+    "Wait, we are fetching you location..."
+  );
+
+  const CheckIfLocationEnabled = async () => {
+    let enabled = await Location.hasServicesEnabledAsync();
+
+    if (!enabled) {
+      Alert.alert(
+        "Location Service not enabled",
+        "Please enable your location services to continue",
+        [{ text: "OK" }],
+        { cancelable: false }
       );
+    } else {
+      setLocationServiceEnabled(enabled);
     }
-    return null;
   };
 
   useLayoutEffect(() => {
@@ -93,118 +99,130 @@ const HomeScreen = () => {
     }
   }
 
+  const GetCurrentLocation = async () => {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+
+    if (status !== "granted") {
+      Alert.alert(
+        "Permission not granted",
+        "Allow the app to use location service.",
+        [{ text: "OK" }],
+        { cancelable: false }
+      );
+    }
+
+    let { coords } = await Location.getCurrentPositionAsync();
+
+    if (coords) {
+      const { latitude, longitude } = coords;
+      let response = await Location.reverseGeocodeAsync({
+        latitude,
+        longitude,
+      });
+
+      for (let item of response) {
+        let address = `${item.city}`;
+        setDisplayCurrentAddress(address);
+      }
+    }
+  };
+
   useEffect(() => {
     getNgoSearchResult();
+    CheckIfLocationEnabled();
+    GetCurrentLocation();
   }, []);
 
   return (
     <SafeAreaView className={"bg-white pt-5 h-full"}>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        alwaysBounceVertical={false}
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
+          // backgroundColor: "#20a963"
+        }}
       >
-        <StatusBar />
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          {/* <Image
+        {/* <Image
             source={{
               uri: "https://picsum.photos/id/50/200/300",
             }}
             className="h-10 w-10 bg-gray-300 p-4 rounded-full"
           /> */}
-          <View className="flex-row flex-1">
-            <Icon
-              name="map-marker"
-              size={RFValue(20)}
-              color="#f66"
-              style={{ padding: RFValue(10) }}
-            />
-
-            <View
-              style={{ width: width < 450 ? 120 : 200, marginTop: RFValue(12) }}
-            >
-              {/* {renderLabel()} */}
-              <Dropdown
-                style={[styles.dropdown, isFocus && { borderColor: "blue" }]}
-                placeholderStyle={styles.placeholderStyle}
-                selectedTextStyle={styles.selectedTextStyle}
-                inputSearchStyle={styles.inputSearchStyle}
-                iconStyle={styles.iconStyle}
-                data={data}
-                search
-                maxHeight={300}
-                labelField="label"
-                valueField="value"
-                placeholder={!isFocus ? "Select city" : "..."}
-                searchPlaceholder="Search city..."
-                value={value}
-                onFocus={() => setIsFocus(true)}
-                onBlur={() => setIsFocus(false)}
-                onChange={(item) => {
-                  setValue(item.value);
-                  setIsFocus(false);
-                }}
-              />
-            </View>
-          </View>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "flex-end",
-              paddingRight: RFValue(8),
-            }}
-          >
-            <InfoIcon />
-            <AccountIcon />
-          </View>
-        </View>
-
-        {/*searchbar for NGOs*/}
-        <View style={styles.searchContainer}>
-          {/* <Autocomplete
-            data={ngoNames}
-            defaultValue={searchQuery}
-            onChangeText={handleSearch}
-            placeholder="Search for NGOs..."
-            listStyle={styles.list}
-            flatListProps={{
-              keyboardShouldPersistTaps: "always",
-              keyExtractor: (item) => item.ngo_display_name,
-              renderItem: ({ item }) => (
-                <TouchableOpacity onPress={() => handleSelect(item)}>
-                  <Text style={styles.itemText}>{item.ngo_display_name}</Text>
-                </TouchableOpacity>
-              ),
-            }}
-          /> */}
-          <SearchBar
-            placeholder="Search for NGOs..."
-            searchIcon={{ size: RFValue(18) }}
-            clearIcon={{ size: RFValue(18) }}
-            inputStyle={{ color: "black", fontSize: RFValue(13) }}
-            onChangeText={handleSearch}
-            value={ngoNames}
-            lightTheme={true}
-            round={true}
-            containerStyle={{
-              backgroundColor: "none",
-              borderTopWidth: 0,
-              borderBottomWidth: 0,
-            }}
-            inputContainerStyle={{
-              backgroundColor: "#F5F5F5",
-              borderBottomWidth: 0,
-              paddingVertical: width < 450 ? 0 : 10,
-              // padding: RFValue(2),
-            }}
+        <View className="flex-row flex-1">
+          <Icon
+            name="map-marker"
+            size={RFValue(20)}
+            color="#f66"
+            style={{ padding: RFValue(7) }}
           />
+          <View
+            style={{ width: width < 450 ? 120 : 200, marginTop: RFValue(7) }}
+          >
+            {/* {renderLabel()} */}
+            <Dropdown
+              style={[styles.dropdown, isFocus && { borderColor: "blue" }]}
+              itemTextStyle={{ fontSize: RFValue(12) }}
+              placeholderStyle={styles.placeholderStyle}
+              selectedTextStyle={styles.selectedTextStyle}
+              inputSearchStyle={styles.inputSearchStyle}
+              data={data}
+              search
+              maxHeight={300}
+              labelField="label"
+              valueField="value"
+              placeholder={!isFocus ? "Select city" : "..."}
+              searchPlaceholder="Search city..."
+              value={value}
+              onFocus={() => setIsFocus(true)}
+              onBlur={() => setIsFocus(false)}
+              onChange={(item) => {
+                setValue(item.value);
+                setIsFocus(false);
+              }}
+            />
+          </View>
         </View>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "flex-end",
+            paddingRight: RFValue(8),
+          }}
+        >
+          {/* <InfoIcon /> */}
+          <AccountIcon />
+        </View>
+      </View>
 
+      {/*searchbar for NGOs*/}
+      <View style={styles.searchContainer}>
+        <SearchBar
+          placeholder="Search for NGOs..."
+          searchIcon={{ size: RFValue(18) }}
+          clearIcon={{ size: RFValue(18) }}
+          inputStyle={{ color: "black", fontSize: RFValue(13) }}
+          onChangeText={handleSearch}
+          value={searchQuery}
+          lightTheme={true}
+          round={true}
+          containerStyle={{
+            backgroundColor: "none",
+            borderTopWidth: 0,
+            borderBottomWidth: 0,
+          }}
+          inputContainerStyle={{
+            backgroundColor: "#F5F5F5",
+            borderBottomWidth: 0,
+            paddingVertical: width < 450 ? 0 : 10,
+            // padding: RFValue(2),
+          }}
+        />
+      </View>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        alwaysBounceVertical={false}
+      >
         <View style={{ flex: 1 }}>
           {!isSearchBarEmpty &&
           (!searchResults || searchResults.length === 0) ? (
@@ -224,12 +242,28 @@ const HomeScreen = () => {
                 categoryId="9df336bb-5c14-4039-a5b6-cb30d58f9a61"
                 data={searchQuery ? searchResults : null}
                 isSearchBarEmpty={isSearchBarEmpty}
+                city_value={value}
               />
               <HorizontalScrollable
                 title={"Animal Shelter"}
                 categoryId="34dd4a16-8dfa-422e-9ff2-a57e06394701"
                 data={searchQuery ? searchResults : null}
                 isSearchBarEmpty={isSearchBarEmpty}
+                city_value={value}
+              />
+              <HorizontalScrollable
+                title={"Elderly Care"}
+                categoryId="0e5bef92-3516-45f9-a223-aaf57aa6e9a1"
+                data={searchQuery ? searchResults : null}
+                isSearchBarEmpty={isSearchBarEmpty}
+                city_value={value}
+              />
+              <HorizontalScrollable
+                title={"Health Care"}
+                categoryId="add7a628-16e5-4c8f-9e62-6e5955b9ea7d"
+                data={searchQuery ? searchResults : null}
+                isSearchBarEmpty={isSearchBarEmpty}
+                city_value={value}
               />
             </>
           )}
@@ -242,9 +276,7 @@ const HomeScreen = () => {
 //styling for the search bar
 const styles = StyleSheet.create({
   searchContainer: {
-    marginTop: RFValue(5),
-    flex: 1,
-    zIndex: 1,
+    backgroundColor: "white",
   },
   container: {
     backgroundColor: "white",
@@ -255,7 +287,7 @@ const styles = StyleSheet.create({
     borderColor: "transparent",
     borderWidth: 0,
     borderRadius: RFValue(8),
-    paddingHorizontal: RFValue(2),
+    // paddingHorizontal: RFValue(1),
   },
   icon: {
     marginRight: RFValue(10),
@@ -274,10 +306,6 @@ const styles = StyleSheet.create({
   },
   selectedTextStyle: {
     fontSize: RFValue(14),
-  },
-  iconStyle: {
-    width: RFValue(20),
-    height: RFValue(20),
   },
   inputSearchStyle: {
     height: RFValue(40),

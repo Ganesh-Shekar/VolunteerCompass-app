@@ -1,102 +1,96 @@
-import { View, Text, Image, StyleSheet, Button, Modal } from "react-native";
-import React, { useEffect, useState } from "react";
+import { View, Text, StyleSheet } from "react-native";
+import React, { useEffect } from "react";
 import VolunteerButton from "./volunteerButton";
-import getAllEventsByNgoId from "../../backend/getApiRequests";
 import Icon from "react-native-vector-icons/FontAwesome6";
+import { RFValue } from "react-native-responsive-fontsize";
 
 export default function EventRow({ event, saved_ngo }) {
-  // const [eventDetails, setEventDetails] = useState([])
-
-  // async function getEvents(ngoId){
-  //     try {
-  //         const response = await getAllEventsByNgoId({ngoId:ngoId});
-  //         setEventDetails(response)
-  //         console.log(eventDetails)
-  //     } catch (error) {
-  //         console.error(error);
-  //         throw error;
-  //     }
-  // }
-
-  useEffect(() => {
-    // getEvents()
-  }, [event]);
+  useEffect(() => {}, [event]);
 
   return (
-    // {eventDetails.map((eventData) => (
     <View
-      className="flex-row items-center bg-white p-3 rounded-2xl shadow-m  mb-3 mx-2"
       style={{
         borderWidth: 1,
         borderColor: "#e5e5e5",
         flexDirection: "row",
         alignItems: "center",
-        marginTop: 10,
-
+        marginTop: RFValue(10),
+        backgroundColor: "#F8F8F8",
+        padding: RFValue(12),
+        borderRadius: RFValue(15),
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        marginHorizontal: RFValue(8),
       }}
     >
-      <View className="flex felx-1 space-y-3">
-        <View className="pl-3">
+      <View style={{ flex: 1 }}>
+        <View style={{ paddingLeft: RFValue(8) }}>
           <Text
-            style={{ fontSize: 20, marginHorizontal: 10, fontWeight: "bold" }}
+            style={{
+              fontSize: RFValue(15),
+              marginHorizontal: RFValue(8),
+              fontWeight: "bold",
+            }}
           >
             {event.title}
           </Text>
           <Text
             style={{
-              fontSize: 17,
-              marginHorizontal: 10,
-              marginTop: 10,
-              fontWeight: 500,
+              fontSize: RFValue(11),
+              marginHorizontal: RFValue(8),
+              marginTop: RFValue(6),
+              fontWeight: "500",
             }}
           >
             {event.description}
           </Text>
           <Text
             style={{
-              fontSize: 16,
-              marginHorizontal: 10,
-              marginTop: 10,
-              fontWeight: 400,
+              fontSize: RFValue(12),
+              marginHorizontal: RFValue(8),
+              marginTop: RFValue(10),
+              fontWeight: "400",
             }}
           >
-            <Icon name="location-dot" size={19} /> <> </>
-            {event.event_venue}
+            <Icon name="location-dot" size={19} /> {event.event_venue}
           </Text>
           <Text
             style={{
-              fontSize: 15,
-              marginHorizontal: 10,
-              marginTop: 10,
-              fontWeight: 300,
+              fontSize: RFValue(12),
+              marginHorizontal: RFValue(8),
+              marginTop: RFValue(6),
+              marginBottom: RFValue(6),
+              fontWeight: "300",
             }}
           >
-            <Icon name="clock" size={19} /> <> </>
-            {event.timing}
+            <Icon name="clock" size={19} /> {event.timing}
           </Text>
           <Text
             style={{
               fontStyle: "italic",
-              fontSize: 15,
-              marginHorizontal: 10,
-              marginTop: 10,
-              fontWeight: 300,
+              fontSize: RFValue(12),
+              marginHorizontal: RFValue(8),
+              marginTop: RFValue(6),
+              fontWeight: "300",
             }}
           >
             {event.event_requirements}
           </Text>
         </View>
-        <View
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
+        <View style={styles.buttonContainer}>
           <VolunteerButton event={event} saved_ngo={saved_ngo} />
         </View>
       </View>
     </View>
-    // ))}
   );
 }
+
+const styles = StyleSheet.create({
+  buttonContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: RFValue(10),
+  },
+});

@@ -14,7 +14,7 @@ import { getNgoBasedOnCategory } from "../../backend/getApiRequests";
 import { RFValue } from "react-native-responsive-fontsize";
 //import { useFonts } from "expo-font";
 
-const HorizontalScrollable = ({ title, categoryId, data }) => {
+const HorizontalScrollable = ({ title, categoryId, data, city_value }) => {
   const image_num = 100;
   // const [loadedFonts] = useFonts({
   //   OpenSans: require("../../assets/fonts/Open Sans.ttf"),
@@ -46,7 +46,7 @@ const HorizontalScrollable = ({ title, categoryId, data }) => {
 
   return (
     <View style={{ flex: 1 }}>
-      {ngoDetails.filter((ngo) => ngo.category_id === categoryId).length >
+      {ngoDetails.filter((ngo) => {return (ngo.category_id === categoryId) && (ngo.address ? ngo.address.trim().toLowerCase() === city_value.trim().toLowerCase() : false)}).length >
         0 && (
         <Text
           style={{
@@ -66,8 +66,8 @@ const HorizontalScrollable = ({ title, categoryId, data }) => {
           contentContainerStyle={{ paddingHorizontal: RFValue(8), flexGrow: 1 }}
         >
           {ngoDetails
-            .filter((ngo) => ngo.category_id === categoryId)
-            .map((ngo) => (
+            .filter((ngo) => { return (ngo.category_id === categoryId) &&  (ngo.address ? ngo.address.trim().toLowerCase() === city_value.trim().toLowerCase() : false)})
+            .map((ngo, index) => (
               <TouchableOpacity
                 key={ngo.ngo_id}
                 onPress={() => handleImagePress(ngo)}
@@ -75,7 +75,7 @@ const HorizontalScrollable = ({ title, categoryId, data }) => {
                 <View style={{ marginHorizontal: RFValue(6), width: "100%" }}>
                   <View style={styles.imageContainer}>
                     <Image
-                      source={{ uri: "https://picsum.photos/100" }}
+                      source={{ uri:  `https://picsum.photos/${100 + index * 100}` }}
                       style={styles.image}
                     />
                   </View>

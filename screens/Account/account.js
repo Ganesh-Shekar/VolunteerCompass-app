@@ -7,6 +7,7 @@ import {
   ScrollView,
   Modal,
   Image,
+  Dimensions,
 } from "react-native";
 import {
   UserCircleIcon,
@@ -23,6 +24,8 @@ import TermsAndConditionsText from "./TermsAndConditionsText";
 import LicensesText from "./LicensesText";
 import * as ImagePicker from "expo-image-picker";
 import AccountEdit from "./AccountEdit";
+const { width } = Dimensions.get("window");
+import { RFValue } from "react-native-responsive-fontsize";
 
 const Account = () => {
   const navigation = useNavigation();
@@ -82,23 +85,23 @@ const Account = () => {
 
   return (
     <>
-      <View className="bg-white pt-3">
+      <View className="bg-white pt-10">
         <BackButton />
       </View>
       <View style={styles.container}>
         <TouchableOpacity onPress={() => navigation.navigate("")}>
-        < View style={{ alignItems: "center", marginTop: "10%" }} >
-        <TouchableOpacity onPress={pickImage}>
-          <UserCircleIcon size={90} style={{ marginTop: "4%" }} />
-          {image && <Image source={{ uri: image }} style={styles.image} />}
-        </TouchableOpacity>
-        <Text style={{ fontSize: 45 }}>{name + "" + lastName}</Text>
-        <Text style={{ fontSize: 20 }}>{email}</Text>
-        {phone ? (
-          <Text style={{ fontSize: 20, marginTop: 5 }}>{phone}</Text>
-        ) : null}
-        <View style={{ fontSize: 20, paddingBottom: "10%" }} />
-        </View>
+          <View style={{ alignItems: "center", marginTop: "10%" }}>
+            <TouchableOpacity onPress={pickImage}>
+              <UserCircleIcon size={90} style={{ marginTop: "4%" }} />
+              {image && <Image source={{ uri: image }} style={styles.image} />}
+            </TouchableOpacity>
+            <Text style={{ fontSize: 45 }}>{name + "" + lastName}</Text>
+            <Text style={{ fontSize: 20 }}>{email}</Text>
+            {phone ? (
+              <Text style={{ fontSize: 20, marginTop: 5 }}>{phone}</Text>
+            ) : null}
+            <View style={{ fontSize: 20, paddingBottom: "10%" }} />
+          </View>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -127,22 +130,21 @@ const Account = () => {
           <Text style={{ fontSize: 30 }}>Licenses</Text>
           <ChevronRightIcon size={30} />
         </TouchableOpacity>
-
-        <TouchableOpacity
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            bottom: 0,
-            marginBottom: "10%",
-            paddingTop: "4%",
-          }}
-          onPress={logOut}
-        >
-          <ArrowRightOnRectangleIcon style={{ paddingRight: 30 }} />
-          <Text style={{ fontSize: 20 }}>Log Out</Text>
-        </TouchableOpacity>
-        <StatusBar style="auto" />
       </View>
+      <TouchableOpacity
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          bottom: 0,
+          marginBottom: "10%",
+          paddingTop: "4%",
+        }}
+        onPress={logOut}
+      >
+        <ArrowRightOnRectangleIcon style={{ paddingRight: 30 }} />
+        <Text style={{ fontSize: 20 }}>Log Out</Text>
+      </TouchableOpacity>
+      <StatusBar style="auto" />
 
       <Modal
         animationType="slide"

@@ -35,7 +35,6 @@ const pixelRatio = PixelRatio.get();
 const baseFontSize = 6;
 const responsiveFontSize = baseFontSize * pixelRatio;
 
-console.log("Responsive Font Size: ", responsiveFontSize);
 const baseFontSizeMobile = 16;
 const baseFontSizeTablet = 20;
 const isTablet = width >= 600;
@@ -184,16 +183,14 @@ const Login = () => {
                 </TouchableOpacity>
               </View>
               <View className="flex-row justify-center">
-                <Text style={{fontSize: RFValue(12)}}>
+                <Text style={{ fontSize: RFValue(12) }}>
                   Don't have an account?{" "}
                 </Text>
                 <TouchableOpacity
                   onPress={() => navigation.replace("Sign Up")}
                   className="pr-1 pb-1"
                 >
-                  <Text
-                    style={{ color: "blue", fontSize: RFValue(12) }}
-                  >
+                  <Text style={{ color: "blue", fontSize: RFValue(12) }}>
                     Sign Up
                   </Text>
                 </TouchableOpacity>
@@ -216,12 +213,14 @@ const styles = StyleSheet.create({
   Email: {
     backgroundColor: "white",
     width: width < 450 ? "100%" : 600,
+    height: width < 450 ? 50 : 70,
     // height: width < 450 ? 50 : 80,
     fontSize: responsiveFontSize,
   },
   Password: {
     backgroundColor: "white",
     width: width < 450 ? "100%" : 600,
+    height: width < 450 ? 50 : 70,
     // height: width < 450 ? 50 : 60,
     fontSize: width < 450 ? 16 : 600,
   },

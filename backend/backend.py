@@ -168,6 +168,7 @@ def logIn():
 
     else:
         ngo_result.data[0]["type"] = "ngo"
+        user_id = ngo_result.data[0]["ngo_id"]
         result = ngo_result
 
     password_data = result.data[0]["password"] if result.data else None
@@ -260,6 +261,7 @@ def get_category():
                 "category_id",
                 "ngo_display_name",
                 "created_at",
+                "address",
             )
             .eq("category_id", categoryId)
             .execute()
@@ -576,7 +578,7 @@ def search():
         if user_details:
             query=request.args.get("query")
             response = (
-                        supabase.table("ngo_details").select("ngo_id", "ngo_display_name", "category_id").ilike("ngo_display_name", f"*{query}*").execute()
+                        supabase.table("ngo_details").select("ngo_id", "ngo_display_name", "category_id", "address").ilike("ngo_display_name", f"*{query}*").execute()
                     ).data
             response_data = response
             return jsonify(response_data)

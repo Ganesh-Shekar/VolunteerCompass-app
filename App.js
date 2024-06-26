@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useLayoutEffect } from "react";
-import { View, Text, Platform } from "react-native";
+import { View, Text, Platform, Dimensions } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -18,6 +18,9 @@ import NgoHomeScreen from "./screens/ngoScreen/NgoHomeScreen";
 import Login from "./screens/logIn/login";
 // import Signup from './Signup';
 import Signup from "./screens/logIn/signup2";
+import Icon from "react-native-vector-icons/FontAwesome";
+import { RFValue } from "react-native-responsive-fontsize";
+const { width, height } = Dimensions.get("window");
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -37,10 +40,50 @@ const LoginNav = () => {
 
 const TabNav = () => {
   return (
-    <Tab.Navigator screenOptions={{ headerShown: false }}>
-      <Tab.Screen name="Home" component={HomeNavigator} />
-      <Tab.Screen name="My Events" component={MyEvents} />
-      <Tab.Screen name="Blogs" component={BlogPage} />
+    <Tab.Navigator
+      screenOptions={{ headerShown: false, tabBarShowLabel: false }}
+    >
+      <Tab.Screen
+        name="Home"
+        component={HomeNavigator}
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <Icon
+              name="home"
+              color={focused ? "#20a963" : "gray"}
+              size={width < 450 ? RFValue(20) : RFValue(15)}
+            />
+          ),
+        }}
+      />
+
+      <Tab.Screen
+        name="My Events"
+        component={MyEvents}
+        options={{
+          tabBarIcon: ({ focused, size }) => (
+            <Icon
+              name="calendar"
+              color={focused ? "#20a963" : "gray"}
+              size={size}
+            />
+          ),
+        }}
+      />
+
+      <Tab.Screen
+        name="Blogs"
+        component={BlogPage}
+        options={{
+          tabBarIcon: ({ focused, size }) => (
+            <Icon
+              name="pencil-square-o"
+              color={focused ? "#20a963" : "gray"}
+              size={size}
+            />
+          ),
+        }}
+      />
     </Tab.Navigator>
   );
 };
