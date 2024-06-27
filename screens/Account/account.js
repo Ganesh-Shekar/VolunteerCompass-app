@@ -50,6 +50,7 @@ const Account = () => {
   };
 
   async function logOut() {
+    await AsyncStorage.clear();
     AsyncStorage.setItem("isLoggedIn", "false");
     AsyncStorage.setItem("token", "");
     AsyncStorage.setItem("user_data", "");
@@ -73,10 +74,18 @@ const Account = () => {
     const getLastName = await AsyncStorage.getItem("last_name");
     const getEmail = await AsyncStorage.getItem("email");
     const getPhone = await AsyncStorage.getItem("phone");
-    setName(getName);
-    setLastName(getLastName);
-    setEmail(getEmail);
-    setPhone(getPhone);
+    const getType = await AsyncStorage.getItem("type");
+    if (getType === "user") {
+      setName(getName);
+      setLastName(getLastName);
+      setEmail(getEmail);
+      setPhone(getPhone);
+    } else {
+      setName(getName);
+      setLastName("");
+      setEmail(getEmail);
+      setPhone(getPhone);
+    }
   }
 
   useEffect(() => {

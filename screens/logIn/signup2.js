@@ -139,6 +139,7 @@ const Signup = () => {
   };
 
   const registerNGO = async (userInfo) => {
+    console.log(userInfo, "userrrr");
     await signUpNgo(userInfo)
       .then((response) => {
         console.log(
@@ -208,19 +209,19 @@ const Signup = () => {
           </View> */}
 
         {/* title and form */}
-        <View className="h-full w-full flex" style={{marginTop: 120}}>
+        <View className="h-full w-full flex" style={{ marginTop: 120 }}>
           {/* Title */}
 
           {/* <View style={{ marginTop: 10 }} className="flex items-center"> */}
-            {/* <Text className="text-black font-bold tracking-wider text-3xl mt-5">
+          {/* <Text className="text-black font-bold tracking-wider text-3xl mt-5">
               Sign Up
             </Text> */}
           {/* </View> */}
-          <View style={{ flexDirection: "row", flexWrap: "wrap", alignContent: "center", paddingLeft: 10 }}>
-            {/* Add a label */}
+
+          <View style={{ marginVertical: RFValue(20), alignItems: "center" }}>
             <Text
               style={{
-                marginRight: 10,
+                marginVertical: RFValue(20),
                 fontSize: RFValue(14),
                 textAlign: "center",
                 textAlignVertical: "center",
@@ -229,12 +230,10 @@ const Signup = () => {
               Who are you?
             </Text>
 
-            {/* Create a RadioButton.Group */}
             <RadioButton.Group
               onValueChange={(value) => setSelectedValue(value)}
               value={selectedValue}
             >
-              {/* Create individual radio buttons with labels */}
               <View className="flex-row items-center">
                 <View className="flex-row items-center">
                   <View style={styles.radioButton}>
@@ -269,7 +268,7 @@ const Signup = () => {
               const tempRequestObject = {
                 ngo_display_name: values.userName,
                 contact_email: values.ngoEmail,
-                contact_number: values.number,
+                contact_phone: values.number,
                 password: values.ngoPassword,
                 address: values.address,
                 category: values.category,
@@ -298,8 +297,14 @@ const Signup = () => {
             }) => (
               <View>
                 {selectedValue === "NGO" ? (
-                  <View className="flex items-center mx-4 space-y-4" >
-                    <View className="bg-black/5 p-3 rounded-2xl w-full" style={{width: width < 450 ? "100%" : 600, fontSize: 100}} >
+                  <View className="flex items-center mx-4 space-y-4">
+                    <View
+                      className="bg-black/5 p-3 rounded-2xl w-full"
+                      style={{
+                        width: width < 450 ? "100%" : 600,
+                        fontSize: 100,
+                      }}
+                    >
                       <TextInput
                         placeholder="Username"
                         placeholderTextColor={"gray"}
@@ -312,7 +317,10 @@ const Signup = () => {
                         <Text style={styles.errorTxt}>{errors.userName}</Text>
                       )}
                     </View>
-                    <View className="bg-black/5 p-3 rounded-2xl w-full" style={{width: width < 450 ? "100%" : 600}}>
+                    <View
+                      className="bg-black/5 p-3 rounded-2xl w-full"
+                      style={{ width: width < 450 ? "100%" : 600 }}
+                    >
                       <TextInput
                         placeholder="Email"
                         placeholderTextColor={"gray"}
@@ -326,7 +334,10 @@ const Signup = () => {
                         <Text style={styles.errorTxt}>{errors.ngoEmail}</Text>
                       )}
                     </View>
-                    <View className="bg-black/5 p-3 rounded-2xl w-full" style={{width: width < 450 ? "100%" : 600}}>
+                    <View
+                      className="bg-black/5 p-3 rounded-2xl w-full"
+                      style={{ width: width < 450 ? "100%" : 600 }}
+                    >
                       <TextInput
                         placeholder="Phone Number"
                         placeholderTextColor={"gray"}
@@ -340,7 +351,10 @@ const Signup = () => {
                         <Text style={styles.errorTxt}>{errors.number}</Text>
                       )}
                     </View>
-                    <View className="bg-black/5 p-3 rounded-2xl w-full" style={{width: width < 450 ? "100%" : 600}}>
+                    <View
+                      className="bg-black/5 p-3 rounded-2xl w-full"
+                      style={{ width: width < 450 ? "100%" : 600 }}
+                    >
                       <TextInput
                         placeholder="Password"
                         placeholderTextColor={"gray"}
@@ -355,7 +369,10 @@ const Signup = () => {
                         </Text>
                       )}
                     </View>
-                    <View className="bg-black/5 p-3 rounded-2xl w-full" style={{width: width < 450 ? "100%" : 600}}>
+                    <View
+                      className="bg-black/5 p-3 rounded-2xl w-full"
+                      style={{ width: width < 450 ? "100%" : 600 }}
+                    >
                       <TextInput
                         placeholder="Confirm Password"
                         placeholderTextColor={"gray"}
@@ -372,7 +389,10 @@ const Signup = () => {
                           </Text>
                         )}
                     </View>
-                    <View className="bg-black/5 p-3 rounded-2xl w-full" style={{width: width < 450 ? "100%" : 600}}>
+                    <View
+                      className="bg-black/5 p-3 rounded-2xl w-full"
+                      style={{ width: width < 450 ? "100%" : 600 }}
+                    >
                       <TextInput
                         placeholder="Address"
                         placeholderTextColor={"gray"}
@@ -386,7 +406,10 @@ const Signup = () => {
                       )}
                     </View>
 
-                    <View className="bg-black/5 p-3 rounded-2xl w-full" style={{width: width < 450 ? "100%" : 600}}>
+                    <View
+                      className="bg-black/5 p-3 rounded-2xl w-full"
+                      style={{ width: width < 450 ? "100%" : 600 }}
+                    >
                       <Dropdown
                         style={styles.dropdown}
                         placeholderStyle={styles.placeholderStyle}
@@ -414,16 +437,25 @@ const Signup = () => {
                     <TouchableOpacity
                       className="w-full p-3 rounded-2xl mb-3"
                       onPress={handleSubmit}
-                      style={{ backgroundColor: "#20a963" ,width: width < 450 ? "100%" : 600}}
+                      style={{
+                        backgroundColor: "#20a963",
+                        width: width < 450 ? "100%" : 600,
+                      }}
                     >
-                      <Text className="text-xl font-bold text-white text-center" style={{fontSize: RFValue(13)}}>
+                      <Text
+                        className="text-xl font-bold text-white text-center"
+                        style={{ fontSize: RFValue(13) }}
+                      >
                         Sign Up
                       </Text>
                     </TouchableOpacity>
                   </View>
                 ) : (
                   <View className="flex items-center mx-4 space-y-4">
-                    <View className="bg-black/5 p-3 rounded-2xl w-full" style={{width: width < 450 ? "100%" : 600}}>
+                    <View
+                      className="bg-black/5 p-3 rounded-2xl w-full"
+                      style={{ width: width < 450 ? "100%" : 600 }}
+                    >
                       <TextInput
                         placeholder="First name"
                         placeholderTextColor={"gray"}
@@ -436,7 +468,10 @@ const Signup = () => {
                         <Text style={styles.errorTxt}>{errors.firstName}</Text>
                       )}
                     </View>
-                    <View className="bg-black/5 p-3 rounded-2xl w-full" style={{width: width < 450 ? "100%" : 600}}>
+                    <View
+                      className="bg-black/5 p-3 rounded-2xl w-full"
+                      style={{ width: width < 450 ? "100%" : 600 }}
+                    >
                       <TextInput
                         placeholder="Last name"
                         placeholderTextColor={"gray"}
@@ -449,7 +484,10 @@ const Signup = () => {
                         <Text style={styles.errorTxt}>{errors.lastName}</Text>
                       )}
                     </View>
-                    <View className="bg-black/5 p-3 rounded-2xl w-full" style={{width: width < 450 ? "100%" : 600}}>
+                    <View
+                      className="bg-black/5 p-3 rounded-2xl w-full"
+                      style={{ width: width < 450 ? "100%" : 600 }}
+                    >
                       <TextInput
                         placeholder="Email"
                         placeholderTextColor={"gray"}
@@ -463,7 +501,10 @@ const Signup = () => {
                         <Text style={styles.errorTxt}>{errors.userEmail}</Text>
                       )}
                     </View>
-                    <View className="bg-black/5 p-3 rounded-2xl w-full" style={{width: width < 450 ? "100%" : 600}}>
+                    <View
+                      className="bg-black/5 p-3 rounded-2xl w-full"
+                      style={{ width: width < 450 ? "100%" : 600 }}
+                    >
                       <TextInput
                         placeholder="Password"
                         placeholderTextColor={"gray"}
@@ -478,7 +519,10 @@ const Signup = () => {
                         </Text>
                       )}
                     </View>
-                    <View className="bg-black/5 p-3 rounded-2xl w-full" style={{width: width < 450 ? "100%" : 600}}>
+                    <View
+                      className="bg-black/5 p-3 rounded-2xl w-full"
+                      style={{ width: width < 450 ? "100%" : 600 }}
+                    >
                       <TextInput
                         placeholder="Confirm Password"
                         placeholderTextColor={"gray"}
@@ -495,7 +539,10 @@ const Signup = () => {
                           </Text>
                         )}
                     </View>
-                    <View className="bg-black/5 p-3 rounded-2xl w-full" style={{width: width < 450 ? "100%" : 600}}>
+                    <View
+                      className="bg-black/5 p-3 rounded-2xl w-full"
+                      style={{ width: width < 450 ? "100%" : 600 }}
+                    >
                       <TextInput
                         inputMode="numeric"
                         placeholder="Age"
@@ -513,9 +560,15 @@ const Signup = () => {
                     <TouchableOpacity
                       className="w-full p-3 rounded-2xl mb-3"
                       onPress={handleSubmit}
-                      style={{ backgroundColor: "#20a963" ,width: width < 450 ? "100%" : 600}}
+                      style={{
+                        backgroundColor: "#20a963",
+                        width: width < 450 ? "100%" : 600,
+                      }}
                     >
-                      <Text className="text-xl font-bold text-white text-center" style={{fontSize: RFValue(13)}}>
+                      <Text
+                        className="text-xl font-bold text-white text-center"
+                        style={{ fontSize: RFValue(13) }}
+                      >
                         Sign Up
                       </Text>
                     </TouchableOpacity>
@@ -528,12 +581,16 @@ const Signup = () => {
           {/* Button */}
           <View style={{ marginHorizontal: 15, marginTop: 5 }}>
             <View className="flex-row justify-center">
-              <Text style={{fontSize: RFValue(14)}}>Already have an account? </Text>
+              <Text style={{ fontSize: RFValue(14) }}>
+                Already have an account?{" "}
+              </Text>
               <TouchableOpacity
                 onPress={() => navigation.replace("Login")}
                 className="pr-1 pb-1"
               >
-                <Text style={{ color: "#20a963", fontSize: RFValue(14)}}>Login</Text>
+                <Text style={{ color: "#20a963", fontSize: RFValue(14) }}>
+                  Login
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -584,9 +641,10 @@ const styles = StyleSheet.create({
   },
 
   radioButton: {
-    borderWidth: Platform.OS === "ios" ? 2 : null,
+    borderWidth: 2.5,
     borderColor: "black",
-    borderRadius: 999,
+    transform: [{ scale: 0.6 }],
+    borderRadius: 50,
     marginRight: 5,
     padding: 0.1,
   },

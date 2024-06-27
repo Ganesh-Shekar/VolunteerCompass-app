@@ -118,21 +118,23 @@ def signUpNgo():
 
     password = data["password"]
 
-    hashed = bc.hashpw(password.encode("utf-8"), salt).decode("utf-8")
+    hashed = bc.hashpw(password.encode("utf-8"), bc.gensalt(12)).decode("utf-8")
     data["password"] = hashed
 
     category = data["category"]
+    category = category.lower().replace(' ', '_')
     categoryId = (
         supabase.table("categories")
         .select("category_id")
         .eq("name", category)
         .execute()
     )
-
-    data["category_id"] = categoryId
+    data["category_id"] = categoryId.data[0].get("category_id")
+    
+   
     supabase.table("ngo_details").insert(data).execute()
 
-    return const.success200
+    return const.successMessage200
 
 
 # log in API
@@ -147,7 +149,6 @@ def logIn():
     ngo_result = (
         supabase.table("ngo_details").select("*").eq("contact_email", email).execute()
     )
-    
 
     if not ngo_result.data:
         user_result = (
@@ -170,6 +171,7 @@ def logIn():
         ngo_result.data[0]["type"] = "ngo"
         user_id = ngo_result.data[0]["ngo_id"]
         result = ngo_result
+        print(result, "result:")
 
     password_data = result.data[0]["password"] if result.data else None
     password_str = str(password_data) if password_data else None
@@ -219,9 +221,11 @@ def getCategories():
 def checkUserRegistration():
     current_user = get_jwt_identity()
     user_details_response = supabase.table("user_details").select("*").eq("user_id", current_user).execute()
-    user_details = user_details_response.data   
+    ngo_details_response = supabase.table("ngo_details").select("*").eq("ngo_id", current_user).execute()
+    user_details = user_details_response.data 
+    ngo_details= ngo_details_response.data
 
-    if user_details:
+    if (user_details or ngo_details):
         data =request.get_json()
         get_user_id= user_details[0]["user_id"]
         user_id = get_user_id
@@ -246,12 +250,14 @@ def checkUserRegistration():
 def get_category():
     
     current_user=get_jwt_identity()
-    print("current_user")
      # Get user details for the current user
     user_details_response = supabase.table("user_details").select("*").eq("user_id", current_user).execute()
-    user_details = user_details_response.data
+    ngo_details_response = supabase.table("ngo_details").select("*").eq("ngo_id", current_user).execute()
+    user_details = user_details_response.data 
+    ngo_details= ngo_details_response.data
     
-    categoryId = request.args.get("categoryId")
+    if user_details or ngo_details:
+        categoryId = request.args.get("categoryId")
 
     if categoryId:
         response = (
@@ -284,9 +290,11 @@ def get_ngo():
     current_user=get_jwt_identity()
     # Get user details for the current user
     user_details_response = supabase.table("user_details").select("*").eq("user_id", current_user).execute()
-    user_details = user_details_response.data
-    
-    if user_details:
+    ngo_details_response = supabase.table("ngo_details").select("*").eq("ngo_id", current_user).execute()
+    user_details = user_details_response.data 
+    ngo_details= ngo_details_response.data
+
+    if (user_details or ngo_details):
         ngoId = request.args.get("ngoId")
 
         if ngoId:
@@ -345,12 +353,13 @@ def user_details():
 @jwt_required()
 def userVolunteered():
     current_user=get_jwt_identity()
-    print("current_user")
      # Get user details for the current user
     user_details_response = supabase.table("user_details").select("*").eq("user_id", current_user).execute()
-    user_details = user_details_response.data
-    
-    if user_details:
+    ngo_details_response = supabase.table("ngo_details").select("*").eq("ngo_id", current_user).execute()
+    user_details = user_details_response.data 
+    ngo_details= ngo_details_response.data
+
+    if (user_details or ngo_details):
         userId = request.args.get("user_id")
 
         if userId:
@@ -385,12 +394,13 @@ def userVolunteered():
 @jwt_required()
 def ngoVolunteered():
     current_user=get_jwt_identity()
-    print("current_user")
      # Get user details for the current user
     user_details_response = supabase.table("user_details").select("*").eq("user_id", current_user).execute()
-    user_details = user_details_response.data
-    
-    if user_details:
+    ngo_details_response = supabase.table("ngo_details").select("*").eq("ngo_id", current_user).execute()
+    user_details = user_details_response.data 
+    ngo_details= ngo_details_response.data
+
+    if (user_details or ngo_details):
         ngoId = request.args.get("ngo_id")
 
         if ngoId:
@@ -456,9 +466,11 @@ def removeVolunteer():
     current_user=get_jwt_identity()
     user_details_response = supabase.table("user_details").select("*").eq("user_id", current_user).execute()
     userID= user_details_response.data[0]["user_id"]
-    user_details = user_details_response.data
-    
-    if user_details:
+    ngo_details_response = supabase.table("ngo_details").select("*").eq("ngo_id", current_user).execute()
+    user_details = user_details_response.data 
+    ngo_details= ngo_details_response.data
+
+    if (user_details or ngo_details):
         data = request.get_json()
         ngoId = data.get("ngo_id")
         userId = userID
@@ -501,9 +513,11 @@ def eventsVolunteered():
     current_user=get_jwt_identity()
      # Get user details of the current user
     user_details_response = supabase.table("user_details").select("*").eq("user_id", current_user).execute()
-    user_details = user_details_response.data
-    
-    if user_details:
+    ngo_details_response = supabase.table("ngo_details").select("*").eq("ngo_id", current_user).execute()
+    user_details = user_details_response.data 
+    ngo_details= ngo_details_response.data
+
+    if (user_details or ngo_details):
         userId = request.args.get("user_id")
         response = (
             supabase.table("event_volunteers")
@@ -555,9 +569,11 @@ def getEvents():
     current_user=get_jwt_identity()
      # Get user details for the current user
     user_details_response = supabase.table("user_details").select("*").eq("user_id", current_user).execute()
-    user_details = user_details_response.data
-    
-    if user_details:
+    ngo_details_response = supabase.table("ngo_details").select("*").eq("ngo_id", current_user).execute()
+    user_details = user_details_response.data 
+    ngo_details= ngo_details_response.data
+
+    if (user_details or ngo_details):
         ngoId = request.args.get("ngo_id")
         response = (
             supabase.table("event_details")
@@ -574,8 +590,11 @@ def search():
     try:
         current_user=get_jwt_identity() 
         user_details_response = supabase.table("user_details").select("*").eq("user_id", current_user).execute()
-        user_details = user_details_response.data
-        if user_details:
+        ngo_details_response = supabase.table("ngo_details").select("*").eq("ngo_id", current_user).execute()
+        user_details = user_details_response.data 
+        ngo_details= ngo_details_response.data
+
+        if (user_details or ngo_details):
             query=request.args.get("query")
             response = (
                         supabase.table("ngo_details").select("ngo_id", "ngo_display_name", "category_id", "address").ilike("ngo_display_name", f"*{query}*").execute()

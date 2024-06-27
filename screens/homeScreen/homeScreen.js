@@ -55,7 +55,6 @@ const HomeScreen = () => {
 
   const CheckIfLocationEnabled = async () => {
     let enabled = await Location.hasServicesEnabledAsync();
-
     if (!enabled) {
       Alert.alert(
         "Location Service not enabled",

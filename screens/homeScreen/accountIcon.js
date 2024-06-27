@@ -15,10 +15,15 @@ const AccountIcon = () => {
   async function getData() {
     const getFirstName = await AsyncStorage.getItem("first_name");
     const getLastName = await AsyncStorage.getItem("last_name");
-    if (getFirstName && getFirstName.length > 1) {
+    if (
+      getFirstName &&
+      getFirstName.length > 1 &&
+      getLastName &&
+      getLastName.length > 1
+    ) {
       setName(getFirstName[0] + getLastName[0]);
-    } else if (getLastName) {
-      setName(getLastName[0]);
+    } else {
+      setName(getFirstName[0]);
     }
   }
 

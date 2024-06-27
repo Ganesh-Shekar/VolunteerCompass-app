@@ -70,16 +70,34 @@ const Login = () => {
         response != undefined &&
         response.statusCode === 200
       ) {
-        await AsyncStorage.setItem("token", response.data["user_id"]);
-        await AsyncStorage.setItem("first_name", response.data["first_name"]);
-        await AsyncStorage.setItem("last_name", response.data["last_name"]);
-        await AsyncStorage.setItem("email", response.data["contact_email"]);
-        await AsyncStorage.setItem(
-          "phone",
-          JSON.stringify(response.data["phone"])
-        );
-        await AsyncStorage.setItem("isLoggedIn", JSON.stringify(true));
-        navigation.replace("HomeScreen");
+        if (response.data["type"] === "user") {
+          await AsyncStorage.setItem("token", response.data["user_id"]);
+          await AsyncStorage.setItem("first_name", response.data["first_name"]);
+          await AsyncStorage.setItem("last_name", response.data["last_name"]);
+          await AsyncStorage.setItem("email", response.data["contact_email"]);
+          await AsyncStorage.setItem(
+            "phone",
+            JSON.stringify(response.data["phone"])
+          );
+          await AsyncStorage.setItem("type", response.data["type"]);
+          await AsyncStorage.setItem("isLoggedIn", JSON.stringify(true));
+          navigation.replace("HomeScreen");
+        } else if (response.data["type"] === "ngo") {
+          await AsyncStorage.setItem("token", response.data["ngo_id"]);
+          await AsyncStorage.setItem(
+            "first_name",
+            response.data["ngo_display_name"]
+          );
+          await AsyncStorage.removeItem("last_name");
+          await AsyncStorage.setItem("email", response.data["contact_email"]);
+          await AsyncStorage.setItem(
+            "phone",
+            JSON.stringify(response.data["contact_phone"])
+          );
+          await AsyncStorage.setItem("type", response.data["type"]);
+          await AsyncStorage.setItem("isLoggedIn", JSON.stringify(true));
+          navigation.replace("HomeScreen");
+        }
       } else if (response.statusCode === 101 || response.statusCode === 102) {
         Alert.alert(response.message);
       }
