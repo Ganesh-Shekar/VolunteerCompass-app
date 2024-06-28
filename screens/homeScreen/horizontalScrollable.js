@@ -10,9 +10,10 @@ import {
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
-import { getNgoBasedOnCategory } from "../../backend/getApiRequests";
+import { getNgoBasedOnCategory, getAllEventsByNgoId } from "../../backend/getApiRequests";
 import { RFValue } from "react-native-responsive-fontsize";
 //import { useFonts } from "expo-font";
+import Icon from "react-native-vector-icons/MaterialIcons";
 
 const HorizontalScrollable = ({ title, categoryId, data, city_value }) => {
   const image_num = 100;
@@ -20,15 +21,27 @@ const HorizontalScrollable = ({ title, categoryId, data, city_value }) => {
   //   OpenSans: require("../../assets/fonts/Open Sans.ttf"),
   // });
   const [ngoDetails, setNgoDetails] = useState([]);
+  const [eventCount, setEventCount] = useState(0);
   const navigation = useNavigation();
   const handleImagePress = (ngoData) => {
     navigation.navigate("NgoPage", { ngoData });
   };
 
+  async function getEventDetails() {
+    try {
+      const events_per_ngo = await getAllEventsByNgoId(ngoDetails.ngo_id);
+      console.log(events_per_ngo);
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async function getCategoryNgo(categoryId = null) {
     try {
       const response = await getNgoBasedOnCategory({ categoryId: categoryId });
       setNgoDetails(response);
+      console.log(ngoDetails);
+      await getEventDetails()
     } catch (error) {
       console.error(error);
       throw error;
@@ -46,8 +59,15 @@ const HorizontalScrollable = ({ title, categoryId, data, city_value }) => {
 
   return (
     <View style={{ flex: 1 }}>
-      {ngoDetails.filter((ngo) => {return (ngo.category_id === categoryId) && (ngo.address ? ngo.address.trim().toLowerCase() === city_value.trim().toLowerCase() : false)}).length >
-        0 && (
+      {ngoDetails.filter((ngo) => {
+        return (
+          ngo.category_id === categoryId &&
+          (ngo.address
+            ? ngo.address.trim().toLowerCase() ===
+              city_value.trim().toLowerCase()
+            : false)
+        );
+      }).length > 0 && (
         <Text
           style={{
             fontSize: RFValue(16),
@@ -66,7 +86,15 @@ const HorizontalScrollable = ({ title, categoryId, data, city_value }) => {
           contentContainerStyle={{ paddingHorizontal: RFValue(8), flexGrow: 1 }}
         >
           {ngoDetails
-            .filter((ngo) => { return (ngo.category_id === categoryId) &&  (ngo.address ? ngo.address.trim().toLowerCase() === city_value.trim().toLowerCase() : false)})
+            .filter((ngo) => {
+              return (
+                ngo.category_id === categoryId &&
+                (ngo.address
+                  ? ngo.address.trim().toLowerCase() ===
+                    city_value.trim().toLowerCase()
+                  : false)
+              );
+            })
             .map((ngo, index) => (
               <TouchableOpacity
                 key={ngo.ngo_id}
@@ -75,15 +103,25 @@ const HorizontalScrollable = ({ title, categoryId, data, city_value }) => {
                 <View style={{ marginHorizontal: RFValue(6), width: "100%" }}>
                   <View style={styles.imageContainer}>
                     <Image
-                      source={{ uri:  `https://picsum.photos/${100 + index * 100}` }}
+                      source={{
+                        uri: `https://picsum.photos/${100 + index * 100}`,
+                      }}
                       style={styles.image}
                     />
+                    <View style={styles.numberContainer}>
+                      <Icon
+                        name="volunteer-activism"
+                        size={20}
+                        color="maroon"
+                      />
+                      <Text style={styles.numberText}>{eventCount}</Text>
+                    </View>
                   </View>
                   <Text
                     style={{
                       textAlign: "center",
                       marginTop: RFValue(5),
-                      fontSize: RFValue(12),
+                      fontSize: RFValue(14),
                       fontFamily: "OpenSans",
                       ellipsisoverflow: "hidden",
                       maxWidth: RFValue(120),
@@ -118,6 +156,20 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: RFValue(0.65),
     shadowRadius: RFValue(3.84),
+  },
+  numberContainer: {
+    position: "absolute",
+    flexDirection: "row",
+    top: 10, // Adjust the position as needed
+    right: -80, // Adjust the position as needed
+    backgroundColor: "white",
+    padding: RFValue(4.5),
+    borderRadius: RFValue(8),
+  },
+  numberText: {
+    color: "black",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
 
