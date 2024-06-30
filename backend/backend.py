@@ -171,7 +171,6 @@ def logIn():
         ngo_result.data[0]["type"] = "ngo"
         user_id = ngo_result.data[0]["ngo_id"]
         result = ngo_result
-        print(result, "result:")
 
     password_data = result.data[0]["password"] if result.data else None
     password_str = str(password_data) if password_data else None
@@ -268,6 +267,7 @@ def get_category():
                 "ngo_display_name",
                 "created_at",
                 "address",
+                "event_count"
             )
             .eq("category_id", categoryId)
             .execute()

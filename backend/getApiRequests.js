@@ -3,6 +3,9 @@ import * as url from "./constantUrl";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { navigate } from "../NavigationService";
 
+const GOOGLE_API_KEY = "AIzaSyCbD48T0Pl-bcxUa8mkuteYRWO094xcFOc";
+const COUNTRY_CODE = "IN";
+
 // Create an Axios instance
 const axiosInstance = axios.create({
   baseURL: url.baseurl,
@@ -204,6 +207,23 @@ export const getNgoBasedOnCategory = async (data) => {
     .catch((error) => {
       throw error;
     });
+};
+
+export const getCityResults = async (data) => {
+  try {
+    const response = await axios.get(
+      `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${data}&language=en&types=(cities)&key=${GOOGLE_API_KEY}`,
+      {
+        params: {
+          components: `country:${COUNTRY_CODE}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
 };
 
 export const getCategories = async () => {

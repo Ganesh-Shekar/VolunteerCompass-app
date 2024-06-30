@@ -10,7 +10,10 @@ import {
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
-import { getNgoBasedOnCategory, getAllEventsByNgoId } from "../../backend/getApiRequests";
+import {
+  getNgoBasedOnCategory,
+  getAllEventsByNgoId,
+} from "../../backend/getApiRequests";
 import { RFValue } from "react-native-responsive-fontsize";
 //import { useFonts } from "expo-font";
 import Icon from "react-native-vector-icons/MaterialIcons";
@@ -21,27 +24,17 @@ const HorizontalScrollable = ({ title, categoryId, data, city_value }) => {
   //   OpenSans: require("../../assets/fonts/Open Sans.ttf"),
   // });
   const [ngoDetails, setNgoDetails] = useState([]);
-  const [eventCount, setEventCount] = useState(0);
   const navigation = useNavigation();
   const handleImagePress = (ngoData) => {
     navigation.navigate("NgoPage", { ngoData });
   };
 
-  async function getEventDetails() {
-    try {
-      const events_per_ngo = await getAllEventsByNgoId(ngoDetails.ngo_id);
-      console.log(events_per_ngo);
-    } catch (error) {
-      throw error;
-    }
-  }
-
   async function getCategoryNgo(categoryId = null) {
     try {
       const response = await getNgoBasedOnCategory({ categoryId: categoryId });
       setNgoDetails(response);
-      console.log(ngoDetails);
-      await getEventDetails()
+      console.log(response);
+      // await getEventDetails();
     } catch (error) {
       console.error(error);
       throw error;
@@ -53,12 +46,13 @@ const HorizontalScrollable = ({ title, categoryId, data, city_value }) => {
     if (data === null) {
       getCategoryNgo();
     } else if (data && data.length > 0) {
+      console.log(data);
       setNgoDetails(data);
     }
   }, [data]);
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: "white" }}>
       {ngoDetails.filter((ngo) => {
         return (
           ngo.category_id === categoryId &&
@@ -108,14 +102,14 @@ const HorizontalScrollable = ({ title, categoryId, data, city_value }) => {
                       }}
                       style={styles.image}
                     />
-                    <View style={styles.numberContainer}>
+                    {/* <View style={styles.numberContainer}>
                       <Icon
                         name="volunteer-activism"
                         size={20}
-                        color="maroon"
+                        color="#167d48"
                       />
-                      <Text style={styles.numberText}>{eventCount}</Text>
-                    </View>
+                      <Text style={styles.numberText}>{ngo.event_count}</Text>
+                    </View> */}
                   </View>
                   <Text
                     style={{
@@ -160,9 +154,10 @@ const styles = StyleSheet.create({
   numberContainer: {
     position: "absolute",
     flexDirection: "row",
-    top: 10, // Adjust the position as needed
-    right: -80, // Adjust the position as needed
+    top: RFValue(8), // Adjust the position as needed
+    right: RFValue(-58), // Adjust the position as needed
     backgroundColor: "white",
+    opacity: 0.8,
     padding: RFValue(4.5),
     borderRadius: RFValue(8),
   },

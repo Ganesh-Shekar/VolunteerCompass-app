@@ -40,12 +40,12 @@ const AccountIcon = () => {
           height: RFValue(28),
           justifyContent: "center",
           alignItems: "center",
-          backgroundColor: "#00CCBB",
+          backgroundColor: "white",
           borderRadius: RFValue(120),
         }}
       >
         <Text
-          style={{ color: "white", fontWeight: "bold", fontSize: RFValue(12) }}
+          style={{ color: "black", fontWeight: "bold", fontSize: RFValue(12) }}
         >
           {name.toUpperCase()}
         </Text>

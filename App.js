@@ -41,7 +41,7 @@ const LoginNav = () => {
 const TabNav = () => {
   return (
     <Tab.Navigator
-      screenOptions={{ headerShown: false, tabBarShowLabel: false }}
+      screenOptions={{ headerShown: false, tabBarShowLabel: false, }}
     >
       <Tab.Screen
         name="Home"
@@ -51,7 +51,8 @@ const TabNav = () => {
             <Icon
               name="home"
               color={focused ? "#20a963" : "gray"}
-              size={width < 450 ? RFValue(20) : RFValue(15)}
+              size={width < 450 ? RFValue(28) : RFValue(15.5)}
+              style={{ marginTop: RFValue(10) }}
             />
           ),
         }}
@@ -65,7 +66,8 @@ const TabNav = () => {
             <Icon
               name="calendar"
               color={focused ? "#20a963" : "gray"}
-              size={size}
+              size={width < 450 ? RFValue(22) : RFValue(14)}
+              style={{ marginTop: RFValue(10) }}
             />
           ),
         }}
@@ -79,7 +81,8 @@ const TabNav = () => {
             <Icon
               name="pencil-square-o"
               color={focused ? "#20a963" : "gray"}
-              size={size}
+              size={width < 450 ? RFValue(25) : RFValue(14)}
+              style={{ marginTop: RFValue(10) }}
             />
           ),
         }}
