@@ -12,6 +12,7 @@ import {
   KeyboardAvoidingView,
   Dimensions,
   FlatList,
+  TouchableWithoutFeedback,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
@@ -34,6 +35,7 @@ import {
   getCityResults,
 } from "../../backend/getApiRequests";
 const { width } = Dimensions.get("window");
+
 
 const ngoSignUpValidationSchema = yup.object().shape({
   userName: yup
@@ -258,6 +260,7 @@ const Signup = () => {
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.container}
+        automaticallyAdjustKeyboardInsets={true}
       >
         {/* handshake */}
         {/* <View className="flex-row justify-around w-full absolute">
@@ -277,7 +280,7 @@ const Signup = () => {
           <View style={{ marginVertical: RFValue(20), alignItems: "center" }}>
             <Text
               style={{
-                marginVertical: RFValue(20),
+                marginVertical: RFValue(8),
                 fontSize: RFValue(14),
                 textAlign: "center",
                 textAlignVertical: "center",
@@ -450,38 +453,6 @@ const Signup = () => {
                       className="bg-black/5 p-3 rounded-2xl w-full"
                       style={{ width: width < 450 ? "100%" : 600 }}
                     >
-                      {/* <TextInput
-                        placeholder="Address"
-                        placeholderTextColor={"gray"}
-                        value={values.address}
-                        onChangeText={handleChange("address")}
-                        onBlur={handleBlur("address")}
-                        style={{ fontSize: RFValue(13) }}
-                      />
-                      {touched.address && errors.address && (
-                        <Text style={styles.errorTxt}>{errors.address}</Text>
-                      )} */}
-                      {/* <SearchBar
-                        placeholder="Search for address..."
-                        searchIcon={{}}
-                        clearIcon={{ size: RFValue(18) }}
-                        inputStyle={{ color: "black", fontSize: RFValue(13) }}
-                        onChangeText={fetchPredictions}
-                        value={searchText}
-                        lightTheme={true}
-                        round={true}
-                        containerStyle={{
-                          backgroundColor: "none",
-                          borderTopWidth: 0,
-                          borderBottomWidth: 0,
-                        }}
-                        inputContainerStyle={{
-                          backgroundColor: "#F5F5F5", // Grey background for search bar
-                          borderBottomWidth: 0,
-                          paddingVertical: width < 450 ? 0 : 10,
-                        }}
-                      /> */}
-
                       <TextInput
                         placeholder="Address"
                         placeholderTextColor={"gray"}
@@ -490,31 +461,46 @@ const Signup = () => {
                         onBlur={handleBlur("address")}
                         style={{ fontSize: RFValue(13) }}
                       />
+
                       {predictions.length > 0 && (
-                        <FlatList
-                          data={predictions}
-                          renderItem={({ item }) => (
+                        <ScrollView
+                          style={{ maxHeight: 200 }}
+                          showsVerticalScrollIndicator={true}
+                          automaticallyAdjustKeyboardInsets={true}
+                        >
+                          {predictions.map((item, index) => (
                             <TouchableOpacity
                               onPress={() => {
                                 setFieldValue("address", item.name);
                                 setSearchText(item.name);
                                 setPredictions([]);
                               }}
-                              style={{ padding: 8 }}
+                              style={{
+                                // padding: RFValue(8),
+                                marginTop: RFValue(10),
+                              }}
+                              key={item.key}
                             >
                               <Text
-                                style={{ color: "black", fontWeight: "bold" }}
+                                style={{ color: "black", margin: RFValue(6) }}
                               >
                                 {item.name}
                               </Text>
+                              {index < predictions.length - 1 && (
+                                <View
+                                  style={{
+                                    borderBottomColor: "black",
+                                    borderBottomWidth: StyleSheet.hairlineWidth,
+                                  }}
+                                />
+                              )}
                             </TouchableOpacity>
-                          )}
-                          keyExtractor={(item) => item.key.toString()}
-                          style={{ marginHorizontal: 8 }}
-                        />
+                          ))}
+                        </ScrollView>
                       )}
-                      {touched.searchText && errors.searchText && (
-                        <Text style={styles.errorTxt}>{errors.searchText}</Text>
+
+                      {touched.address && errors.address && (
+                        <Text style={styles.errorTxt}>{errors.address}</Text>
                       )}
                     </View>
                     {/* Search for City */}
@@ -532,27 +518,42 @@ const Signup = () => {
                       />
 
                       {cityPredictions.length > 0 && (
-                        <FlatList
-                          data={cityPredictions}
-                          renderItem={({ item }) => (
+                        <ScrollView
+                          style={{ maxHeight: 200 }}
+                          showsVerticalScrollIndicator={true}
+                          automaticallyAdjustKeyboardInsets={true}
+                        >
+                          {cityPredictions.map((item, index) => (
                             <TouchableOpacity
                               onPress={() => {
                                 setFieldValue("city", item.name);
                                 setSearchCityText(item.name);
                                 setCityPredictions([]);
                               }}
-                              style={{ padding: 8 }}
+                              style={{
+                                marginTop: RFValue(10),
+                              }}
+                              key={item.key}
                             >
                               <Text
-                                style={{ color: "black", fontWeight: "bold" }}
+                                style={{ color: "black", margin: RFValue(6) }}
                               >
                                 {item.name}
                               </Text>
+                              {index < cityPredictions.length - 1 && (
+                                <View
+                                  style={{
+                                    borderBottomColor: "black",
+                                    borderBottomWidth: StyleSheet.hairlineWidth,
+                                  }}
+                                />
+                              )}
                             </TouchableOpacity>
-                          )}
-                          keyExtractor={(item) => item.key.toString()}
-                          style={{ marginHorizontal: 8 }}
-                        />
+                          ))}
+                        </ScrollView>
+                      )}
+                      {touched.city && errors.city && (
+                        <Text style={styles.errorTxt}>{errors.city}</Text>
                       )}
                     </View>
 

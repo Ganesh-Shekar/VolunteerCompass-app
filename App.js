@@ -51,7 +51,7 @@ const TabNav = () => {
             <Icon
               name="home"
               color={focused ? "#20a963" : "gray"}
-              size={width < 450 ? RFValue(28) : RFValue(15.5)}
+              size={width < 450 ? RFValue(22) : RFValue(15.5)}
               style={{ marginTop: RFValue(10) }}
             />
           ),
@@ -66,7 +66,7 @@ const TabNav = () => {
             <Icon
               name="calendar"
               color={focused ? "#20a963" : "gray"}
-              size={width < 450 ? RFValue(22) : RFValue(14)}
+              size={width < 450 ? RFValue(18) : RFValue(14)}
               style={{ marginTop: RFValue(10) }}
             />
           ),
@@ -81,7 +81,7 @@ const TabNav = () => {
             <Icon
               name="pencil-square-o"
               color={focused ? "#20a963" : "gray"}
-              size={width < 450 ? RFValue(25) : RFValue(14)}
+              size={width < 450 ? RFValue(20) : RFValue(14)}
               style={{ marginTop: RFValue(10) }}
             />
           ),

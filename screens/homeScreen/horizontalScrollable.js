@@ -33,7 +33,6 @@ const HorizontalScrollable = ({ title, categoryId, data, city_value }) => {
     try {
       const response = await getNgoBasedOnCategory({ categoryId: categoryId });
       setNgoDetails(response);
-      // await getEventDetails();
     } catch (error) {
       console.error(error);
       throw error;

@@ -67,7 +67,6 @@ const HomeScreen = () => {
     if (text) {
       getNgoSearchResult(text)
         .then((result) => {
-          // console.log(result);
           setSearchResults(result);
         })
         .catch((error) => {
@@ -125,6 +124,7 @@ const HomeScreen = () => {
 
       for (let item of response) {
         let address = `${item.city}`;
+        setCityValue(address);
         setDisplayCurrentAddress(address);
       }
     }
@@ -184,7 +184,7 @@ const HomeScreen = () => {
               <Icon
                 name="location-arrow"
                 size={RFValue(16)}
-                color="black"
+                color="#F5F5DC"
                 style={{ padding: RFValue(7) }}
               />
               <View style={{ marginTop: RFValue(7) }}>
@@ -225,51 +225,64 @@ const HomeScreen = () => {
                           <View>
                             <Text
                               style={{
-                                marginTop: RFValue(20),
+                                marginVertical: RFValue(16),
                                 fontSize: RFValue(14),
                               }}
                             >
                               POPULAR CITIES
                             </Text>
-                            {predictions.map((item, index) => (
-                              <View
-                                key={item.key}
-                                style={{ flexDirection: "column", flex: 1 }}
-                              >
-                                <TouchableOpacity
-                                  onPress={() => {
-                                    setShowModal(false);
-                                    setCityValue(item.name);
-                                  }}
+                            <ScrollView style={{ maxHeight: RFValue(700) }}>
+                              {predictions.map((item, index) => (
+                                <View
+                                  key={item.key}
                                   style={{
-                                    flexDirection: "row",
+                                    flexDirection: "column",
                                     flex: 1,
-                                    alignItems: "center",
+                                    padding: RFValue(5),
+                                    marginBottom: RFValue(5),
                                   }}
                                 >
-                                  <Icon name="city" size={RFValue(15)} />
-                                  <Text style={styles.locationTextStyle}>
-                                    {item.name.toString()}
-                                  </Text>
-                                </TouchableOpacity>
-                                {index < predictions.length - 1 && (
-                                  <View
-                                    style={{
-                                      borderBottomColor: "black",
-                                      borderBottomWidth:
-                                        StyleSheet.hairlineWidth,
+                                  <TouchableOpacity
+                                    onPress={() => {
+                                      setShowModal(false);
+                                      setCityValue(item.name);
                                     }}
-                                  />
-                                )}
-                              </View>
-                            ))}
+                                    style={{
+                                      flexDirection: "row",
+                                      flex: 1,
+                                      alignItems: "center",
+                                    }}
+                                  >
+                                    <Icon name="city" size={RFValue(15)} />
+                                    <Text style={styles.locationTextStyle}>
+                                      {item.name.toString()}
+                                    </Text>
+                                  </TouchableOpacity>
+                                  {index < predictions.length - 1 && (
+                                    <View
+                                      style={{
+                                        marginTop: RFValue(15),
+                                        borderBottomColor: "black",
+                                        borderBottomWidth:
+                                          StyleSheet.hairlineWidth,
+                                      }}
+                                    />
+                                  )}
+                                </View>
+                              ))}
+                            </ScrollView>
                           </View>
                         ) : (
-                          <View>
+                          <ScrollView style={{ maxHeight: RFValue(400) }}>
                             {predictions.map((item, index) => (
                               <View
                                 key={item.key}
-                                style={{ flexDirection: "column", flex: 1 }}
+                                style={{
+                                  flexDirection: "column",
+                                  flex: 1,
+                                  padding: RFValue(5),
+                                  marginBottom: RFValue(5),
+                                }}
                               >
                                 <TouchableOpacity
                                   onPress={() => {
@@ -290,6 +303,7 @@ const HomeScreen = () => {
                                 {index < predictions.length - 1 && (
                                   <View
                                     style={{
+                                      marginTop: RFValue(15),
                                       borderBottomColor: "black",
                                       borderBottomWidth:
                                         StyleSheet.hairlineWidth,
@@ -298,7 +312,7 @@ const HomeScreen = () => {
                                 )}
                               </View>
                             ))}
-                          </View>
+                          </ScrollView>
                         )}
                       </View>
 
@@ -320,13 +334,17 @@ const HomeScreen = () => {
                   <Text
                     style={{
                       fontSize: RFValue(16),
-                      color: "black",
+                      color: "#F5F5DC",
                       marginRight: 10,
                     }}
                   >
                     {cityValue}
                   </Text>
-                  <Icon name="chevron-down" size={RFValue(12)} color="black" />
+                  <Icon
+                    name="chevron-down"
+                    size={RFValue(12)}
+                    color="#F5F5DC"
+                  />
                 </TouchableOpacity>
               </View>
             </View>
@@ -422,7 +440,7 @@ const styles = StyleSheet.create({
     padding: RFValue(20),
     borderRadius: RFValue(18),
     shadowColor: "#D3D3D3",
-    height: RFValue(400),
+    height: RFValue(370),
     width: RFValue(280),
     shadowColor: "#000",
     shadowOffset: {

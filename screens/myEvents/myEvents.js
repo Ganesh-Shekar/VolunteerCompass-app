@@ -6,6 +6,7 @@ import { Card, Avatar } from "react-native-paper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getAllEventsVolunteeredByUser } from "../../backend/getApiRequests";
 import { useFocusEffect } from "@react-navigation/native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const MyEvents = () => {
   const [items, setItems] = useState({});
@@ -33,10 +34,13 @@ const MyEvents = () => {
 
   const customTheme = {
     ...calendarTheme, // Merge with default calendar theme
-    agendaDayTextColor: "black", // Custom color for agenda day text
-    agendaDayNumColor: "green", // Custom color for agenda day number
-    agendaTodayColor: "red", // Custom color for today's agenda
+    agendaDayTextColor:"black", // Custom color for agenda day text
+    agendaDayNumColor: "black", // Custom color for agenda day number
+    agendaTodayColor: "black", // Custom color for today's agenda
     agendaKnobColor: "black", // Custom color for the agenda knob
+    agendaDayNumColor: "green", // Custom color for agenda day number
+   
+    
   };
 
   const renderItem = useCallback((item) => <EventItem item={item} />, []);
@@ -46,7 +50,7 @@ const MyEvents = () => {
       style={{
         marginVertical: 10,
         marginTop: 30,
-        backgroundColor: "grey",
+        backgroundColor: "#20a963",
         marginHorizontal: 10,
         padding: 10,
         borderRadius: 10,
@@ -89,7 +93,7 @@ const MyEvents = () => {
   }
 
   return (
-    <View style={{ flex: 1, marginTop: 5 }}>
+    <View style={{ flex: 1}}>
       <Agenda
         items={items}
         showOnlySelectedDayItems={true}

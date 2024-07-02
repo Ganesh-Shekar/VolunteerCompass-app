@@ -598,7 +598,7 @@ def search():
         if (user_details or ngo_details):
             query=request.args.get("query")
             response = (
-                        supabase.table("ngo_details").select("ngo_id", "ngo_display_name", "category_id", "address").ilike("ngo_display_name", f"*{query}*").execute()
+                        supabase.table("ngo_details").select("ngo_id", "ngo_display_name", "category_id", "address", "city").ilike("ngo_display_name", f"*{query}*").execute()
                     ).data
             response_data = response
             return jsonify(response_data)

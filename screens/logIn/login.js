@@ -11,6 +11,7 @@ import {
   ImageBackground,
   Dimensions,
   PixelRatio,
+  ScrollView,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { StatusBar } from "expo-status-bar";
@@ -27,6 +28,7 @@ import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import logo from "../../assets/logo.jpeg";
 import white_bg from "../../assets/white_background.jpg";
+import { SafeAreaView } from "react-native-safe-area-context";
 const logo1 = Image.resolveAssetSource(logo).uri;
 const white_bg1 = Image.resolveAssetSource(white_bg).uri;
 const { width, height } = Dimensions.get("window");
@@ -126,94 +128,106 @@ const Login = () => {
       >
         {(props) => (
           // {/* title and form */}
+
           <KeyboardAvoidingView
             behaviour={Platform.OS === "ios" ? "padding" : "height"}
-            className="h-full w-full flex justify-around pt-40 pb-10"
+            className="h-full w-full flex justify-around pt-10 pb-10"
           >
-            {/* Title */}
-            <View className="flex items-center">
-              <Image
-                source={{ uri: logo1 }}
-                style={{
-                  width: width < 450 ? 200 : 400,
-                  height: width < 450 ? 200 : 400,
-                }}
-              />
-            </View>
-
-            {/* Form */}
-            <View
-              className="flex items-center mx-4 space-y-4"
-              style={styles.LoginBlock}
+            <ScrollView
+              automaticallyAdjustKeyboardInsets={true}
+              scrollEnabled={false}
+              style={{ flex: 1 }}
+              contentContainerStyle={{
+                flexGrow: 1,
+                justifyContent: "space-between",
+              }}
             >
-              <View
-                className="bg-black/5 p-3 px-5 rounded-2xl w-full"
-                style={styles.Email}
-              >
-                <TextInput
-                  placeholder="Email"
-                  placeholderTextColor={"gray"}
-                  value={props.values.email}
-                  keyboardType="email-address"
-                  onChangeText={props.handleChange("email")}
-                  onBlur={props.handleBlur("email")}
-                  style={[styles.input, { fontSize: RFValue(14) }]}
+              {/* Title */}
+              <View className="flex items-center">
+                <Image
+                  source={{ uri: logo1 }}
+                  style={{
+                    width: width < 450 ? 200 : 400,
+                    height: width < 450 ? 200 : 400,
+                    marginTop: 200,
+                  }}
                 />
-                {props.touched.email && props.errors.email && (
-                  <Text style={styles.errorTxt}>{props.errors.email}</Text>
-                )}
-              </View>
-              <View
-                className="bg-black/5 p-3 px-5 rounded-2xl w-full mb-3"
-                style={styles.Password}
-              >
-                <TextInput
-                  placeholder="Password"
-                  placeholderTextColor={"gray"}
-                  secureTextEntry
-                  value={props.values.password}
-                  onChangeText={props.handleChange("password")}
-                  onBlur={props.handleBlur("password")}
-                  style={[styles.input, { fontSize: RFValue(14) }]}
-                />
-                {props.touched.password && props.errors.password && (
-                  <Text style={styles.errorTxt}>{props.errors.password}</Text>
-                )}
               </View>
 
-              {/* Button */}
-              <View className="w-full" style={{ alignItems: "center" }}>
-                <TouchableOpacity
-                  style={{
-                    backgroundColor: "#20a963",
-                    width: width < 450 ? "100%" : 600,
-                    // height: width < 450 ? 50 : 60,
-                  }}
-                  className="w-full p-3 rounded-2xl mb-3"
-                  onPress={props.handleSubmit}
+              {/* Form */}
+              <View
+                className="flex items-center mx-4 space-y-4"
+                style={styles.LoginBlock}
+              >
+                <View
+                  className="bg-black/5 p-3 px-5 rounded-2xl w-full"
+                  style={styles.Email}
                 >
-                  <Text
-                    className="text-xl font-bold text-white text-center"
-                    style={{ fontSize: RFValue(14), padding: RFValue(5) }}
+                  <TextInput
+                    placeholder="Email"
+                    placeholderTextColor={"gray"}
+                    value={props.values.email}
+                    keyboardType="email-address"
+                    onChangeText={props.handleChange("email")}
+                    onBlur={props.handleBlur("email")}
+                    style={[styles.input, { fontSize: RFValue(14) }]}
+                  />
+                  {props.touched.email && props.errors.email && (
+                    <Text style={styles.errorTxt}>{props.errors.email}</Text>
+                  )}
+                </View>
+                <View
+                  className="bg-black/5 p-3 px-5 rounded-2xl w-full mb-3"
+                  style={styles.Password}
+                >
+                  <TextInput
+                    placeholder="Password"
+                    placeholderTextColor={"gray"}
+                    secureTextEntry
+                    value={props.values.password}
+                    onChangeText={props.handleChange("password")}
+                    onBlur={props.handleBlur("password")}
+                    style={[styles.input, { fontSize: RFValue(14) }]}
+                  />
+                  {props.touched.password && props.errors.password && (
+                    <Text style={styles.errorTxt}>{props.errors.password}</Text>
+                  )}
+                </View>
+
+                {/* Button */}
+                <View className="w-full" style={{ alignItems: "center" }}>
+                  <TouchableOpacity
+                    style={{
+                      backgroundColor: "#20a963",
+                      width: width < 450 ? "100%" : 600,
+                      // height: width < 450 ? 50 : 60,
+                    }}
+                    className="w-full p-3 rounded-2xl mb-3"
+                    onPress={props.handleSubmit}
                   >
-                    Login
+                    <Text
+                      className="text-xl font-bold text-white text-center"
+                      style={{ fontSize: RFValue(14), padding: RFValue(5) }}
+                    >
+                      Login
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+                <View className="flex-row justify-center">
+                  <Text style={{ fontSize: RFValue(12) }}>
+                    Don't have an account?{" "}
                   </Text>
-                </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => navigation.replace("Sign Up")}
+                    className="pr-1 pb-1"
+                  >
+                    <Text style={{ color: "blue", fontSize: RFValue(12) }}>
+                      Sign Up
+                    </Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-              <View className="flex-row justify-center">
-                <Text style={{ fontSize: RFValue(12) }}>
-                  Don't have an account?{" "}
-                </Text>
-                <TouchableOpacity
-                  onPress={() => navigation.replace("Sign Up")}
-                  className="pr-1 pb-1"
-                >
-                  <Text style={{ color: "blue", fontSize: RFValue(12) }}>
-                    Sign Up
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
+            </ScrollView>
           </KeyboardAvoidingView>
         )}
       </Formik>
@@ -228,8 +242,8 @@ const styles = StyleSheet.create({
     justifyContent: width < 450 ? "flex-end" : "center",
     alignItems: "center",
   },
-  input:{
-     marginTop: RFValue(8),  
+  input: {
+    marginTop: RFValue(8),
   },
   Email: {
     backgroundColor: "white",

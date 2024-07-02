@@ -103,39 +103,43 @@ const NgoScreen = ({ route }) => {
         >
           {item.category}
         </Text>
-        <View style={{ marginStart: RFValue(15) }}>
+        <View>
           <Text
             style={{
               ...styles.paragraph,
-              marginTop: RFValue(10),
               color: "black",
-              marginBottom: RFValue(10),
+              marginVertical: RFValue(10),
+              // paddingHorizontal: RFValue(17),
             }}
           >
             {item.description}
           </Text>
         </View>
-        <View
-          style={{
-            flexDirection: "row",
-            marginBottom: RFValue(6),
-            alignItems: "center",
-            justifyContent: "center",
-            flex: 1,
-          }}
-        >
-          <Icon name="location-dot" size={RFValue(16)} color="#f66" />
-
-          <Text
+        {item.address && (
+          <View
             style={{
-              ...styles.paragraph,
-              marginLeft: RFValue(5),
-              alignContent: "center",
+              flexDirection: "row",
+              marginBottom: RFValue(6),
+              // alignItems: "center",
+
+              // justifyContent: "center",
+              flex: 1,
             }}
           >
-            {item.address}
-          </Text>
-        </View>
+            <Icon name="location-dot" size={RFValue(16)} color="#f66" />
+
+            <Text
+              style={{
+                ...styles.paragraph,
+                marginLeft: RFValue(7),
+                alignContent: "center",
+                paddingRight: RFValue(17),
+              }}
+            >
+              {item.address}
+            </Text>
+          </View>
+        )}
         {item.email || item.contact_phone ? (
           <View style={styles.element}>
             {item.email ? (
@@ -176,24 +180,69 @@ const NgoScreen = ({ route }) => {
   );
 
   return (
-    <SafeAreaView className="bg-white">
+    <SafeAreaView className="bg-white pt-5 h-full">
       {loading && <Text>Loading</Text>}
-      <FlatList
-        data={ngoDetails}
-        renderItem={renderNgoDetails}
-        keyExtractor={(item) => item.id.toString()}
-        ListFooterComponent={
-          <>
-            <Text style={{ ...styles.title, paddingHorizontal: RFValue(20) }}>
-              Events
-            </Text>
-            {eventDetails.length > 0 ? (
-              <FlatList
-                data={eventDetails}
-                renderItem={renderEventDetails}
-                keyExtractor={(item, index) => index.toString()}
-                ListFooterComponent={
-                  ngoData.address ? (
+      <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
+        <FlatList
+          data={ngoDetails}
+          renderItem={renderNgoDetails}
+          keyExtractor={(item) => item.id.toString()}
+          ListFooterComponent={
+            <>
+              <Text style={{ ...styles.title, paddingHorizontal: RFValue(20) }}>
+                Events
+              </Text>
+              {eventDetails.length > 0 ? (
+                <FlatList
+                  data={eventDetails}
+                  renderItem={renderEventDetails}
+                  keyExtractor={(item, index) => index.toString()}
+                  ListFooterComponent={
+                    ngoData.address ? (
+                      <View
+                        style={{
+                          width: "100%",
+                          height: 300,
+                          marginTop: RFValue(20),
+                        }}
+                      >
+                        <SetLocation address={ngoData.address} />
+                      </View>
+                    ) : (
+                      <></>
+                    )
+                  }
+                />
+              ) : (
+                <>
+                  <View
+                    style={{
+                      backgroundColor: "#f8f8f8",
+                      margin: RFValue(18),
+                      padding: RFValue(10),
+                      borderRadius: RFValue(8),
+                      shadowColor: "#000",
+                      shadowOffset: {
+                        width: 0,
+                        height: 2,
+                      },
+                      shadowOpacity: 0.15,
+                      shadowRadius: 3.84,
+                      elevation: 5,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        textAlign: "center",
+                        fontSize: RFValue(14),
+                        alignItems: "center",
+                      }}
+                    >
+                      No events for this NGO currently
+                    </Text>
+                  </View>
+
+                  {ngoData.address ? (
                     <View
                       style={{
                         width: "100%",
@@ -205,41 +254,14 @@ const NgoScreen = ({ route }) => {
                     </View>
                   ) : (
                     <></>
-                  )
-                }
-              />
-            ) : (
-              <>
-                <Text
-                  style={{
-                    textAlign: "center",
-                    fontSize: RFValue(14),
-                    marginTop: RFValue(10),
-                    alignItems: "center",
-                  }}
-                >
-                  No events for this NGO currently
-                </Text>
-
-                {ngoData.address ? (
-                  <View
-                    style={{
-                      width: "100%",
-                      height: 300,
-                      marginTop: RFValue(20),
-                    }}
-                  >
-                    <SetLocation address={ngoData.address} />
-                  </View>
-                ) : (
-                  <></>
-                )}
-              </>
-            )}
-          </>
-        }
-      />
-      <StatusBar style="auto" />
+                  )}
+                </>
+              )}
+            </>
+          }
+        />
+        <StatusBar style="auto" />
+      </SafeAreaView>
     </SafeAreaView>
   );
 };
