@@ -171,7 +171,7 @@ const HomeScreen = () => {
       className={"bg-white pt-5 h-full"}
       style={{ backgroundColor: "#20a963" }}
     >
-      <SafeAreaView style={{ flex: 1, backgroundColor: "gray" }}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
         <View style={{ backgroundColor: "#20a963", paddingTop: RFValue(10) }}>
           <View
             style={{
@@ -459,3 +459,4 @@ const styles = StyleSheet.create({
 });
 
 export default HomeScreen;
+

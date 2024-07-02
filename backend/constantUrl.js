@@ -1,5 +1,5 @@
 //const baseurl = 'https://shepherd-moved-heavily.ngrok-free.app/'
-const baseurl = "http://192.168.0.112:5000/";
+const baseurl = "http://192.168.5.124:5000/";
 export const signupNgo = baseurl + "signup-ngo";
 export const signupUser = baseurl + "signup-user";
 export const login = baseurl + "login";

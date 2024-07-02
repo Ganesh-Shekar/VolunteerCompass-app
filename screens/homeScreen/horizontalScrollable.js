@@ -33,7 +33,6 @@ const HorizontalScrollable = ({ title, categoryId, data, city_value }) => {
     try {
       const response = await getNgoBasedOnCategory({ categoryId: categoryId });
       setNgoDetails(response);
-      console.log(response);
       // await getEventDetails();
     } catch (error) {
       console.error(error);
@@ -46,7 +45,6 @@ const HorizontalScrollable = ({ title, categoryId, data, city_value }) => {
     if (data === null) {
       getCategoryNgo();
     } else if (data && data.length > 0) {
-      console.log(data);
       setNgoDetails(data);
     }
   }, [data]);
@@ -82,11 +80,12 @@ const HorizontalScrollable = ({ title, categoryId, data, city_value }) => {
           {ngoDetails
             .filter((ngo) => {
               return (
-                ngo.category_id === categoryId &&
-                (ngo.address
-                  ? ngo.address.trim().toLowerCase() ===
-                    city_value.trim().toLowerCase()
-                  : false)
+                ngo.category_id === categoryId 
+                // &&
+                // (ngo.address
+                //   ? ngo.address.trim().toLowerCase() ===
+                //     city_value.trim().toLowerCase()
+                //   : false)
               );
             })
             .map((ngo, index) => (

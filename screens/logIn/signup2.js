@@ -1,3 +1,4 @@
+//code for signup
 import {
   View,
   Text,
@@ -10,22 +11,25 @@ import {
   Alert,
   KeyboardAvoidingView,
   Dimensions,
+  FlatList,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 import { useNavigation } from "@react-navigation/native";
 import { RadioButton } from "react-native-paper";
+import { SearchBar } from "@rneui/themed";
 import { Dropdown } from "react-native-element-dropdown";
 import {
   signUpNgo,
   signUpUser,
   getCategories,
 } from "../../backend/getApiRequests";
-
+import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import { Formik } from "formik";
 import * as yup from "yup";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { RFValue } from "react-native-responsive-fontsize";
+import { getAddressResults } from "../../backend/getApiRequests";
 const { width } = Dimensions.get("window");
 
 const ngoSignUpValidationSchema = yup.object().shape({
@@ -99,6 +103,8 @@ const Signup = () => {
   const [selectedValue, setSelectedValue] = useState("NGO"); // for radio buttons
   const [data, setData] = useState([]);
   const [category, setCategory] = useState(null);
+  const [searchText, setSearchText] = useState("");
+  const [predictions, setPredictions] = useState([]);
 
   const ngoRequestObject = {
     userName: "",
@@ -122,6 +128,24 @@ const Signup = () => {
   useEffect(() => {
     fetchCategories();
   }, []);
+
+  async function fetchPredictions(text) {
+    setSearchText(text); // Ensure state is updated here
+    if (text) {
+      try {
+        const response = await getAddressResults(text);
+        let tempPredicts = response.predictions.map((prediction) => ({
+          key: `${prediction.description}-${prediction.place_id}`,
+          name: prediction.description,
+        }));
+        setPredictions(tempPredicts);
+      } catch (error) {
+        console.error("Error fetching predictions:", error);
+      }
+    } else {
+      setPredictions([]);
+    }
+  }
 
   const fetchCategories = async () => {
     try {
@@ -393,7 +417,7 @@ const Signup = () => {
                       className="bg-black/5 p-3 rounded-2xl w-full"
                       style={{ width: width < 450 ? "100%" : 600 }}
                     >
-                      <TextInput
+                      {/* <TextInput
                         placeholder="Address"
                         placeholderTextColor={"gray"}
                         value={values.address}
@@ -403,6 +427,58 @@ const Signup = () => {
                       />
                       {touched.address && errors.address && (
                         <Text style={styles.errorTxt}>{errors.address}</Text>
+                      )} */}
+                      {/* <SearchBar
+                        placeholder="Search for address..."
+                        searchIcon={{}}
+                        clearIcon={{ size: RFValue(18) }}
+                        inputStyle={{ color: "black", fontSize: RFValue(13) }}
+                        onChangeText={fetchPredictions}
+                        value={searchText}
+                        lightTheme={true}
+                        round={true}
+                        containerStyle={{
+                          backgroundColor: "none",
+                          borderTopWidth: 0,
+                          borderBottomWidth: 0,
+                        }}
+                        inputContainerStyle={{
+                          backgroundColor: "#F5F5F5", // Grey background for search bar
+                          borderBottomWidth: 0,
+                          paddingVertical: width < 450 ? 0 : 10,
+                        }}
+                      /> */}
+
+                      <TextInput
+                        placeholder="Address"
+                        placeholderTextColor={"gray"}
+                        value={searchText}
+                        onChangeText={fetchPredictions}
+                        onBlur={handleBlur("ngoConfirmPassword")}
+                        style={{ fontSize: RFValue(13) }}
+                      />
+                      {predictions.length > 0 && (
+                        <FlatList
+                          data={predictions}
+                          renderItem={({ item }) => (
+                            <TouchableOpacity
+                              onPress={() => {
+                                setFieldValue("address", item.name); 
+                                setSearchText(item.name); // Clear search text after selection
+                                setPredictions([]); // Clear predictions after selection
+                              }}
+                              style={{ padding: 8 }}
+                            >
+                              <Text
+                                style={{ color: "black", fontWeight: "bold" }}
+                              >
+                                {item.name}
+                              </Text>
+                            </TouchableOpacity>
+                          )}
+                          keyExtractor={(item) => item.key.toString()} // Ensure key is a string
+                          style={{ marginHorizontal: 8 }}
+                        />
                       )}
                     </View>
 
@@ -648,4 +724,18 @@ const styles = StyleSheet.create({
     marginRight: 5,
     padding: 0.1,
   },
+  // predictionContainer: {
+  //   flexDirection: "column",
+  // },
+  // predictionItem: {
+  //   flexDirection: "column",
+  //   flex: 1,
+  // },
+  // locationTextStyle: {
+  //   fontSize: 16,
+  // },
+  // divider: {
+  //   borderBottomColor: "black",
+  //   borderBottomWidth: StyleSheet.hairlineWidth,
+  // },
 });

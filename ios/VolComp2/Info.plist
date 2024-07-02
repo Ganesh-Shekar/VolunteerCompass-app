@@ -78,5 +78,13 @@
 	<array>
 		<string>Open Sans.ttf</string>
 	</array>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>We need your location to show the map</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>We need your location to show the map</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>We need your location to show the map</string
+	<key>GMSApiKey</key>
+	<string>AIzaSyCbD48T0Pl-bcxUa8mkuteYRWO094xcFOc</string>
 </dict>
 </plist>

@@ -582,7 +582,7 @@ def getEvents():
             .execute()
         ).data
         return jsonify(response)    
-
+  
 
 @app.route("/search", methods=["GET"])
 @jwt_required()

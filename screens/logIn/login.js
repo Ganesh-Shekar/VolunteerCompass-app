@@ -194,7 +194,7 @@ const Login = () => {
                 >
                   <Text
                     className="text-xl font-bold text-white text-center"
-                    style={[styles.input, { fontSize: RFValue(14) }]}
+                    style={{ fontSize: RFValue(14), padding: RFValue(5) }}
                   >
                     Login
                   </Text>
@@ -257,10 +257,10 @@ const styles = StyleSheet.create({
     marginBottom: 36,
   },
   errorTxt: {
-    fontSize: 13,
+    fontSize: RFValue(10),
     color: "red",
     fontWeight: "normal",
-    marginTop: 5,
+    // marginTop: 5,
   },
 });
 

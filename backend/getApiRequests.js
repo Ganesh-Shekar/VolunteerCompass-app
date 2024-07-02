@@ -226,6 +226,24 @@ export const getCityResults = async (data) => {
   }
 };
 
+export const getAddressResults = async (data) => {
+  try {
+    const response = await axios.get(
+      `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(data)}&language=en&key=${GOOGLE_API_KEY}`,
+      {
+        params: {
+          components: `country:${COUNTRY_CODE}`,
+        },
+      }
+    );
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
 export const getCategories = async () => {
   return axiosInstance(
     await createAuthorizedRequestConfigInstance("GET", url.getAllCategories)
