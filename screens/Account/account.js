@@ -48,14 +48,17 @@ const Account = () => {
   };
 
   async function logOut() {
-    await AsyncStorage.clear();
-    AsyncStorage.setItem("isLoggedIn", "false");
-    AsyncStorage.setItem("token", "");
-    AsyncStorage.setItem("user_data", "");
     navigation.replace("LoginUser");
     try {
       const response = await logout({});
-      return response;
+      if (response && response.status === 200) {
+        AsyncStorage.setItem("isLoggedIn", "false");
+        AsyncStorage.setItem("token", "");
+        AsyncStorage.setItem("user_data", "");
+        await AsyncStorage.clear(); // Clears all AsyncStorage data
+      } else {
+        console.log("Logout failed or did not return the expected response");
+      }
     } catch (error) {
       console.error(error);
       throw error;
@@ -98,10 +101,10 @@ const Account = () => {
       <View style={styles.container}>
         <TouchableOpacity onPress={() => navigation.navigate("")}>
           <View style={{ alignItems: "center", marginTop: "10%" }}>
-            <TouchableOpacity onPress={pickImage}>
+            {/* <TouchableOpacity onPress={pickImage}>
               <UserCircleIcon size={90} style={{ marginTop: "4%" }} />
               {image && <Image source={{ uri: image }} style={styles.image} />}
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             <Text style={{ fontSize: 45 }}>{name + "" + lastName}</Text>
             <Text style={{ fontSize: 20 }}>{email}</Text>
             {phone ? (
