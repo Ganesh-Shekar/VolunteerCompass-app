@@ -29,7 +29,10 @@ import { Formik } from "formik";
 import * as yup from "yup";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { RFValue } from "react-native-responsive-fontsize";
-import { getAddressResults } from "../../backend/getApiRequests";
+import {
+  getAddressResults,
+  getCityResults,
+} from "../../backend/getApiRequests";
 const { width } = Dimensions.get("window");
 
 const ngoSignUpValidationSchema = yup.object().shape({
@@ -64,6 +67,12 @@ const ngoSignUpValidationSchema = yup.object().shape({
     .string()
     .min(3, "Address is too short")
     .required("Address is required"),
+
+  city: yup
+    .string()
+    .min(2, "City name is too short")
+    .max(50, "City name is too long")
+    .required("City is required"),
 
   category: yup.string().required("Select a category from the list"),
 });
@@ -104,7 +113,9 @@ const Signup = () => {
   const [data, setData] = useState([]);
   const [category, setCategory] = useState(null);
   const [searchText, setSearchText] = useState("");
+  const [searchCityText, setSearchCityText] = useState("");
   const [predictions, setPredictions] = useState([]);
+  const [cityPredictions, setCityPredictions] = useState([]);
 
   const ngoRequestObject = {
     userName: "",
@@ -113,6 +124,7 @@ const Signup = () => {
     ngoPassword: "",
     ngoConfirmPassword: "",
     address: "",
+    city: "",
     category: null,
   };
 
@@ -129,6 +141,7 @@ const Signup = () => {
     fetchCategories();
   }, []);
 
+  //fetch address predictions
   async function fetchPredictions(text) {
     setSearchText(text); // Ensure state is updated here
     if (text) {
@@ -144,6 +157,25 @@ const Signup = () => {
       }
     } else {
       setPredictions([]);
+    }
+  }
+
+  //fetch city predictions
+  async function fetchCityPredictions(text) {
+    setSearchCityText(text); // Ensure state is updated here
+    if (text) {
+      try {
+        const response = await getCityResults(text);
+        let tempPredicts = response.predictions.map((prediction) => ({
+          key: `${prediction.description.split(",")[0]}-${prediction.place_id}`,
+          name: prediction.description.split(",")[0],
+        }));
+        setCityPredictions(tempPredicts);
+      } catch (error) {
+        console.error("Error fetching predictions:", error);
+      }
+    } else {
+      setCityPredictions([]);
     }
   }
 
@@ -295,6 +327,7 @@ const Signup = () => {
                 contact_phone: values.number,
                 password: values.ngoPassword,
                 address: values.address,
+                city: values.city,
                 category: values.category,
               };
               const userRequestObject = {
@@ -454,7 +487,7 @@ const Signup = () => {
                         placeholderTextColor={"gray"}
                         value={searchText}
                         onChangeText={fetchPredictions}
-                        onBlur={handleBlur("ngoConfirmPassword")}
+                        onBlur={handleBlur("address")}
                         style={{ fontSize: RFValue(13) }}
                       />
                       {predictions.length > 0 && (
@@ -463,9 +496,9 @@ const Signup = () => {
                           renderItem={({ item }) => (
                             <TouchableOpacity
                               onPress={() => {
-                                setFieldValue("address", item.name); 
-                                setSearchText(item.name); // Clear search text after selection
-                                setPredictions([]); // Clear predictions after selection
+                                setFieldValue("address", item.name);
+                                setSearchText(item.name);
+                                setPredictions([]);
                               }}
                               style={{ padding: 8 }}
                             >
@@ -476,7 +509,48 @@ const Signup = () => {
                               </Text>
                             </TouchableOpacity>
                           )}
-                          keyExtractor={(item) => item.key.toString()} // Ensure key is a string
+                          keyExtractor={(item) => item.key.toString()}
+                          style={{ marginHorizontal: 8 }}
+                        />
+                      )}
+                      {touched.searchText && errors.searchText && (
+                        <Text style={styles.errorTxt}>{errors.searchText}</Text>
+                      )}
+                    </View>
+                    {/* Search for City */}
+                    <View
+                      className="bg-black/5 p-3 rounded-2xl w-full"
+                      style={{ width: width < 450 ? "100%" : 600 }}
+                    >
+                      <TextInput
+                        placeholder="City"
+                        placeholderTextColor={"gray"}
+                        value={searchCityText}
+                        onChangeText={fetchCityPredictions}
+                        onBlur={handleBlur("city")}
+                        style={{ fontSize: RFValue(13) }}
+                      />
+
+                      {cityPredictions.length > 0 && (
+                        <FlatList
+                          data={cityPredictions}
+                          renderItem={({ item }) => (
+                            <TouchableOpacity
+                              onPress={() => {
+                                setFieldValue("city", item.name);
+                                setSearchCityText(item.name);
+                                setCityPredictions([]);
+                              }}
+                              style={{ padding: 8 }}
+                            >
+                              <Text
+                                style={{ color: "black", fontWeight: "bold" }}
+                              >
+                                {item.name}
+                              </Text>
+                            </TouchableOpacity>
+                          )}
+                          keyExtractor={(item) => item.key.toString()}
                           style={{ marginHorizontal: 8 }}
                         />
                       )}

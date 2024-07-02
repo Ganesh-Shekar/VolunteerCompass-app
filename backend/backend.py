@@ -267,6 +267,7 @@ def get_category():
                 "ngo_display_name",
                 "created_at",
                 "address",
+                "city",
                 "event_count"
             )
             .eq("category_id", categoryId)

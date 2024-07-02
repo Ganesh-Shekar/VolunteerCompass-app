@@ -54,9 +54,8 @@ const HorizontalScrollable = ({ title, categoryId, data, city_value }) => {
       {ngoDetails.filter((ngo) => {
         return (
           ngo.category_id === categoryId &&
-          (ngo.address
-            ? ngo.address.trim().toLowerCase() ===
-              city_value.trim().toLowerCase()
+          (ngo.city
+            ? ngo.city.trim().toLowerCase() === city_value.trim().toLowerCase()
             : false)
         );
       }).length > 0 && (
@@ -80,12 +79,11 @@ const HorizontalScrollable = ({ title, categoryId, data, city_value }) => {
           {ngoDetails
             .filter((ngo) => {
               return (
-                ngo.category_id === categoryId 
-                // &&
-                // (ngo.address
-                //   ? ngo.address.trim().toLowerCase() ===
-                //     city_value.trim().toLowerCase()
-                //   : false)
+                ngo.category_id === categoryId &&
+                (ngo.city
+                  ? ngo.city.trim().toLowerCase() ===
+                    city_value.trim().toLowerCase()
+                  : false)
               );
             })
             .map((ngo, index) => (

@@ -209,6 +209,7 @@ export const getNgoBasedOnCategory = async (data) => {
     });
 };
 
+//for searching NGOs based on the city 
 export const getCityResults = async (data) => {
   try {
     const response = await axios.get(
@@ -226,6 +227,7 @@ export const getCityResults = async (data) => {
   }
 };
 
+//for setting the address
 export const getAddressResults = async (data) => {
   try {
     const response = await axios.get(
@@ -236,7 +238,7 @@ export const getAddressResults = async (data) => {
         },
       }
     );
-    console.log(response.data);
+    console.log("address", response.data);
     return response.data;
   } catch (error) {
     console.error(error);

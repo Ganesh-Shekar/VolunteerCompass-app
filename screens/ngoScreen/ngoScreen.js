@@ -103,7 +103,7 @@ const NgoScreen = ({ route }) => {
         >
           {item.category}
         </Text>
-        <View style={styles.element}>
+        <View style={{ marginStart: RFValue(15) }}>
           <Text
             style={{
               ...styles.paragraph,
@@ -117,13 +117,15 @@ const NgoScreen = ({ route }) => {
         </View>
         <View
           style={{
-            ...styles.element,
             flexDirection: "row",
             marginBottom: RFValue(6),
             alignItems: "center",
+            justifyContent: "center",
+            flex: 1,
           }}
         >
           <Icon name="location-dot" size={RFValue(16)} color="#f66" />
+
           <Text
             style={{
               ...styles.paragraph,
@@ -191,15 +193,19 @@ const NgoScreen = ({ route }) => {
                 renderItem={renderEventDetails}
                 keyExtractor={(item, index) => index.toString()}
                 ListFooterComponent={
-                  <View
-                    style={{
-                      width: "100%",
-                      height: 300,
-                      marginTop: RFValue(20),
-                    }}
-                  >
-                    <SetLocation address={ngoData.address} />
-                  </View>
+                  ngoData.address ? (
+                    <View
+                      style={{
+                        width: "100%",
+                        height: 300,
+                        marginTop: RFValue(20),
+                      }}
+                    >
+                      <SetLocation address={ngoData.address} />
+                    </View>
+                  ) : (
+                    <></>
+                  )
                 }
               />
             ) : (
@@ -214,11 +220,20 @@ const NgoScreen = ({ route }) => {
                 >
                   No events for this NGO currently
                 </Text>
-                <View
-                  style={{ width: "100%", height: 300, marginTop: RFValue(20) }}
-                >
-                  <SetLocation address={ngoData.address} />
-                </View>
+
+                {ngoData.address ? (
+                  <View
+                    style={{
+                      width: "100%",
+                      height: 300,
+                      marginTop: RFValue(20),
+                    }}
+                  >
+                    <SetLocation address={ngoData.address} />
+                  </View>
+                ) : (
+                  <></>
+                )}
               </>
             )}
           </>
@@ -243,9 +258,7 @@ const styles = StyleSheet.create({
   },
   element: {},
   paragraph: {
-    alignItems: "center",
     fontSize: RFValue(13),
-    marginTop: RFValue(2),
     color: "#0056b3",
   },
   image: {

@@ -36,7 +36,7 @@ const HomeScreen = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const isSearchBarEmpty = searchQuery === "";
-  const [value, setValue] = useState("Bengaluru");
+  const [cityValue, setCityValue] = useState("Bengaluru");
   const [searchText, setSearchText] = useState("");
   const [predictions, setPredictions] = useState(dropdown_data);
   const [locationServiceEnabled, setLocationServiceEnabled] = useState(false);
@@ -239,7 +239,7 @@ const HomeScreen = () => {
                                 <TouchableOpacity
                                   onPress={() => {
                                     setShowModal(false);
-                                    setValue(item.name);
+                                    setCityValue(item.name);
                                   }}
                                   style={{
                                     flexDirection: "row",
@@ -274,7 +274,7 @@ const HomeScreen = () => {
                                 <TouchableOpacity
                                   onPress={() => {
                                     setShowModal(false);
-                                    setValue(item.name);
+                                    setCityValue(item.name);
                                   }}
                                   style={{
                                     flexDirection: "row",
@@ -324,7 +324,7 @@ const HomeScreen = () => {
                       marginRight: 10,
                     }}
                   >
-                    {value}
+                    {cityValue}
                   </Text>
                   <Icon name="chevron-down" size={RFValue(12)} color="black" />
                 </TouchableOpacity>
@@ -390,7 +390,7 @@ const HomeScreen = () => {
                       categoryId={item.categoryId}
                       data={searchQuery ? searchResults : null}
                       isSearchBarEmpty={isSearchBarEmpty}
-                      city_value={value}
+                      city_value={cityValue}
                     />
                   </View>
                 ))}
@@ -459,4 +459,3 @@ const styles = StyleSheet.create({
 });
 
 export default HomeScreen;
-
