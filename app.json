@@ -11,9 +11,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#028a0f"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "config": {
         "usesNonExemptEncryption": false
@@ -35,9 +33,6 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": [
-      "expo-secure-store",
-      "expo-asset"
-    ]
+    "plugins": ["expo-secure-store", "expo-asset"]
   }
 }

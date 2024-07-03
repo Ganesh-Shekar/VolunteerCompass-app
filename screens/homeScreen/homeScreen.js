@@ -11,6 +11,7 @@ import {
   Modal,
   Button,
   Alert,
+  Platform,
 } from "react-native";
 import HorizontalScrollable from "./horizontalScrollable";
 import InfoIcon from "./infoIcon";
@@ -51,7 +52,7 @@ const HomeScreen = () => {
         const response = await getCityResults(text);
         let tempPredicts = response.predictions.map((prediction) => ({
           key: `${prediction.description.split(",")[0]}-${prediction.place_id}`,
-          name: prediction.description.split(",")[0],
+          name: prediction.description,
         }));
         setPredictions(tempPredicts);
       } catch (error) {
@@ -124,7 +125,7 @@ const HomeScreen = () => {
 
       for (let item of response) {
         let address = `${item.city}`;
-        setCityValue(address);
+        // setCityValue(address);
         setDisplayCurrentAddress(address);
       }
     }
@@ -168,11 +169,11 @@ const HomeScreen = () => {
 
   return (
     <SafeAreaView
-      className={"bg-white pt-5 h-full"}
+      className={"bg-white h-full"}
       style={{ backgroundColor: "#20a963" }}
     >
       <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
-        <View style={{ backgroundColor: "#20a963", paddingTop: RFValue(10) }}>
+        <View style={{ backgroundColor: "#20a963" }}>
           <View
             style={{
               flexDirection: "row",
@@ -245,7 +246,7 @@ const HomeScreen = () => {
                                   <TouchableOpacity
                                     onPress={() => {
                                       setShowModal(false);
-                                      setCityValue(item.name);
+                                      setCityValue(item.name.split(",")[0]);
                                     }}
                                     style={{
                                       flexDirection: "row",
@@ -287,7 +288,7 @@ const HomeScreen = () => {
                                 <TouchableOpacity
                                   onPress={() => {
                                     setShowModal(false);
-                                    setCityValue(item.name);
+                                    setCityValue(item.name.split(",")[0]);
                                   }}
                                   style={{
                                     flexDirection: "row",
@@ -402,7 +403,8 @@ const HomeScreen = () => {
             ) : (
               <>
                 {horizontalScrollables.map((item) => (
-                  <View key={item.categoryId}>
+                  
+                  <View key={item.categoryId} style={{marginLeft: 10}}>
                     <HorizontalScrollable
                       title={item.title}
                       categoryId={item.categoryId}

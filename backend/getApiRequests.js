@@ -238,7 +238,7 @@ export const getAddressResults = async (data) => {
         },
       }
     );
-    console.log("address", response.data);
+    
     return response.data;
   } catch (error) {
     console.error(error);

@@ -136,6 +136,30 @@ def signUpNgo():
 
     return const.successMessage200
 
+#update the location column of NGO
+@app.route("/updateLocation", methods=["POST"])
+def updateLocation():
+    data = request.get_json()
+    ngo_id = data["ngo_id"]
+    latitude = 40.7227
+    longitude = -73.9976
+    location_data_str = f"SRID=4326;POINT({longitude} {latitude})"
+    
+    response = supabase.table("ngo_details").update({"location": location_data_str}).eq("ngo_id", ngo_id).execute()
+    data = response.data
+    return jsonify(data)
+
+#fetch nearby NGOs
+@app.route("/fetchNearbyNgo", methods=["GET"])
+def fetchNearbyNgo():
+    latitude = 40.7128 
+    longitude = -74.0060
+    distance = 1000  
+    #supabase remote procedure call
+    response = supabase.rpc("fetch_nearby_ngos_new", {"lat": latitude, "long": longitude, "distance": distance}).execute()
+    data = response.data
+    return jsonify(data), 200
+
 
 # log in API
 @app.route("/login", methods=["GET"])

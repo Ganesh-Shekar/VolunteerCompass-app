@@ -104,7 +104,7 @@ const SetLocation = ({ address }) => {
         />
       </MapView>
       <TouchableOpacity style={styles.button} onPress={openInMaps}>
-        <Text style={styles.buttonText}>Open in Maps</Text>
+        <Text style={styles.buttonText}>open in Maps</Text>
       </TouchableOpacity>
     </View>
   );
@@ -132,15 +132,16 @@ const styles = StyleSheet.create({
     }),
   },
   button: {
-    backgroundColor: "#20a963",
-    padding: 10,
-    margin: 20,
+    // backgroundColor: "#20a963",
+    padding: RFValue(2),
+    marginTop : RFValue(1),
+    marginRight: RFValue(8),
     borderRadius: 5,
-    alignItems: "center",
+    alignItems: "flex-end",
   },
   buttonText: {
-    color: "white",
-    fontSize: RFValue(12),
+    color: "#0056b3",
+    fontSize: RFValue(13),
   },
   //   searchbar: {
   //     container: {
