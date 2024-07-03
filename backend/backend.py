@@ -182,11 +182,15 @@ def logIn():
             .execute()
         )
         
-        user_id = user_result.data[0]['user_id']
+        try:
+            user_id = user_result.data[0]['user_id']
         
-        if not user_result.data:
-            response = {"statusCode": 102, "message": "User Not Found", "data": {}}
-            return jsonify(response)
+        except IndexError:
+                print("ACCOUNT NOT FOUND")
+                response = {"statusCode": 102, "message": "Email Not Found", "data": {}}
+                return jsonify(response)
+        
+        
         user_result.data[0]["type"] = "user"
 
         result = user_result
@@ -213,7 +217,7 @@ def logIn():
         }
         return jsonify(response)
     else:
-        response = {"statusCode": 101, "message": "Password Incorrect", "data": {}}
+        response = {"statusCode": 101, "message": "Incorrect Password", "data": {}}
         return jsonify(response)
 
 

@@ -183,10 +183,17 @@ export const signIn = async (data) => {
   )
     .then(async (response) => {
       if (response.status === 200) {
-        const { accesstoken, refreshtoken } = response.data.tokens;
-        await AsyncStorage.setItem("refreshToken", refreshtoken);
-        await AsyncStorage.setItem("jwtToken", accesstoken);
-        return response.data;
+        if (
+          response.data.statusCode == 102 ||
+          response.data.statusCode == 101
+        ) {
+          return response.data;
+        } else {
+          const { accesstoken, refreshtoken } = response.data.tokens;
+          await AsyncStorage.setItem("refreshToken", refreshtoken);
+          await AsyncStorage.setItem("jwtToken", accesstoken);
+          return response.data;
+        }
       }
     })
     .catch((error) => {
@@ -209,7 +216,7 @@ export const getNgoBasedOnCategory = async (data) => {
     });
 };
 
-//for searching NGOs based on the city 
+//for searching NGOs based on the city
 export const getCityResults = async (data) => {
   try {
     const response = await axios.get(
@@ -231,14 +238,16 @@ export const getCityResults = async (data) => {
 export const getAddressResults = async (data) => {
   try {
     const response = await axios.get(
-      `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(data)}&language=en&key=${GOOGLE_API_KEY}`,
+      `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(
+        data
+      )}&language=en&key=${GOOGLE_API_KEY}`,
       {
         params: {
           components: `country:${COUNTRY_CODE}`,
         },
       }
     );
-    
+
     return response.data;
   } catch (error) {
     console.error(error);
