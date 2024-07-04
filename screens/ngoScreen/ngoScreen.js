@@ -121,7 +121,6 @@ const NgoScreen = ({ route }) => {
               flexDirection: "row",
               marginBottom: RFValue(6),
               // alignItems: "center",
-
               // justifyContent: "center",
               flex: 1,
             }}

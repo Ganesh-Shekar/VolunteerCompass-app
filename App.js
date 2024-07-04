@@ -64,9 +64,9 @@ const TabNav = () => {
         options={{
           tabBarIcon: ({ focused, size }) => (
             <Icon
-              name="calendar"
+              name="handshake-o"
               color={focused ? "#20a963" : "gray"}
-              size={width < 450 ? RFValue(18) : RFValue(14)}
+              size={width < 450 ? RFValue(20) : RFValue(14)}
               style={{ marginTop: RFValue(10) }}
             />
           ),
