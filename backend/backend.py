@@ -182,11 +182,15 @@ def logIn():
             .execute()
         )
         
-        user_id = user_result.data[0]['user_id']
+        try:
+            user_id = user_result.data[0]['user_id']
         
-        if not user_result.data:
-            response = {"statusCode": 102, "message": "User Not Found", "data": {}}
-            return jsonify(response)
+        except IndexError:
+                print("ACCOUNT NOT FOUND")
+                response = {"statusCode": 102, "message": "Email Not Found", "data": {}}
+                return jsonify(response)
+        
+        
         user_result.data[0]["type"] = "user"
 
         result = user_result
@@ -213,7 +217,7 @@ def logIn():
         }
         return jsonify(response)
     else:
-        response = {"statusCode": 101, "message": "Password Incorrect", "data": {}}
+        response = {"statusCode": 101, "message": "Incorrect Password", "data": {}}
         return jsonify(response)
 
 
@@ -455,12 +459,34 @@ def ngoVolunteered():
 
 
 # add events into event_details table
-@app.route("/add-event", methods=["POST"])
-def addEvent():
-    data = request.get_json()
-    supabase.table("event_details").insert(data).execute()
-
-    return const.successMessage200
+@app.route("/modify-event", methods=["POST", "DELETE", "PUT", "GET"])
+def modifyEvent():
+    if request.method =="POST":
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "Missing data"}), 400
+        supabase.table("event_details").insert(data).execute()
+        return const.successMessage200
+    
+    elif request.method == "DELETE":
+        event_id = request.get_json()    
+        if not event_id:
+            return jsonify({"error": "Missing event_id"}), 400
+        supabase.table("event_details").delete().eq("event_id", event_id).execute()
+        return const.successMessage200
+    
+    elif request.method =="GET":
+        event_id = request.args.get("event_id")
+        print("Hi", event_id)
+        if not event_id:
+            return jsonify({"error": "Missing event_id"}), 400
+        response = (
+            supabase.table("event_details")
+            .select("*")
+            .eq("event_id", event_id)
+            .execute()
+        ).data
+        return jsonify(response)
 
 
 # add volunteer to event table
@@ -553,12 +579,11 @@ def eventsVolunteered():
 
         event_data = {}
         event_date = ""
-        keys = ["id", "title", "description", "timing", "terms_of_working"]
 
         for i in range(len(response)):
             event = (
                 supabase.table("event_details")
-                .select("id", "title", "description", "timing", "terms_of_working", "date", "event_venue")
+                .select("id", "title","event_id", "description", "start_time","end_time", "terms_of_working", "date", "event_venue")
                 .eq("event_id", response[i]["event_id"])
                 .execute()
             ).data
@@ -568,8 +593,10 @@ def eventsVolunteered():
                 event_data[event_date].append(
                     {
                         "name": event[0]["title"],
+                        "event_id": event[0]["event_id"],   
                         "description": event[0]["description"],
-                        "timing": event[0]["timing"],
+                        "start_time": event[0]["start_time"],
+                        "end_time": event[0]["end_time"],
                         "event_venue": event[0]["event_venue"],
                     }
                 )
@@ -577,8 +604,10 @@ def eventsVolunteered():
                 event_data[event_date] = [
                     {
                         "name": event[0]["title"],
+                        "event_id": event[0]["event_id"],   
                         "description": event[0]["description"],
-                        "timing": event[0]["timing"],
+                        "start_time": event[0]["start_time"],
+                        "end_time": event[0]["end_time"],
                         "event_venue": event[0]["event_venue"],
                     }
                 ]
@@ -602,7 +631,7 @@ def getEvents():
         ngoId = request.args.get("ngo_id")
         response = (
             supabase.table("event_details")
-            .select("id", "title", "description", "timing", "terms_of_working", "event_id", "event_venue", "event_requirements", "date")
+            .select("id", "title", "description", "start_time", "end_time","terms_of_working", "event_id", "event_venue", "event_requirements", "date", "volunteer_limit")
             .eq("ngo_id", ngoId)
             .execute()
         ).data

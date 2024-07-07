@@ -169,7 +169,7 @@ const HomeScreen = () => {
 
   return (
     <SafeAreaView
-      className={"bg-white h-full"}
+      className={"h-full"}
       style={{ backgroundColor: "#20a963" }}
     >
       <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>

@@ -22,8 +22,6 @@ const { width, height } = Dimensions.get("window");
 import { RFValue } from "react-native-responsive-fontsize";
 import SetLocation from "./SetLocation";
 
-const latitudeDelta = 0.025;
-const longitudeDelta = 0.025;
 
 const NgoScreen = ({ route }) => {
   const ngoimage1 = Image.resolveAssetSource(ngoimage).uri;
@@ -34,14 +32,6 @@ const NgoScreen = ({ route }) => {
   const [loading, setLoading] = useState(true);
   const [eventDetails, setEventDetails] = useState([]);
 
-  const state = {
-    region: {
-      latitudeDelta,
-      longitudeDelta,
-      latitude: 12.840575,
-      longitude: 77.651787,
-    },
-  };
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -121,7 +111,6 @@ const NgoScreen = ({ route }) => {
               flexDirection: "row",
               marginBottom: RFValue(6),
               // alignItems: "center",
-
               // justifyContent: "center",
               flex: 1,
             }}
@@ -175,7 +164,7 @@ const NgoScreen = ({ route }) => {
       }}
       key={index}
     >
-      <EventRow key={index} event={item} saved_ngo={ngoData.ngo_id} />
+      <EventRow key={index} event={item} saved_ngo={ngoData.ngo_id} showVolunteerButton={true}/>
     </View>
   );
 

@@ -128,6 +128,8 @@ async function createRequestConfigInstance(
     config.data = requestObj;
   } else if (mMethod === "GET") {
     config.params = params;
+  } else if (mMethod === "DELETE") {
+    config.data = requestObj;
   }
 
   return config;
@@ -183,10 +185,17 @@ export const signIn = async (data) => {
   )
     .then(async (response) => {
       if (response.status === 200) {
-        const { accesstoken, refreshtoken } = response.data.tokens;
-        await AsyncStorage.setItem("refreshToken", refreshtoken);
-        await AsyncStorage.setItem("jwtToken", accesstoken);
-        return response.data;
+        if (
+          response.data.statusCode == 102 ||
+          response.data.statusCode == 101
+        ) {
+          return response.data;
+        } else {
+          const { accesstoken, refreshtoken } = response.data.tokens;
+          await AsyncStorage.setItem("refreshToken", refreshtoken);
+          await AsyncStorage.setItem("jwtToken", accesstoken);
+          return response.data;
+        }
       }
     })
     .catch((error) => {
@@ -209,7 +218,7 @@ export const getNgoBasedOnCategory = async (data) => {
     });
 };
 
-//for searching NGOs based on the city 
+//for searching NGOs based on the city
 export const getCityResults = async (data) => {
   try {
     const response = await axios.get(
@@ -231,14 +240,16 @@ export const getCityResults = async (data) => {
 export const getAddressResults = async (data) => {
   try {
     const response = await axios.get(
-      `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(data)}&language=en&key=${GOOGLE_API_KEY}`,
+      `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(
+        data
+      )}&language=en&key=${GOOGLE_API_KEY}`,
       {
         params: {
           components: `country:${COUNTRY_CODE}`,
         },
       }
     );
-    
+
     return response.data;
   } catch (error) {
     console.error(error);
@@ -273,7 +284,29 @@ export const getNgoInfo = async (ngoId) => {
 
 export const addNgoEvent = async (data) => {
   return axiosInstance(
-    await createRequestConfigInstance("POST", url.addEvent, data)
+    await createRequestConfigInstance("POST", url.modifyEvent, data)
+  )
+    .then((response) => response.status === 200 && response.data)
+    .catch((err) => {
+      throw err;
+    });
+};
+
+export const deleteNgoEvent = async (data) => {
+  return axiosInstance(
+    await createRequestConfigInstance("DELETE", url.modifyEvent, data)
+  )
+    .then((response) => response.status === 200 && response.data)
+    .catch((err) => {
+      throw err;
+    });
+};
+
+export const getNgoEvent = async (eventId) => {
+  return axiosInstance(
+    await createRequestConfigInstance("GET", url.modifyEvent,null,  {
+      event_id: eventId,
+    })
   )
     .then((response) => response.status === 200 && response.data)
     .catch((err) => {

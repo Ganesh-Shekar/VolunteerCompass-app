@@ -10,7 +10,6 @@ import {
   Platform,
   ImageBackground,
   Dimensions,
-  PixelRatio,
   ScrollView,
 } from "react-native";
 import React, { useEffect, useState } from "react";
@@ -19,12 +18,7 @@ import { useNavigation } from "@react-navigation/native";
 import { RegisterLogin, signIn } from "../../backend/getApiRequests";
 import { Form, Formik } from "formik";
 import * as yup from "yup";
-import {
-  widthPercentageToDP as wp,
-  heightPercentageToDP as hp,
-} from "react-native-responsive-screen";
-//import { isMobile, isTablet } from "react-device-detect";
-import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
+import { RFValue } from "react-native-responsive-fontsize";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import logo from "../../assets/logo.jpeg";
 import white_bg from "../../assets/white_background.jpg";
@@ -32,22 +26,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 const logo1 = Image.resolveAssetSource(logo).uri;
 const white_bg1 = Image.resolveAssetSource(white_bg).uri;
 const { width, height } = Dimensions.get("window");
-
-const pixelRatio = PixelRatio.get();
-const baseFontSize = 6;
-const responsiveFontSize = baseFontSize * pixelRatio;
-
-const baseFontSizeMobile = 16;
-const baseFontSizeTablet = 20;
-const isTablet = width >= 600;
-
-const getResponsiveFontSize = () => {
-  if (isTablet) {
-    return Math.round(baseFontSizeTablet * (width / 600)); // Adjust scaling factor as needed
-  } else {
-    return Math.round(baseFontSizeMobile * (width / 360)); // Adjust scaling factor as needed
-  }
-};
 
 const ReviewSchema = yup.object({
   email: yup
@@ -61,12 +39,12 @@ const ReviewSchema = yup.object({
 });
 
 const Login = () => {
-  const responsiveFontSize = getResponsiveFontSize();
   const navigation = useNavigation();
 
   const handleLogin = async (userInfo) => {
     try {
       const response = await signIn(userInfo);
+      console.log(response);
       if (
         response != null &&
         response != undefined &&
@@ -110,10 +88,6 @@ const Login = () => {
   };
 
   return (
-    // <View
-    //   className="bg-white h-full w-full"
-    //   style={styles.transparentBackground}
-    // >
     <ImageBackground
       source={{ uri: white_bg1 }}
       resizemode="cover"
@@ -149,7 +123,7 @@ const Login = () => {
                   style={{
                     width: width < 450 ? 200 : 400,
                     height: width < 450 ? 200 : 400,
-                    marginTop: 200,
+                    marginTop: RFValue(150),
                   }}
                 />
               </View>
@@ -207,7 +181,7 @@ const Login = () => {
                   >
                     <Text
                       className="text-xl font-bold text-white text-center"
-                      style={{ fontSize: RFValue(14), padding: RFValue(5) }}
+                      style={{ fontSize: RFValue(16), padding: RFValue(5) }}
                     >
                       Login
                     </Text>
@@ -248,33 +222,24 @@ const styles = StyleSheet.create({
   Email: {
     backgroundColor: "white",
     width: width < 450 ? "100%" : 600,
-    // height: width < 450 ? 50 : 70,
     height: width < 450 ? 70 : 80,
-    fontSize: width < 450 ? 16 : 600,
+    fontSize: width < 450 ? 16 : RFValue(16),
   },
   Password: {
     backgroundColor: "white",
     width: width < 450 ? "100%" : 600,
     height: width < 450 ? 70 : 80,
-    // height: width < 450 ? 50 : 60,
-    fontSize: width < 450 ? 16 : 600,
+    fontSize: width < 450 ? 16 : RFValue(16),
   },
   image: {
     flex: 1,
     resizeMode: "cover",
     justifyContent: "center",
   },
-  container: {
-    flex: 1,
-    justifyContent: "flex-end",
-    alignItems: "center",
-    marginBottom: 36,
-  },
   errorTxt: {
     fontSize: RFValue(10),
     color: "red",
     fontWeight: "normal",
-    // marginTop: 5,
   },
 });
 
