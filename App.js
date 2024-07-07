@@ -20,6 +20,7 @@ import Login from "./screens/logIn/login";
 import Signup from "./screens/logIn/signup2";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { RFValue } from "react-native-responsive-fontsize";
+import CreateEditEvent from "./screens/myEvents/CreateEditEvent";
 const { width, height } = Dimensions.get("window");
 
 const Stack = createNativeStackNavigator();
@@ -109,10 +110,13 @@ const HomeNavigator = ({ navigation, route }) => {
       <Stack.Screen name="NgoHomeScreen" component={NgoHomeScreen} />
       <Stack.Screen name="Account" component={Account} />
       <Stack.Screen name="NgoPage" component={NgoScreen} />
+      <Stack.Screen name="CreateEditEvent" component={CreateEditEvent} />
       <Stack.Screen name="LoginUser" component={LoginNav} />
     </Stack.Navigator>
   );
 };
+
+
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);

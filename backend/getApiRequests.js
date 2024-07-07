@@ -128,6 +128,8 @@ async function createRequestConfigInstance(
     config.data = requestObj;
   } else if (mMethod === "GET") {
     config.params = params;
+  } else if (mMethod === "DELETE") {
+    config.data = requestObj;
   }
 
   return config;
@@ -282,7 +284,29 @@ export const getNgoInfo = async (ngoId) => {
 
 export const addNgoEvent = async (data) => {
   return axiosInstance(
-    await createRequestConfigInstance("POST", url.addEvent, data)
+    await createRequestConfigInstance("POST", url.modifyEvent, data)
+  )
+    .then((response) => response.status === 200 && response.data)
+    .catch((err) => {
+      throw err;
+    });
+};
+
+export const deleteNgoEvent = async (data) => {
+  return axiosInstance(
+    await createRequestConfigInstance("DELETE", url.modifyEvent, data)
+  )
+    .then((response) => response.status === 200 && response.data)
+    .catch((err) => {
+      throw err;
+    });
+};
+
+export const getNgoEvent = async (eventId) => {
+  return axiosInstance(
+    await createRequestConfigInstance("GET", url.modifyEvent,null,  {
+      event_id: eventId,
+    })
   )
     .then((response) => response.status === 200 && response.data)
     .catch((err) => {

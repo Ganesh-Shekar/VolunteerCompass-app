@@ -4,9 +4,10 @@ import VolunteerButton from "./volunteerButton";
 import Icon from "react-native-vector-icons/FontAwesome6";
 import { RFValue } from "react-native-responsive-fontsize";
 
-export default function EventRow({ event, saved_ngo }) {
+export default function EventRow({ event, saved_ngo, showVolunteerButton }) {
   useEffect(() => {}, [event]);
-
+  event_start_time = event.start_time.split(":").slice(0, 2).join(":");
+  event_end_time = event.end_time.split(":").slice(0, 2).join(":");
   return (
     <View
       style={{
@@ -54,6 +55,16 @@ export default function EventRow({ event, saved_ngo }) {
               fontWeight: "400",
             }}
           >
+            <Icon name="calendar" size={19} /> {event.date}
+          </Text>
+          <Text
+            style={{
+              fontSize: RFValue(12),
+              marginHorizontal: RFValue(8),
+              marginTop: RFValue(10),
+              fontWeight: "400",
+            }}
+          >
             <Icon name="location-dot" size={19} /> {event.event_venue}
           </Text>
           <Text
@@ -65,7 +76,8 @@ export default function EventRow({ event, saved_ngo }) {
               fontWeight: "300",
             }}
           >
-            <Icon name="clock" size={19} /> {event.timing}
+            <Icon name="clock" size={19} /> {event_start_time} -{" "}
+            {event_end_time}
           </Text>
           <Text
             style={{
@@ -79,9 +91,11 @@ export default function EventRow({ event, saved_ngo }) {
             {event.event_requirements}
           </Text>
         </View>
-        <View style={styles.buttonContainer}>
-          <VolunteerButton event={event} saved_ngo={saved_ngo} />
-        </View>
+        {showVolunteerButton && (
+          <View style={styles.buttonContainer}>
+            <VolunteerButton event={event} saved_ngo={saved_ngo} />
+          </View>
+        )}
       </View>
     </View>
   );
