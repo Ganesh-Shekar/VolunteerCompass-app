@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -15,10 +15,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getAllEventsVolunteeredByUser } from "../../backend/getApiRequests";
 import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { boolean } from "yup";
 import { RFValue } from "react-native-responsive-fontsize";
 import Icon from "react-native-vector-icons/FontAwesome5";
-import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 import {
   getAllEventsByNgoId,
   deleteNgoEvent,
@@ -33,7 +31,6 @@ const MyEvents = () => {
   const [userType, setUserType] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   const [ngoEventDetails, setNgoEventDetails] = useState([]);
-  const [eventId, setEventId] = useState([]);
   const navigation = useNavigation();
 
   async function getType() {
@@ -105,77 +102,127 @@ const MyEvents = () => {
     }
   }
 
-  const PastEvents = () =>
-    eventsList == "" ? (
-      <ScrollView>
-        <View style={styles.content}>
-          {eventsList.map(
-            (event) =>
-              checkDate(event[0].date) && (
-                <EventRow
-                  event={event[0]}
-                  showVolunteerButton={false}
-                  key={event[0].event_id}
-                />
-              )
-          )}
-        </View>
-      </ScrollView>
-    ) : (
-      <Text>No Past Events</Text>
+  const PastEvents = () => {
+    const filteredEvents = eventsList.filter((event) =>
+      checkDate(event[0].start_date)
     );
+    if (filteredEvents.length === 0) {
+      return (
+        <Text style={{ textAlign: "center", marginTop: 20 }}>
+          No Past Events
+        </Text>
+      );
+    }
+
+    return (
+      <ScrollView
+        style={{ backgroundColor: "white" }}
+        className={"h-full w-full"}
+      >
+        {filteredEvents.map((event) => (
+          <EventRow
+            event={event[0]}
+            showVolunteerButton={false}
+            key={event[0].event_id}
+          />
+        ))}
+      </ScrollView>
+    );
+  };
 
   const UpcomingEvents = () => (
-    <ScrollView>
-      <View style={styles.content}>
-        {eventsList.map(
-          (event) =>
-            !checkDate(event[0].date) && (
-              <EventRow
-                event={event[0]}
-                showVolunteerButton={true}
-                key={event[0].event_id}
-              />
-            )
-        )}
-      </View>
+    <ScrollView
+      style={{ backgroundColor: "white" }}
+      className={"h-full w-full"}
+    >
+      {eventsList.map(
+        (event) =>
+          !checkDate(event[0].start_date) && (
+            <View key={event[0].event_id}>
+              <Text
+                style={{
+                  fontSize: RFValue(14),
+                  fontWeight: "bold",
+                  marginTop: RFValue(4),
+                }}
+              >
+                {event[0].date}
+              </Text>
+              <EventRow event={event[0]} showVolunteerButton={false} />
+            </View>
+          )
+      )}
     </ScrollView>
   );
 
   const UpcomingEventsforNGO = () => (
-    <ScrollView>
-      <View style={styles.content}>
-        {ngoEventDetails.map((events) => (
-          <>
-            <View style={styles.editTrashIcon}>
-              <Icon name="pen" size={20}></Icon>
-              <TouchableOpacity
-                onPress={() => {
-                  Alert.alert(
-                    "Delete Event",
-                    "Are you sure you want to delete this?",
-                    [
-                      {
-                        text: "Cancel",
-                        onPress: () => console.log("Cancel Pressed"),
-                        style: "cancel",
-                      },
-                      { text: "OK", onPress: () => deleteEvent(events.event_id) },
-                    ]
-                  );
-                }}
-              >
-                <Icon
-                  name="trash"
-                  size={20}
-                  // onPress={() => deleteEvent(events.event_id)}
-                ></Icon>
-              </TouchableOpacity>
+    <ScrollView className={"h-full w-full"}>
+      {ngoEventDetails.map(
+        (events) =>
+          !checkDate(events.start_date) && (
+            <View key={events.event_id}>
+              <View style={styles.editTrashIcon} key={events.event_id}>
+                <TouchableOpacity
+                  onPress={() => {
+                    Alert.alert(
+                      "Edit Event",
+                      "Do you want to edit this event?",
+                      [
+                        {
+                          text: "Cancel",
+                          style: "cancel",
+                        },
+                        {
+                          text: "OK",
+                          onPress: () => {
+                            navigation.navigate("CreateEditEvent", {
+                              event_details: events,
+                            });
+                            setModalVisible(false);
+                          },
+                          style: "ok",
+                        },
+                      ]
+                    );
+                  }}
+                >
+                  <Icon name="pen" size={20}></Icon>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => {
+                    Alert.alert(
+                      "Delete Event",
+                      "Are you sure you want to delete this?",
+                      [
+                        {
+                          text: "Cancel",
+                          style: "cancel",
+                        },
+                        {
+                          text: "OK",
+                          onPress: () => deleteEvent(events.event_id),
+                        },
+                      ]
+                    );
+                  }}
+                >
+                  <Icon
+                    name="trash"
+                    size={20}
+                    color={"red"}
+                    style={{ marginLeft: RFValue(10) }}
+                  ></Icon>
+                </TouchableOpacity>
+              </View>
+              <EventRow
+                event={events}
+                showVolunteerLimit={true}
+                style={{ flexDirection: "row", flex: 1 }}
+                showSlotsCount={true}
+              />
             </View>
-            <EventRow event={events} />
-          </>
-        ))}
-      </View>
+          )
+      )}
     </ScrollView>
   );
 
@@ -190,11 +237,11 @@ const MyEvents = () => {
       getType();
       getEventDetails();
       UpcomingEventsforNGO();
-    }, [fetchEvents])
+    }, [selectedTab])
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={{ backgroundColor: "#20a963" }}>
       {/* <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}> */}
       <View style={styles.tabContainer}>
         <TouchableOpacity
@@ -223,12 +270,11 @@ const MyEvents = () => {
               selectedTab === "upcoming" && styles.activeTabText,
             ]}
           >
-            Registered Events
+            Upcoming Events
           </Text>
         </TouchableOpacity>
       </View>
       {selectedTab === "past" ? <PastEvents /> : <UpcomingEvents />}
-      {/* </SafeAreaView> */}
 
       {userType !== "ngo" ? (
         <TouchableOpacity
@@ -307,19 +353,19 @@ const styles = StyleSheet.create({
   activeTabText: {
     fontWeight: "bold",
   },
-  content: {
-    alignItems: "flex-start",
-    flex: 1,
-    // justifyContent: 'center',
-    // alignItems: 'center',
-  },
+  // content: {
+  //   alignItems: "flex-start",
+  //   flex: 1,
+  //   // justifyContent: 'center',
+  //   // alignItems: 'center',
+  // },
   editTrashIcon: {
     position: "relative",
     flexDirection: "row",
     elevation: 5,
     zIndex: 999,
-    top: RFValue(25),
-    left: RFValue(250),
+    top: RFValue(40),
+    left: RFValue(230),
   },
   description: {
     fontSize: RFValue(10.5),
@@ -342,8 +388,8 @@ const styles = StyleSheet.create({
 
   plusIcon: {
     position: "absolute",
-    right: 30,
-    bottom: 30,
+    right: RFValue(20),
+    bottom: RFValue(10),
     backgroundColor: "#20a963",
     width: 56, // Diameter of the circle
     height: 56, // Diameter of the circle
@@ -364,7 +410,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 0,
     width: "100%",
-    height: "75%",
+    height: "80%",
     backgroundColor: "white",
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,

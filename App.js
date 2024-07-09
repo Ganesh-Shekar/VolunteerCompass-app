@@ -42,7 +42,7 @@ const LoginNav = () => {
 const TabNav = () => {
   return (
     <Tab.Navigator
-      screenOptions={{ headerShown: false, tabBarShowLabel: false, }}
+      screenOptions={{ headerShown: false, tabBarShowLabel: false }}
     >
       <Tab.Screen
         name="Home"
@@ -110,13 +110,12 @@ const HomeNavigator = ({ navigation, route }) => {
       <Stack.Screen name="NgoHomeScreen" component={NgoHomeScreen} />
       <Stack.Screen name="Account" component={Account} />
       <Stack.Screen name="NgoPage" component={NgoScreen} />
+      <Stack.Screen name="MyEvents" component={MyEvents} />
       <Stack.Screen name="CreateEditEvent" component={CreateEditEvent} />
       <Stack.Screen name="LoginUser" component={LoginNav} />
     </Stack.Navigator>
   );
 };
-
-
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);

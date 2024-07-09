@@ -36,7 +36,6 @@ import {
 } from "../../backend/getApiRequests";
 const { width } = Dimensions.get("window");
 
-
 const ngoSignUpValidationSchema = yup.object().shape({
   userName: yup
     .string()
@@ -75,6 +74,12 @@ const ngoSignUpValidationSchema = yup.object().shape({
     .min(2, "City name is too short")
     .max(50, "City name is too long")
     .required("City is required"),
+
+  description: yup
+    .string()
+    .min(2, "Description is too short")
+    .max(50, "Description is too long")
+    .required("Description is required"),
 
   category: yup.string().required("Select a category from the list"),
 });
@@ -127,6 +132,7 @@ const Signup = () => {
     ngoConfirmPassword: "",
     address: "",
     city: "",
+    description: "",
     category: null,
   };
 
@@ -249,14 +255,12 @@ const Signup = () => {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      className="bg-white h-full w-full"
-      // style={{paddingTop: 25}}
-    >
-      {/* Background */}
-      {/* <Image className="w-full h-full absolute" source={require('../../assets/images/background.png')}/> */}
+    // <KeyboardAvoidingView
+    //   behavior={Platform.OS === "ios" ? "padding" : "height"}
+    //   className="bg-white h-full w-full"
+    // >
 
+    <View style={{ flex: 1 }}>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.container}
@@ -331,6 +335,7 @@ const Signup = () => {
                 password: values.ngoPassword,
                 address: values.address,
                 city: values.city,
+                description: values.description,
                 category: values.category,
               };
               const userRequestObject = {
@@ -556,7 +561,25 @@ const Signup = () => {
                         <Text style={styles.errorTxt}>{errors.city}</Text>
                       )}
                     </View>
-
+                    <View
+                      className="bg-black/5 p-3 rounded-2xl w-full"
+                      style={{ width: width < 450 ? "100%" : 600 }}
+                    >
+                      <TextInput
+                        placeholder="NGO Description"
+                        placeholderTextColor={"gray"}
+                        inputMode="text"
+                        value={values.description}
+                        onChangeText={handleChange("description")}
+                        onBlur={handleBlur("description")}
+                        style={{ fontSize: RFValue(13) }}
+                      />
+                      {touched.description && errors.description && (
+                        <Text style={styles.errorTxt}>
+                          {errors.description}
+                        </Text>
+                      )}
+                    </View>
                     <View
                       className="bg-black/5 p-3 rounded-2xl w-full"
                       style={{ width: width < 450 ? "100%" : 600 }}
@@ -748,7 +771,7 @@ const Signup = () => {
         </View>
       </ScrollView>
       <StatusBar style="auto" />
-    </KeyboardAvoidingView>
+    </View>
   );
 };
 
@@ -756,7 +779,6 @@ export default Signup;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -778,7 +800,7 @@ const styles = StyleSheet.create({
   },
 
   selectedTextStyle: {
-    fontSize: 14.5,
+    fontSize: RFValue(14),
   },
 
   iconStyle: {

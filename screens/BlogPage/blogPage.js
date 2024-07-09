@@ -1,19 +1,23 @@
-import { View, Text, StyleSheet } from 'react-native'
-import React from 'react'
+import { View, Text, StyleSheet, SafeAreaView } from "react-native";
+import React from "react";
+import { RFValue } from "react-native-responsive-fontsize";
 
 const BlogPage = () => {
   return (
-    <View>
-      <Text>BlogPage</Text>
-    </View>
-  )
-}
+    <SafeAreaView style={{ flex: 1, justifyContent: "center" }}>
+      <View style={{ alignItems: "center" }}>
+        <Text style={{ fontWeight: "bold", fontSize: RFValue(22) }}>
+          Blog Page Coming Soon!!!
+        </Text>
+      </View>
+    </SafeAreaView>
+  );
+};
 
 const styles = StyleSheet.create({
-  textStyle:{
-    fontWeight: 'bold',
-    
-  }
-})
+  textStyle: {
+    fontWeight: "bold",
+  },
+});
 
-export default BlogPage
+export default BlogPage;

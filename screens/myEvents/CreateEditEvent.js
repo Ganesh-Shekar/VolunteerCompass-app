@@ -1,22 +1,24 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   View,
   Text,
   SafeAreaView,
   Dimensions,
   TextInput,
-  Platform,
   StyleSheet,
-  Button,
   TouchableOpacity,
   ScrollView,
+  Alert,
 } from "react-native";
 import * as yup from "yup";
+import { useFocusEffect } from "@react-navigation/native";
 import { Formik } from "formik";
 import DateTimePicker from "@react-native-community/datetimepicker";
-
+import BackButton from "../../components/backButton";
 const { width } = Dimensions.get("window");
+import { addNgoEvent, updateNgoEvent } from "../../backend/getApiRequests";
 import { RFValue } from "react-native-responsive-fontsize";
+import { useRoute } from "@react-navigation/native";
 
 const eventCreationValidationSchema = yup.object().shape({
   title: yup
@@ -31,10 +33,10 @@ const eventCreationValidationSchema = yup.object().shape({
     .max(80, "Description is too long")
     .required("Description is required"),
 
-  start_date: yup.date().required("Date is required"),
-  start_time: yup.date().required("Time is required"),
-  end_date: yup.date().required("Date is required"),
-  end_time: yup.date().required("Time is required"),
+  start_date: yup.date().required("Start Date is required"),
+  start_time: yup.date().required("Start Time is required"),
+  end_date: yup.date().required("End Date is required"),
+  end_time: yup.date().required("End Time is required"),
 
   event_venue: yup
     .string()
@@ -52,52 +54,139 @@ const eventCreationValidationSchema = yup.object().shape({
 });
 
 const CreateEditEvent = ({ navigation }) => {
-  const eventInitialValues = {
+  const route = useRoute();
+  const { event_details } = route.params;
+
+  const [formKey, setFormKey] = useState(0);
+
+  useFocusEffect(
+    useCallback(() => {
+      setFormKey((prevKey) => prevKey + 1);
+    }, [])
+  );
+
+  const createEvent = async (values) => {
+    const response = await addNgoEvent(values);
+    if (response === "Success") {
+      Alert.alert("Event Created Successfully");
+      navigation.navigate("MyEvents");
+    } else {
+      throw new Error("Event Creation Failed");
+    }
+  };
+
+  const updateEvent = async (values) => {
+    const response = await updateNgoEvent(values);
+    if (response === "Success") {
+      Alert.alert("Event Updated Successfully");
+      navigation.navigate("MyEvents");
+    } else {
+      throw new Error("Event Upadation Failed");
+    }
+  };
+
+  const [eventInitialValues, setEventInitialValues] = useState({
     title: "",
     description: "",
-    start_date: "",
-    end_date: "",
-    start_time: "",
-    end_time: "",
+    start_date: new Date(),
+    end_date: new Date(),
+    start_time: new Date(),
+    end_time: new Date(),
     event_venue: "",
     event_requirements: "",
     volunteer_limit: "",
-  };
+  });
 
   const [startDate, setStartDate] = useState(new Date());
-  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
-  const [showStartTimePicker, setShowStartTimePicker] = useState(false);
-
+  const [startTime, setStartTime] = useState(
+    new Date(new Date().getTime() + 15 * 60000)
+  );
   const [endDate, setEndDate] = useState(new Date());
-  const [showEndDatePicker, setShowEndDatePicker] = useState(false);
-  const [showEndTimePicker, setShowEndTimePicker] = useState(false);
+  const [endTime, setEndTime] = useState(new Date());
 
-  const handleDateChange = (selectedDate, setFieldValue, field) => {
-    setShowStartDatePicker(false);
-    setShowEndDatePicker(false);
-    if (selectedDate) {
-      setFieldValue(field, selectedDate);
-    }
-  };
+  useEffect(() => {
+    if (event_details) {
+      setEventInitialValues({
+        title: event_details.title,
+        description: event_details.description,
+        start_date: new Date(event_details.start_date),
+        end_date: new Date(event_details.end_date),
+        start_time: new Date(event_details.start_time),
+        end_time: new Date(event_details.end_time),
+        event_venue: event_details.event_venue,
+        event_requirements: event_details.event_requirements,
+        volunteer_limit: event_details.volunteer_limit,
+      });
 
-  const handleTimeChange = (selectedTime, setFieldValue, field) => {
-    setShowStartTimePicker(false);
-    setShowEndTimePicker(false);
-    if (selectedTime) {
-      setFieldValue(field, selectedTime);
+      function parseTimeString(timeString) {
+        const parts = timeString.split(":");
+        const date = new Date();
+        date.setHours(
+          parseInt(parts[0], 10),
+          parseInt(parts[1], 10),
+          parseInt(parts[2], 10)
+        );
+        return date;
+      }
+
+      const startTime = parseTimeString(event_details.start_time);
+      const endTime = parseTimeString(event_details.end_time);
+
+      setStartTime(startTime);
+      setEndTime(endTime);
+      setStartDate(new Date(event_details.start_date));
+      setEndDate(new Date(event_details.end_date));
     }
+  }, [event_details]);
+
+  //to set minimum end time if start date and end dates are same
+  const getMinimumDate = () => {
+    return event_details === undefined &&
+      startDate.getTime() === endDate.getTime()
+      ? new Date(startTime.getTime() + 15 * 60000)
+      : null;
   };
 
   return (
     <SafeAreaView>
-      <View>
-        <ScrollView>
-          <Text>Enter Event Details Below</Text>
+       <BackButton/> 
+      <View
+        style={{ backgroundColor: "white", alignItems: "center" }}
+        className={"h-full w-full"}
+      >
+        <Text style={{ fontSize: RFValue(13), marginTop: RFValue(5) }}>
+          Event Details
+        </Text>
+        <ScrollView automaticallyAdjustKeyboardInsets={true}>
           <Formik
+            key={formKey}
             initialValues={eventInitialValues}
             validationSchema={eventCreationValidationSchema}
             onSubmit={(values) => {
-              console.log("Submitted Values: ", values);
+              function formatTime(date) {
+                const timestamp = date;
+                const newDate = new Date(timestamp);
+                return newDate.toLocaleString("en-US", {
+                  timeZone: "Asia/Kolkata",
+                  hour12: false,
+                  hour: "2-digit",
+                  minute: "2-digit",
+                });
+              }
+
+              values.start_time = formatTime(values.start_time);
+              values.end_time = formatTime(values.end_time);
+
+              values.ngo_id = "774dc6a1-9a43-41af-8f81-82031061f54c";
+
+              if (event_details !== undefined) {
+                values.event_id = "3f4b299a-75c2-43bd-8a91-5cdeda3b6d23";
+                updateEvent(values);
+                console.log(values);
+              } else {
+                createEvent(values);
+                console.log(values);
+              }
             }}
           >
             {({
@@ -162,155 +251,169 @@ const CreateEditEvent = ({ navigation }) => {
                     onBlur={handleBlur("event_venue")}
                     style={{ fontSize: RFValue(13) }}
                   />
+
                   {touched.event_venue && errors.event_venue && (
                     <Text style={styles.errorTxt}>{errors.event_venue}</Text>
                   )}
                 </View>
 
                 {/* For Start Date */}
-                <View
-                  className="bg-black/5 p-3 rounded-2xl w-full"
-                  style={{
-                    width: width < 450 ? "100%" : 600,
-                  }}
-                >
-                  {!showStartDatePicker && (
-                    <DateTimePicker
-                      mode="date"
-                      display="spinner"
-                      value={startDate}
-                      onChange={(event, selectedDate) =>
-                        handleDateChange(selectedDate, setFieldValue, "start_date")
-                      }
-                      minimumDate={new Date()}
+                <View style={{ flexDirection: "row" }}>
+                  <View
+                    className="bg-black/5 p-3 rounded-2xl"
+                    style={{
+                      width: width < 450 ? "48%" : 600,
+                    }}
+                  >
+                    <TextInput
+                      placeholderTextColor={"gray"}
+                      placeholder="Start Date"
+                      editable={false}
                     />
-                  )}
-                   {!showStartDatePicker && Platform.OS === "ios" && (
-                    <View>
-                      <Button title="Done" onPress={handleDateChange("",setFieldValue,'start_date')} />
-                      <Button title="Close" onPress={setShowStartDatePicker(true)} />
-                    </View>
-                  )}
-                  {!showStartDatePicker && (
-                    <TouchableOpacity onPress={() => setShowStartDatePicker(true)}>
-                      <TextInput
-                        placeholder="Select Start Date"
-                        placeholderTextColor={"gray"}
-                        value={values.start_date ? values.start_date.toDateString() : ""}
-                        onBlur={handleBlur("start_date")}
-                        style={{ fontSize: RFValue(13) }}
-                        editable={false}
-                      />
-                    </TouchableOpacity>
-                  )}
-                  {touched.start_date && errors.start_date && (
-                    <Text style={styles.errorTxt}>{errors.start_date}</Text>
-                  )}
-                </View>
 
-                {/* For Start Time */}
-                <View
-                  className="bg-black/5 p-3 rounded-2xl w-full"
-                  style={{
-                    width: width < 450 ? "100%" : 600,
-                  }}
-                >
-                  {showStartTimePicker && (
-                    <DateTimePicker
-                      mode="time"
-                      display="spinner"
-                      value={startDate}
-                      onChange={(event, selectedTime) =>
-                        handleTimeChange(selectedTime, setFieldValue, "start_time")
-                      }
-                      is24Hour={true}
-                    />
-                  )}
-                  {!showStartTimePicker && (
-                    <TouchableOpacity onPress={() => setShowStartTimePicker(true)}>
-                      <TextInput
-                        placeholder="Select Start Time"
-                        placeholderTextColor={"gray"}
-                        value={values.start_time ? values.start_time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : ""}
-                        onBlur={handleBlur("start_time")}
-                        style={{ fontSize: RFValue(13) }}
-                        editable={false}
+                    <View
+                      style={{
+                        flex: 1,
+                        flexDirection: "row",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <DateTimePicker
+                        mode="date"
+                        value={startDate}
+                        onChange={(e, date) => {
+                          setStartDate(date);
+                          setFieldValue(
+                            "start_date",
+                            date.toISOString().split("T")[0]
+                          );
+                        }}
+                        minimumDate={new Date()}
                       />
-                    </TouchableOpacity>
-                  )}
-                  {touched.start_time && errors.start_time && (
-                    <Text style={styles.errorTxt}>{errors.start_time}</Text>
-                  )}
+                    </View>
+
+                    {touched.start_date && errors.start_date && (
+                      <Text style={styles.errorTxt}>{errors.start_date}</Text>
+                    )}
+                  </View>
+
+                  {/* For Start Time */}
+                  <View
+                    className="bg-black/5 p-3 rounded-2xl"
+                    style={{
+                      width: width < 450 ? "48%" : 600,
+                      marginLeft: RFValue(8),
+                    }}
+                  >
+                    <TextInput
+                      placeholderTextColor={"gray"}
+                      placeholder="Start Time"
+                      editable={false}
+                    />
+                    <View
+                      style={{
+                        flex: 1,
+                        flexDirection: "row",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <DateTimePicker
+                        mode="time"
+                        value={startTime}
+                        is24Hour={true}
+                        onChange={(e, date) => {
+                          setStartTime(date);
+                          setFieldValue("start_time", date);
+                        }}
+                        // minimumDate={
+                        //   new Date(new Date().getTime() + 15 * 60000)
+                        // }
+                        minuteInterval={15}
+                      />
+                    </View>
+                    {touched.start_time && errors.start_time && (
+                      <Text style={styles.errorTxt}>{errors.start_time}</Text>
+                    )}
+                  </View>
                 </View>
 
                 {/* For End Date */}
-                <View
-                  className="bg-black/5 p-3 rounded-2xl w-full"
-                  style={{
-                    width: width < 450 ? "100%" : 600,
-                  }}
-                >
-                  {showEndDatePicker && (
-                    <DateTimePicker
-                      mode="date"
-                      display="spinner"
-                      value={endDate}
-                      onChange={(event, selectedDate) =>
-                        handleDateChange(selectedDate, setFieldValue, "end_date")
-                      }
-                      minimumDate={startDate}
+                <View style={{ flexDirection: "row" }}>
+                  <View
+                    className="bg-black/5 p-3 rounded-2xl w-full"
+                    style={{
+                      width: width < 450 ? "48%" : 600,
+                    }}
+                  >
+                    <TextInput
+                      placeholderTextColor={"gray"}
+                      placeholder="End Date"
+                      editable={false}
                     />
-                  )}
-                  {!showEndDatePicker && (
-                    <TouchableOpacity onPress={() => setShowEndDatePicker(true)}>
-                      <TextInput
-                        placeholder="Select End Date"
-                        placeholderTextColor={"gray"}
-                        value={values.end_date ? values.end_date.toDateString() : ""}
-                        onBlur={handleBlur("end_date")}
-                        style={{ fontSize: RFValue(13) }}
-                        editable={false}
+                    <View
+                      style={{
+                        flex: 1,
+                        flexDirection: "row",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <DateTimePicker
+                        mode="date"
+                        // display="spinner"
+                        value={endDate}
+                        onChange={(e, date) => {
+                          setEndDate(date);
+                          setFieldValue(
+                            "end_date",
+                            date.toISOString().split("T")[0]
+                          );
+                        }}
+                        minimumDate={startDate}
                       />
-                    </TouchableOpacity>
-                  )}
-                  {touched.end_date && errors.end_date && (
-                    <Text style={styles.errorTxt}>{errors.end_date}</Text>
-                  )}
-                </View>
+                    </View>
 
-                {/* For End Time */}
-                <View
-                  className="bg-black/5 p-3 rounded-2xl w-full"
-                  style={{
-                    width: width < 450 ? "100%" : 600,
-                  }}
-                >
-                  {showEndTimePicker && (
-                    <DateTimePicker
-                      mode="time"
-                      display="spinner"
-                      value={endDate}
-                      onChange={(event, selectedTime) =>
-                        handleTimeChange(selectedTime, setFieldValue, "end_time")
-                      }
-                      is24Hour={true}
+                    {touched.end_date && errors.end_date && (
+                      <Text style={styles.errorTxt}>{errors.end_date}</Text>
+                    )}
+                  </View>
+
+                  {/* For End Time */}
+                  <View
+                    className="bg-black/5 p-3 rounded-2xl w-full"
+                    style={{
+                      width: width < 450 ? "48%" : 600,
+                      marginLeft: RFValue(8),
+                    }}
+                  >
+                    <TextInput
+                      placeholderTextColor={"gray"}
+                      placeholder="End Time"
+                      editable={false}
                     />
-                  )}
-                  {!showEndTimePicker && (
-                    <TouchableOpacity onPress={() => setShowEndTimePicker(true)}>
-                      <TextInput
-                        placeholder="Select End Time"
-                        placeholderTextColor={"gray"}
-                        value={values.end_time ? values.end_time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : ""}
-                        onBlur={handleBlur("end_time")}
-                        style={{ fontSize: RFValue(13) }}
-                        editable={false}
+                    <View
+                      style={{
+                        flex: 1,
+                        flexDirection: "row",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <DateTimePicker
+                        mode="time"
+                        value={endTime}
+                        is24Hour={true}
+                        onChange={(e, date) => {
+                          setEndTime(date);
+                          setFieldValue("end_time", date);
+                        }}
+                        minimumDate={getMinimumDate()}
+                        minuteInterval={15}
                       />
-                    </TouchableOpacity>
-                  )}
-                  {touched.end_time && errors.end_time && (
-                    <Text style={styles.errorTxt}>{errors.end_time}</Text>
-                  )}
+                    </View>
+
+                    {touched.end_time && errors.end_time && (
+                      <Text style={styles.errorTxt}>{errors.end_time}</Text>
+                    )}
+                  </View>
                 </View>
 
                 <View
@@ -328,7 +431,9 @@ const CreateEditEvent = ({ navigation }) => {
                     style={{ fontSize: RFValue(13) }}
                   />
                   {touched.event_requirements && errors.event_requirements && (
-                    <Text style={styles.errorTxt}>{errors.event_requirements}</Text>
+                    <Text style={styles.errorTxt}>
+                      {errors.event_requirements}
+                    </Text>
                   )}
                 </View>
 
@@ -341,19 +446,21 @@ const CreateEditEvent = ({ navigation }) => {
                   <TextInput
                     placeholder="Volunteer Limit"
                     placeholderTextColor={"gray"}
-                    value={values.volunteer_limit}
+                    value={String(values.volunteer_limit)}
                     onChangeText={handleChange("volunteer_limit")}
                     onBlur={handleBlur("volunteer_limit")}
                     style={{ fontSize: RFValue(13) }}
                     keyboardType="numeric"
                   />
                   {touched.volunteer_limit && errors.volunteer_limit && (
-                    <Text style={styles.errorTxt}>{errors.volunteer_limit}</Text>
+                    <Text style={styles.errorTxt}>
+                      {errors.volunteer_limit}
+                    </Text>
                   )}
                 </View>
 
                 <TouchableOpacity
-                  className="bg-[#F88379] p-3 rounded-full items-center mt-5"
+                  className="bg-[#20a963] p-3 rounded-full items-center mt-5"
                   style={{ width: width < 450 ? "100%" : 300 }}
                   onPress={handleSubmit}
                 >
@@ -361,7 +468,7 @@ const CreateEditEvent = ({ navigation }) => {
                     className="text-white text-center"
                     style={{ fontSize: RFValue(13) }}
                   >
-                    Create Event
+                    {event_details ? "Update Event" : "Create Event"}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -382,5 +489,3 @@ const styles = StyleSheet.create({
 });
 
 export default CreateEditEvent;
-
-

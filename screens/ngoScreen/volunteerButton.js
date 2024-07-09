@@ -15,13 +15,7 @@ import {
   checkUserRegistration,
 } from "../../backend/getApiRequests";
 import { RFValue } from "react-native-responsive-fontsize";
-const { width, height } = Dimensions.get("window"); 
-
-// const VolunteerButtStyle = ({ pressed, title }) => (
-//   <TouchableOpacity onPress={pressed} style={styles.appButtonContainer}>
-//     <Text style={styles.appButtonText}>{title}</Text>
-//   </TouchableOpacity>
-// );
+const { width, height } = Dimensions.get("window");
 
 const VolunteerButton = ({ event, saved_ngo }) => {
   const [showModal, setShowModal] = useState(false);
@@ -54,6 +48,9 @@ const VolunteerButton = ({ event, saved_ngo }) => {
         if (!isRegistered) {
           Alert.alert("Registration successful");
         }
+      }
+      else{
+        Alert.alert("Registration failed");
       }
     } catch (error) {
       throw error;
@@ -110,7 +107,7 @@ const VolunteerButton = ({ event, saved_ngo }) => {
       <TouchableOpacity
         style={{
           paddingBottom: RFValue(10),
-          width: width < 450 ? 300 : 500 ,
+          width: width < 450 ? 300 : 500,
           // alignItems: "center",
         }}
         onPress={() => {

@@ -164,7 +164,7 @@ const NgoScreen = ({ route }) => {
       }}
       key={index}
     >
-      <EventRow key={index} event={item} saved_ngo={ngoData.ngo_id} showVolunteerButton={true}/>
+      <EventRow key={index} event={item} saved_ngo={ngoData.ngo_id} showVolunteerButton={true} showSlotsCount={true}/>
     </View>
   );
 

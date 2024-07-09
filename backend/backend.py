@@ -186,7 +186,7 @@ def logIn():
             user_id = user_result.data[0]['user_id']
         
         except IndexError:
-                print("ACCOUNT NOT FOUND")
+               
                 response = {"statusCode": 102, "message": "Email Not Found", "data": {}}
                 return jsonify(response)
         
@@ -468,6 +468,14 @@ def modifyEvent():
         supabase.table("event_details").insert(data).execute()
         return const.successMessage200
     
+    elif request.method == "PUT": 
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "Missing data"}), 400
+        event_id = data.get("event_id")
+        supabase.table("event_details").update(data).eq("event_id", event_id).execute()
+        return const.successMessage200
+    
     elif request.method == "DELETE":
         event_id = request.get_json()    
         if not event_id:
@@ -477,7 +485,6 @@ def modifyEvent():
     
     elif request.method =="GET":
         event_id = request.args.get("event_id")
-        print("Hi", event_id)
         if not event_id:
             return jsonify({"error": "Missing event_id"}), 400
         response = (
@@ -500,7 +507,6 @@ def addVolunteer():
     user_details = user_details_response.data
     
     if user_details:
-        
         data = request.get_json()
         ngoId = data.get("ngo_id")
         userId = userID
@@ -583,11 +589,11 @@ def eventsVolunteered():
         for i in range(len(response)):
             event = (
                 supabase.table("event_details")
-                .select("id", "title","event_id", "description", "start_time","end_time", "terms_of_working", "date", "event_venue")
+                .select("id", "title","event_id", "description","start_date", "start_time","end_time", "terms_of_working", "event_venue", "volunteer_limit", "slots_left")
                 .eq("event_id", response[i]["event_id"])
                 .execute()
             ).data
-            event_date = event[0]["date"]
+            event_date = event[0]["start_date"]
 
             if event_date in event_data:
                 event_data[event_date].append(
@@ -598,6 +604,8 @@ def eventsVolunteered():
                         "start_time": event[0]["start_time"],
                         "end_time": event[0]["end_time"],
                         "event_venue": event[0]["event_venue"],
+                        "volunteer_limit": event[0]["volunteer_limit"], 
+                        "slots_left": event[0]["slots_left"]    
                     }
                 )
             else:
@@ -609,6 +617,8 @@ def eventsVolunteered():
                         "start_time": event[0]["start_time"],
                         "end_time": event[0]["end_time"],
                         "event_venue": event[0]["event_venue"],
+                        "volunteer_limit": event[0]["volunteer_limit"], 
+                        "slots_left": event[0]["slots_left"]    
                     }
                 ]
 
@@ -631,7 +641,7 @@ def getEvents():
         ngoId = request.args.get("ngo_id")
         response = (
             supabase.table("event_details")
-            .select("id", "title", "description", "start_time", "end_time","terms_of_working", "event_id", "event_venue", "event_requirements", "date", "volunteer_limit")
+            .select("id", "title", "description","start_date","end_date", "start_time", "end_time","terms_of_working", "event_id", "event_venue", "event_requirements", "volunteer_limit", "slots_left")
             .eq("ngo_id", ngoId)
             .execute()
         ).data
