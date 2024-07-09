@@ -49,7 +49,7 @@ const HorizontalScrollable = ({ title, categoryId, data, city_value }) => {
   }, [data]);
 
   return (
-    <View style={{ flex: 1}}>
+    <View style={{ flex: 1 }}>
       {ngoDetails.filter((ngo) => {
         return (
           ngo.category_id === categoryId &&
@@ -58,20 +58,18 @@ const HorizontalScrollable = ({ title, categoryId, data, city_value }) => {
             : false)
         );
       }).length > 0 && (
-        
         <Text
           style={{
             fontSize: RFValue(16),
             fontWeight: "bold",
             marginVertical: RFValue(12),
-            marginLeft: RFValue(12),
+            marginLeft: RFValue(5),
           }}
         >
           {title}
         </Text>
-        
       )}
-      <SafeAreaView >
+      <SafeAreaView>
         <ScrollView
           horizontal={true}
           showsHorizontalScrollIndicator={false}

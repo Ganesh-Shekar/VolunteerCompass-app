@@ -108,7 +108,14 @@ const MyEvents = () => {
     );
     if (filteredEvents.length === 0) {
       return (
-        <Text style={{ textAlign: "center", marginTop: 20 }}>
+        <Text
+          style={{
+            textAlign: "center",
+            fontSize: RFValue(16),
+            paddingTop: RFValue(20),
+          }}
+          className={"h-full w-full bg-white"}
+        >
           No Past Events
         </Text>
       );
@@ -130,33 +137,43 @@ const MyEvents = () => {
     );
   };
 
-  const UpcomingEvents = () => (
-    <ScrollView
-      style={{ backgroundColor: "white" }}
-      className={"h-full w-full"}
-    >
-      {eventsList.map(
-        (event) =>
-          !checkDate(event[0].start_date) && (
-            <View key={event[0].event_id}>
-              <Text
-                style={{
-                  fontSize: RFValue(14),
-                  fontWeight: "bold",
-                  marginTop: RFValue(4),
-                }}
-              >
-                {event[0].date}
-              </Text>
-              <EventRow event={event[0]} showVolunteerButton={false} />
-            </View>
-          )
-      )}
-    </ScrollView>
-  );
+  const UpcomingEvents = () => {
+    const filteredEvents = eventsList.filter(
+      (event) => !checkDate(event[0].start_date)
+    );
+    if (filteredEvents.length === 0) {
+      return (
+        <Text
+          style={{
+            textAlign: "center",
+            fontSize: RFValue(16),
+            paddingTop: RFValue(20),
+          }}
+          className={"h-full w-full bg-white"}
+        >
+          No Upcoming Events
+        </Text>
+      );
+    }
+
+    return (
+      <ScrollView
+        style={{ backgroundColor: "white" }}
+        className={"h-full w-full"}
+      >
+        {filteredEvents.map((event) => (
+          <EventRow
+            event={event[0]}
+            showVolunteerButton={false}
+            key={event[0].event_id}
+          />
+        ))}
+      </ScrollView>
+    );
+  };
 
   const UpcomingEventsforNGO = () => (
-    <ScrollView className={"h-full w-full"}>
+    <ScrollView>
       {ngoEventDetails.map(
         (events) =>
           !checkDate(events.start_date) && (
@@ -283,7 +300,7 @@ const MyEvents = () => {
             setModalVisible(true);
           }}
         >
-          <Icon name="plus" size={24} color="#fff" />
+          <Icon name="plus" size={RFValue(24)} color="#fff" />
         </TouchableOpacity>
       ) : (
         <></>
@@ -348,7 +365,7 @@ const styles = StyleSheet.create({
   },
   tabText: {
     color: "#fff",
-    fontSize: RFValue(12),
+    fontSize: RFValue(14),
   },
   activeTabText: {
     fontWeight: "bold",
@@ -364,8 +381,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     elevation: 5,
     zIndex: 999,
+    justifyContent: "flex-end",
     top: RFValue(40),
-    left: RFValue(230),
+    left: RFValue(-25),
   },
   description: {
     fontSize: RFValue(10.5),
@@ -389,7 +407,7 @@ const styles = StyleSheet.create({
   plusIcon: {
     position: "absolute",
     right: RFValue(20),
-    bottom: RFValue(10),
+    bottom: RFValue(60),
     backgroundColor: "#20a963",
     width: 56, // Diameter of the circle
     height: 56, // Diameter of the circle
@@ -414,7 +432,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    padding: 20,
+    padding: RFValue(5),
     // Add shadow or elevation if needed
     shadowColor: "#000",
     shadowOffset: {
@@ -433,20 +451,11 @@ const styles = StyleSheet.create({
   },
   editEventsSection: {
     // Style for the content inside the scrollable section
+    flex: 1,
   },
   sectionTitle: {
     fontSize: RFValue(16),
     fontWeight: "bold",
-    marginBottom: 10,
-  },
-  editDeleteIcons: {
-    position: "relative",
-    elevation: 5,
-    zIndex: 999,
-    top: RFValue(25),
-    right: RFValue(15),
-    flexDirection: "row",
-    justifyContent: "flex-end",
   },
   attractiveButton: {
     backgroundColor: "#20a963", // Bootstrap primary button color
@@ -458,7 +467,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.23,
     shadowRadius: 2.62,
     elevation: 4,
-    marginBottom: RFValue(15),
+    margin: RFValue(12),
   },
   buttonText: {
     color: "#ffffff",

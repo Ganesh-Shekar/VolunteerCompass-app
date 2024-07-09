@@ -260,11 +260,12 @@ const Signup = () => {
     //   className="bg-white h-full w-full"
     // >
 
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1 }} >
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.container}
         automaticallyAdjustKeyboardInsets={true}
+        
       >
         {/* handshake */}
         {/* <View className="flex-row justify-around w-full absolute">
@@ -591,8 +592,8 @@ const Signup = () => {
                         inputSearchStyle={styles.inputSearchStyle}
                         iconStyle={styles.iconStyle}
                         data={data}
-                        search
-                        maxHeight={300}
+                        // search
+                        maxHeight={150}
                         labelField="label"
                         valueField="value"
                         placeholder={"Select Category"}

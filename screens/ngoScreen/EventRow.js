@@ -96,7 +96,7 @@ export default function EventRow({
               fontWeight: "400",
             }}
           >
-            <Icon name="calendar" size={19} /> {event_start_date} -{" "}
+            <Icon name="calendar-day" size={19} /> {event_start_date} -{" "}
             {event_end_date}
           </Text>
           <Text
@@ -107,7 +107,7 @@ export default function EventRow({
               fontWeight: "400",
             }}
           >
-            <Icon name="location-dot" size={19} /> {event.event_venue}
+            <Icon name="location-dot" size={19} color="#f66"/> {event.event_venue}
           </Text>
           <Text
             style={{

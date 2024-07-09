@@ -26,6 +26,7 @@ import * as ImagePicker from "expo-image-picker";
 import AccountEdit from "./AccountEdit";
 const { width } = Dimensions.get("window");
 import { RFValue } from "react-native-responsive-fontsize";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const Account = () => {
   const navigation = useNavigation();
@@ -33,8 +34,8 @@ const Account = () => {
   const [termsModalVisible, setTermsModalVisible] = useState(false);
   const [licensesModalVisible, setLicensesModalVisible] = useState(false);
   const [image, setImage] = useState(null);
+
   const pickImage = async () => {
-    // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsEditing: true,
@@ -94,34 +95,26 @@ const Account = () => {
   }, []);
 
   return (
-    <>
-      <View className="bg-white pt-10">
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.header}>
         <BackButton />
       </View>
       <View style={styles.container}>
         <TouchableOpacity onPress={() => navigation.navigate("")}>
-          <View style={{ alignItems: "center", marginTop: "10%" }}>
-            {/* <TouchableOpacity onPress={pickImage}>
-              <UserCircleIcon size={90} style={{ marginTop: "4%" }} />
-              {image && <Image source={{ uri: image }} style={styles.image} />}
-            </TouchableOpacity> */}
-            <Text style={{ fontSize: 45 }}>{name + "" + lastName}</Text>
-            <Text style={{ fontSize: 20 }}>{email}</Text>
-            {phone ? (
-              <Text style={{ fontSize: 20, marginTop: 5 }}>{phone}</Text>
-            ) : null}
-            <View style={{ fontSize: 20, paddingBottom: "10%" }} />
+          <View style={styles.profileContainer}>
+            <UserCircleIcon size={90} style={styles.profileIcon} />
+            {image && <Image source={{ uri: image }} style={styles.image} />}
+            <Text style={styles.nameText}>{name + "" + lastName}</Text>
+            <Text style={styles.emailText}>{email}</Text>
+            {phone && <Text style={styles.phoneText}>{phone}</Text>}
           </View>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[
-            styles.aboutPage,
-            { borderTopWidth: StyleSheet.hairlineWidth },
-          ]}
+          style={styles.aboutPage}
           onPress={() => setPrivacyModalVisible(true)}
         >
-          <Text style={{ fontSize: 30 }}>Privacy Policy</Text>
+          <Text style={styles.aboutText}>Privacy Policy</Text>
           <ChevronRightIcon size={30} />
         </TouchableOpacity>
 
@@ -129,7 +122,7 @@ const Account = () => {
           style={styles.aboutPage}
           onPress={() => setTermsModalVisible(true)}
         >
-          <Text style={{ fontSize: 30 }}>Terms and Conditions</Text>
+          <Text style={styles.aboutText}>Terms and Conditions</Text>
           <ChevronRightIcon size={30} />
         </TouchableOpacity>
 
@@ -137,22 +130,14 @@ const Account = () => {
           style={styles.aboutPage}
           onPress={() => setLicensesModalVisible(true)}
         >
-          <Text style={{ fontSize: 30 }}>Licenses</Text>
+          <Text style={styles.aboutText}>Licenses</Text>
           <ChevronRightIcon size={30} />
         </TouchableOpacity>
       </View>
-      <TouchableOpacity
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          bottom: 0,
-          marginBottom: "10%",
-          paddingTop: "4%",
-        }}
-        onPress={logOut}
-      >
-        <ArrowRightOnRectangleIcon style={{ paddingRight: 30 }} />
-        <Text style={{ fontSize: 20 }}>Log Out</Text>
+
+      <TouchableOpacity style={styles.logoutContainer} onPress={logOut}>
+        <ArrowRightOnRectangleIcon style={styles.logoutIcon} />
+        <Text style={styles.logoutText}>Log Out</Text>
       </TouchableOpacity>
       <StatusBar style="auto" />
 
@@ -164,9 +149,7 @@ const Account = () => {
       >
         <View style={styles.modalView}>
           <ScrollView style={styles.scrollView}>
-            <Text style={styles.modalText}>
-              <PrivacyPolicyText />
-            </Text>
+            <PrivacyPolicyText />
           </ScrollView>
           <TouchableOpacity
             style={styles.closeButton}
@@ -185,9 +168,7 @@ const Account = () => {
       >
         <View style={styles.modalView}>
           <ScrollView style={styles.scrollView}>
-            <Text style={styles.modalText}>
-              <TermsAndConditionsText />
-            </Text>
+            <TermsAndConditionsText />
           </ScrollView>
           <TouchableOpacity
             style={styles.closeButton}
@@ -206,9 +187,7 @@ const Account = () => {
       >
         <View style={styles.modalView}>
           <ScrollView style={styles.scrollView}>
-            <Text style={styles.modalText}>
-              <LicensesText />
-            </Text>
+            <LicensesText />
           </ScrollView>
           <TouchableOpacity
             style={styles.closeButton}
@@ -218,23 +197,83 @@ const Account = () => {
           </TouchableOpacity>
         </View>
       </Modal>
-    </>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "white",
+  },
+  header: {
+    backgroundColor: "#fff",
+  },
   container: {
     flex: 1,
-    backgroundColor: "#fff",
     alignItems: "center",
+  },
+  profileContainer: {
+    alignItems: "center",
+    marginTop: 40,
+  },
+  profileIcon: {
+    color: "#4a4a4a",
+    marginBottom: 10,
+  },
+  image: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    marginTop: 10,
+  },
+  nameText: {
+    fontSize: 30,
+    fontWeight: "bold",
+    color: "#333",
+  },
+  emailText: {
+    fontSize: 18,
+    color: "#666",
+    marginTop: 5,
+  },
+  phoneText: {
+    fontSize: 18,
+    color: "#666",
+    marginTop: 5,
   },
   aboutPage: {
     flexDirection: "row",
     alignItems: "center",
     width: "95%",
-    paddingVertical: "2%",
+    paddingVertical: 15,
     borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: "#ddd",
     justifyContent: "space-between",
+    paddingHorizontal: 10,
+    backgroundColor: "#fff",
+    marginVertical: 5,
+    borderRadius: 10,
+  },
+  aboutText: {
+    fontSize: 20,
+    color: "#333",
+  },
+  logoutContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center", 
+    bottom: 0,
+    marginBottom: "10%",
+    paddingTop: "4%",
+  },
+  logoutIcon: {
+    paddingRight: 10,
+    color: "#ff0000",
+  },
+  logoutText: {
+    fontSize: 20,
+    color: "#ff0000",
   },
   modalView: {
     flex: 1,
@@ -246,7 +285,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   scrollView: {
-    marginHorizontal: 10,
     width: "100%",
   },
   modalText: {

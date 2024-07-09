@@ -20,7 +20,7 @@ import { Form, Formik } from "formik";
 import * as yup from "yup";
 import { RFValue } from "react-native-responsive-fontsize";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import logo from "../../assets/logo.jpeg";
+import logo from "../../assets/App_logo.png";
 import white_bg from "../../assets/white_background.jpg";
 import { SafeAreaView } from "react-native-safe-area-context";
 const logo1 = Image.resolveAssetSource(logo).uri;
@@ -91,7 +91,7 @@ const Login = () => {
     <ImageBackground
       source={{ uri: white_bg1 }}
       resizemode="cover"
-      style="{styles.image}"
+      style={styles.image}
     >
       <Formik
         initialValues={{ email: "", password: "" }}
@@ -103,29 +103,27 @@ const Login = () => {
         {(props) => (
           // {/* title and form */}
 
-          <KeyboardAvoidingView
-            behaviour={Platform.OS === "ios" ? "padding" : "height"}
-            className="h-full w-full flex justify-around pt-10 pb-10"
-          >
+          // <KeyboardAvoidingView
+          //   behaviour={Platform.OS === "ios" ? "padding" : "height"}
+          //   className="h-full w-full flex justify-around pt-10 pb-10"
+          // >
+          // <View style={{flex: 1}}>  
             <ScrollView
               automaticallyAdjustKeyboardInsets={true}
               scrollEnabled={false}
-              style={{ flex: 1 }}
-              contentContainerStyle={{
-                flexGrow: 1,
-                justifyContent: "space-between",
-              }}
+      
             >
               {/* Title */}
               <View className="flex items-center">
                 <Image
                   source={{ uri: logo1 }}
                   style={{
-                    width: width < 450 ? 200 : 400,
-                    height: width < 450 ? 200 : 400,
+                    width: width < 450 ? RFValue(200) : 400,
+                    height: width < 450 ? RFValue(200) : 400,
                     marginTop: RFValue(150),
                   }}
                 />
+                <Text style={{fontSize: RFValue(20), fontWeight:"bold", color: "black"}}>VOLUNTEER COMPASS</Text>
               </View>
 
               {/* Form */}
@@ -188,21 +186,22 @@ const Login = () => {
                   </TouchableOpacity>
                 </View>
                 <View className="flex-row justify-center">
-                  <Text style={{ fontSize: RFValue(12) }}>
+                  <Text style={{ fontSize: RFValue(14) }}>
                     Don't have an account?{" "}
                   </Text>
                   <TouchableOpacity
                     onPress={() => navigation.replace("Sign Up")}
                     className="pr-1 pb-1"
                   >
-                    <Text style={{ color: "blue", fontSize: RFValue(12) }}>
+                    <Text style={{ color: "blue", fontSize: RFValue(14) }}>
                       Sign Up
                     </Text>
                   </TouchableOpacity>
                 </View>
               </View>
             </ScrollView>
-          </KeyboardAvoidingView>
+          //  </View> 
+          // </KeyboardAvoidingView>
         )}
       </Formik>
     </ImageBackground>
@@ -212,24 +211,22 @@ const Login = () => {
 
 const styles = StyleSheet.create({
   LoginBlock: {
-    flex: 1,
+    marginTop: RFValue(50),
     justifyContent: width < 450 ? "flex-end" : "center",
     alignItems: "center",
   },
   input: {
-    marginTop: RFValue(8),
+    marginTop: RFValue(6),
   },
   Email: {
     backgroundColor: "white",
     width: width < 450 ? "100%" : 600,
-    height: width < 450 ? 70 : 80,
-    fontSize: width < 450 ? 16 : RFValue(16),
+    height: width < 450 ? RFValue(50) : 80,
   },
   Password: {
     backgroundColor: "white",
     width: width < 450 ? "100%" : 600,
-    height: width < 450 ? 70 : 80,
-    fontSize: width < 450 ? 16 : RFValue(16),
+    height: width < 450 ? RFValue(50) : 80,
   },
   image: {
     flex: 1,
