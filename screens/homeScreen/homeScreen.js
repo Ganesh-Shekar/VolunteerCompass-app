@@ -1,4 +1,3 @@
-import { StatusBar } from "expo-status-bar";
 import React, { useLayoutEffect, useState, useEffect } from "react";
 import {
   Text,
@@ -9,14 +8,15 @@ import {
   StyleSheet,
   Dimensions,
   Modal,
-  Button,
   Alert,
-  Platform,
 } from "react-native";
 import HorizontalScrollable from "./horizontalScrollable";
-import InfoIcon from "./infoIcon";
 import AccountIcon from "./accountIcon";
-import { getNgoNames, getCityResults } from "../../backend/getApiRequests";
+import {
+  getNgoNames,
+  getCityResults,
+  getGeoCode,
+} from "../../backend/getApiRequests";
 import { useNavigation } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/FontAwesome5";
 import { SearchBar } from "@rneui/themed";
@@ -27,10 +27,22 @@ const { width } = Dimensions.get("window");
 
 const HomeScreen = () => {
   const dropdown_data = [
-    { key: "Bengaluru-1", name: "Bengaluru" },
-    { key: "Delhi-2", name: "Delhi" },
-    { key: "Mumbai-3", name: "Mumbai" },
-    { key: "San Francisco-4", name: "San Francisco" },
+    {
+      key: "Bengaluru",
+      name: "Bengaluru",
+      lat_long: { lat: 12.9715987, lng: 77.5945627 },
+    },
+    { key: "Delhi", name: "Delhi", lat_long: { lat: 28.7041, lng: 77.1025 } },
+    {
+      key: "Mumbai",
+      name: "Mumbai",
+      lat_long: { lat: 19.076, lng: 72.8777 },
+    },
+    {
+      key: "San Francisco",
+      name: "San Francisco",
+      lat_long: { lat: 37.7749, lng: -122.4194 },
+    },
   ];
   const [showModal, setShowModal] = useState(false);
   const navigation = useNavigation();
@@ -41,9 +53,22 @@ const HomeScreen = () => {
   const [searchText, setSearchText] = useState("");
   const [predictions, setPredictions] = useState(dropdown_data);
   const [locationServiceEnabled, setLocationServiceEnabled] = useState(false);
+  const [currentPlaceId, setCurrentPlaceId] = useState({
+    lat: 12.9715987,
+    lng: 77.5945627,
+  });
   const [displayCurrentAddress, setDisplayCurrentAddress] = useState(
     "Wait, we are fetching your location..."
   );
+
+  async function getGeoCodeFromPlaceId(place_id) {
+    try {
+      const response = await getGeoCode(place_id);
+      setCurrentPlaceId(response);
+    } catch (error) {
+      console.error("Error fetching predictions:", error);
+    }
+  }
 
   async function fetchPredictions(text) {
     setSearchText(text); // Ensure state is updated here
@@ -53,6 +78,7 @@ const HomeScreen = () => {
         let tempPredicts = response.predictions.map((prediction) => ({
           key: `${prediction.description.split(",")[0]}-${prediction.place_id}`,
           name: prediction.description,
+          place_id: prediction.place_id,
         }));
         setPredictions(tempPredicts);
       } catch (error) {
@@ -80,7 +106,7 @@ const HomeScreen = () => {
 
   async function getNgoSearchResult(text) {
     try {
-      const response = await getNgoNames(text);
+      const response = await getNgoNames(text, currentPlaceId);
       return response;
     } catch (error) {
       console.error(error);
@@ -125,7 +151,6 @@ const HomeScreen = () => {
 
       for (let item of response) {
         let address = `${item.city}`;
-        // setCityValue(address);
         setDisplayCurrentAddress(address);
       }
     }
@@ -135,6 +160,8 @@ const HomeScreen = () => {
     CheckIfLocationEnabled();
     GetCurrentLocation();
   }, []);
+
+  useEffect(() => {}, [currentPlaceId]);
 
   useEffect(() => {
     if (searchText.length === 0) {
@@ -168,10 +195,7 @@ const HomeScreen = () => {
   ];
 
   return (
-    <SafeAreaView
-      className={"h-full"}
-      style={{ backgroundColor: "#20a963" }}
-    >
+    <SafeAreaView className={"h-full"} style={{ backgroundColor: "#20a963" }}>
       <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
         <View style={{ backgroundColor: "#20a963" }}>
           <View
@@ -247,6 +271,7 @@ const HomeScreen = () => {
                                     onPress={() => {
                                       setShowModal(false);
                                       setCityValue(item.name.split(",")[0]);
+                                      setCurrentPlaceId(item.lat_long);
                                     }}
                                     style={{
                                       flexDirection: "row",
@@ -289,6 +314,7 @@ const HomeScreen = () => {
                                   onPress={() => {
                                     setShowModal(false);
                                     setCityValue(item.name.split(",")[0]);
+                                    getGeoCodeFromPlaceId(item.place_id);
                                   }}
                                   style={{
                                     flexDirection: "row",
@@ -403,14 +429,14 @@ const HomeScreen = () => {
             ) : (
               <>
                 {horizontalScrollables.map((item) => (
-                  
-                  <View key={item.categoryId} style={{marginLeft: 10}}>
+                  <View key={item.categoryId} style={{ marginLeft: 10 }}>
                     <HorizontalScrollable
                       title={item.title}
                       categoryId={item.categoryId}
                       data={searchQuery ? searchResults : null}
                       isSearchBarEmpty={isSearchBarEmpty}
                       city_value={cityValue}
+                      lat_long={currentPlaceId}
                     />
                   </View>
                 ))}

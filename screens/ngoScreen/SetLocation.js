@@ -2,32 +2,23 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
-  Dimensions,
   StyleSheet,
   TouchableOpacity,
-  Alert,
   Linking,
   Platform,
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
-import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
-import * as Location from "expo-location";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { RFValue } from "react-native-responsive-fontsize";
 import axios from "axios";
+import { GOOGLE_PLACES_API_KEY } from "@env";
 
-const { width, height } = Dimensions.get("window");
-const ASPECT_RATIO = width / height;
-const LATITUDE_DELTA = 0.01;
-const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
-
-const GOOGLE_PLACES_API_KEY = "AIzaSyCbD48T0Pl-bcxUa8mkuteYRWO094xcFOc";
+const apiKey = GOOGLE_PLACES_API_KEY.replace(/"/g, "").replace(/;$/, "");
 
 const SetLocation = ({ address }) => {
   const geocodeAddress = async (address) => {
     const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
       address
-    )}&key=${GOOGLE_PLACES_API_KEY}`;
+    )}&key=${apiKey}`;
 
     try {
       const response = await axios.get(url);
@@ -104,7 +95,7 @@ const SetLocation = ({ address }) => {
         />
       </MapView>
       <TouchableOpacity style={styles.button} onPress={openInMaps}>
-        <Text style={styles.buttonText}>open in Maps</Text>
+        <Text style={styles.buttonText}>...open in maps</Text>
       </TouchableOpacity>
     </View>
   );
@@ -134,7 +125,7 @@ const styles = StyleSheet.create({
   button: {
     // backgroundColor: "#20a963",
     padding: RFValue(2),
-    marginTop : RFValue(1),
+    marginTop: RFValue(1),
     marginRight: RFValue(8),
     borderRadius: 5,
     alignItems: "flex-end",

@@ -16,3 +16,4 @@ export const refreshToken = baseurl + "refresh";
 export const logout = baseurl + "logout";
 export const removeVolunteer = baseurl + "removeVolunteerEvent";
 export const checkUserRegistration = baseurl + "checkUserRegistration";
+export const checkIfDataExists = baseurl + "check-existing-usernameoremail";

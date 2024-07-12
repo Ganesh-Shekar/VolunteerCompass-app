@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -6,19 +6,16 @@ import {
   StyleSheet,
   ScrollView,
   Modal,
-  Touchable,
   TouchableWithoutFeedback,
-  Button,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getAllEventsVolunteeredByUser } from "../../backend/getApiRequests";
 import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { boolean } from "yup";
 import { RFValue } from "react-native-responsive-fontsize";
 import Icon from "react-native-vector-icons/FontAwesome5";
-import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 import {
   getAllEventsByNgoId,
   deleteNgoEvent,
@@ -26,14 +23,15 @@ import {
 } from "../../backend/getApiRequests";
 import { useNavigation } from "@react-navigation/native";
 import EventRow from "../ngoScreen/EventRow";
+import moment from "moment";
 
 const MyEvents = () => {
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedTab, setSelectedTab] = useState("upcoming");
   const [eventsList, setEventsList] = useState([]);
   const [userType, setUserType] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   const [ngoEventDetails, setNgoEventDetails] = useState([]);
-  const [eventId, setEventId] = useState([]);
   const navigation = useNavigation();
 
   async function getType() {
@@ -44,9 +42,14 @@ const MyEvents = () => {
   async function deleteEvent(event_id) {
     try {
       const response = await deleteNgoEvent(event_id);
-      setNgoEventDetails((prevDetails) =>
-        prevDetails.filter((event) => event.event_id !== event_id)
-      );
+      console.log(response);
+      if (response === "Success") {
+        Alert.alert("Event deleted successfully");
+        setNgoEventDetails((prevDetails) =>
+          prevDetails.filter((event) => event.event_id !== event_id)
+        );
+        await fetchEvents();
+      }
     } catch (error) {
       throw error;
     }
@@ -85,7 +88,6 @@ const MyEvents = () => {
   async function getDetailsofEvent(eventId) {
     try {
       const response = await getNgoEvent(eventId);
-      // console.log(response)
       return response;
     } catch (error) {
       throw error;
@@ -105,77 +107,165 @@ const MyEvents = () => {
     }
   }
 
-  const PastEvents = () =>
-    eventsList == "" ? (
-      <ScrollView>
-        <View style={styles.content}>
-          {eventsList.map(
-            (event) =>
-              checkDate(event[0].date) && (
-                <EventRow
-                  event={event[0]}
-                  showVolunteerButton={false}
-                  key={event[0].event_id}
-                />
-              )
-          )}
-        </View>
-      </ScrollView>
-    ) : (
-      <Text>No Past Events</Text>
+  const PastEvents = () => {
+    const filteredEvents = eventsList.filter((event) =>
+      checkDate(event[0].start_date)
     );
+    if (filteredEvents.length === 0) {
+      return (
+        <Text
+          style={{
+            textAlign: "center",
+            fontSize: RFValue(16),
+            paddingTop: RFValue(20),
+          }}
+          className={"h-full w-full bg-white"}
+        >
+          No past events
+        </Text>
+      );
+    }
 
-  const UpcomingEvents = () => (
-    <ScrollView>
-      <View style={styles.content}>
-        {eventsList.map(
-          (event) =>
-            !checkDate(event[0].date) && (
-              <EventRow
-                event={event[0]}
-                showVolunteerButton={true}
-                key={event[0].event_id}
-              />
-            )
-        )}
-      </View>
-    </ScrollView>
-  );
+    return (
+      <ScrollView
+        style={{ backgroundColor: "white" }}
+        className={"h-full w-full"}
+      >
+        {filteredEvents.map((event) => (
+          <View key={event[0].event_id}>
+            <Text
+              style={{
+                fontSize: RFValue(13),
+                marginLeft: RFValue(8),
+                fontWeight: "bold",
+                marginTop: RFValue(5),
+              }}
+            >
+              {moment(event[0].start_date).format("DD-MM-YYYY")}
+            </Text>
+            <EventRow event={event[0]} showVolunteerButton={false} />
+          </View>
+        ))}
+      </ScrollView>
+    );
+  };
+
+  const UpcomingEvents = () => {
+    const filteredEvents = eventsList.filter(
+      (event) => !checkDate(event[0].start_date)
+    );
+    if (filteredEvents.length === 0) {
+      return (
+        <Text
+          style={{
+            textAlign: "center",
+            fontSize: RFValue(16),
+            paddingTop: RFValue(20),
+          }}
+          className={"h-full w-full bg-white"}
+        >
+          No upcoming events
+        </Text>
+      );
+    }
+
+    return (
+      <ScrollView
+        style={{ backgroundColor: "white" }}
+        className={"h-full w-full"}
+      >
+        {filteredEvents.map((event) => (
+          <View key={event[0].event_id}>
+            <Text
+              style={{
+                fontSize: RFValue(13),
+                marginLeft: RFValue(8),
+                fontWeight: "bold",
+                marginTop: RFValue(8),
+              }}
+            >
+              {moment(event[0].start_date).format("DD-MM-YYYY")}
+            </Text>
+            <EventRow
+              event={event[0]}
+              showVolunteerButton={false}
+              key={event[0].event_id}
+            />
+          </View>
+        ))}
+      </ScrollView>
+    );
+  };
 
   const UpcomingEventsforNGO = () => (
     <ScrollView>
-      <View style={styles.content}>
-        {ngoEventDetails.map((events) => (
-          <>
-            <View style={styles.editTrashIcon}>
-              <Icon name="pen" size={20}></Icon>
-              <TouchableOpacity
-                onPress={() => {
-                  Alert.alert(
-                    "Delete Event",
-                    "Are you sure you want to delete this?",
-                    [
-                      {
-                        text: "Cancel",
-                        onPress: () => console.log("Cancel Pressed"),
-                        style: "cancel",
-                      },
-                      { text: "OK", onPress: () => deleteEvent(events.event_id) },
-                    ]
-                  );
-                }}
-              >
-                <Icon
-                  name="trash"
-                  size={20}
-                  // onPress={() => deleteEvent(events.event_id)}
-                ></Icon>
-              </TouchableOpacity>
+      {ngoEventDetails.map(
+        (events) =>
+          !checkDate(events.start_date) && (
+            <View key={events.event_id}>
+              <View style={styles.editTrashIcon} key={events.event_id}>
+                <TouchableOpacity
+                  onPress={() => {
+                    Alert.alert(
+                      "Edit Event",
+                      "Do you want to edit this event?",
+                      [
+                        {
+                          text: "Cancel",
+                          style: "cancel",
+                        },
+                        {
+                          text: "OK",
+                          onPress: () => {
+                            navigation.navigate("CreateEditEvent", {
+                              event_details: events,
+                            });
+                            setModalVisible(false);
+                          },
+                          style: "ok",
+                        },
+                      ]
+                    );
+                  }}
+                >
+                  <Icon name="pen" size={RFValue(15)}></Icon>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => {
+                    Alert.alert(
+                      "Delete Event",
+                      "Are you sure you want to delete event?",
+                      [
+                        {
+                          text: "Cancel",
+                          style: "cancel",
+                        },
+                        {
+                          text: "OK",
+                          onPress: () => deleteEvent(events.event_id),
+                        },
+                      ]
+                    );
+                  }}
+                >
+                  <Icon
+                    name="trash"
+                    size={RFValue(15)}
+                    color={"red"}
+                    style={{ marginLeft: RFValue(10) }}
+                  ></Icon>
+                </TouchableOpacity>
+              </View>
+              <View style={{ marginBottom: RFValue(10) }}>
+                <EventRow
+                  event={events}
+                  showVolunteerLimit={false}
+                  showSlotsCount={false}
+                />
+              </View>
             </View>
-            <EventRow event={events} />
-          </>
-        ))}
-      </View>
+          )
+      )}
     </ScrollView>
   );
 
@@ -190,12 +280,11 @@ const MyEvents = () => {
       getType();
       getEventDetails();
       UpcomingEventsforNGO();
-    }, [fetchEvents])
+    }, [])
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}> */}
+    <SafeAreaView style={{ backgroundColor: "#20a963" }}>
       <View style={styles.tabContainer}>
         <TouchableOpacity
           style={[styles.tab, selectedTab === "past" && styles.activeTab]}
@@ -223,12 +312,11 @@ const MyEvents = () => {
               selectedTab === "upcoming" && styles.activeTabText,
             ]}
           >
-            Registered Events
+            Upcoming Events
           </Text>
         </TouchableOpacity>
       </View>
       {selectedTab === "past" ? <PastEvents /> : <UpcomingEvents />}
-      {/* </SafeAreaView> */}
 
       {userType !== "ngo" ? (
         <TouchableOpacity
@@ -237,7 +325,7 @@ const MyEvents = () => {
             setModalVisible(true);
           }}
         >
-          <Icon name="plus" size={24} color="#fff" />
+          <Icon name="plus" size={RFValue(24)} color="#fff" />
         </TouchableOpacity>
       ) : (
         <></>
@@ -252,9 +340,6 @@ const MyEvents = () => {
           <View style={styles.modalOverlay} />
         </TouchableWithoutFeedback>
         <View style={styles.modalContent}>
-          {/* Modal's inner content goes here */}
-
-          {/* Non-scrollable "Add Event" section */}
           <View style={styles.addEventSection}>
             <TouchableOpacity
               style={styles.attractiveButton}
@@ -269,7 +354,17 @@ const MyEvents = () => {
             {ngoEventDetails != "" ? (
               <UpcomingEventsforNGO />
             ) : (
-              <Text>No events for this NGO </Text>
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Text style={{ fontSize: RFValue(16) }}>
+                  No events for this NGO{" "}
+                </Text>
+              </View>
             )}
           </View>
           {/* </ScrollView> */}
@@ -302,24 +397,25 @@ const styles = StyleSheet.create({
   },
   tabText: {
     color: "#fff",
-    fontSize: RFValue(12),
+    fontSize: RFValue(14),
   },
   activeTabText: {
     fontWeight: "bold",
   },
-  content: {
-    alignItems: "flex-start",
-    flex: 1,
-    // justifyContent: 'center',
-    // alignItems: 'center',
-  },
+  // content: {
+  //   alignItems: "flex-start",
+  //   flex: 1,
+  //   // justifyContent: 'center',
+  //   // alignItems: 'center',
+  // },
   editTrashIcon: {
     position: "relative",
     flexDirection: "row",
     elevation: 5,
     zIndex: 999,
-    top: RFValue(25),
-    left: RFValue(250),
+    justifyContent: "flex-end",
+    top: RFValue(40),
+    left: RFValue(-25),
   },
   description: {
     fontSize: RFValue(10.5),
@@ -342,12 +438,12 @@ const styles = StyleSheet.create({
 
   plusIcon: {
     position: "absolute",
-    right: 30,
-    bottom: 30,
+    right: RFValue(20),
+    bottom: RFValue(60),
     backgroundColor: "#20a963",
-    width: 56, // Diameter of the circle
-    height: 56, // Diameter of the circle
-    borderRadius: 28, // Half the diameter to make it a perfect circle
+    width: RFValue(46), // Diameter of the circle
+    height: RFValue(46), // Diameter of the circle
+    borderRadius: RFValue(46), // Half the diameter to make it a perfect circle
     justifyContent: "center",
     alignItems: "center",
     elevation: 4, // Shadow for Android
@@ -364,11 +460,11 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 0,
     width: "100%",
-    height: "75%",
+    height: "80%",
     backgroundColor: "white",
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    padding: 20,
+    padding: RFValue(5),
     // Add shadow or elevation if needed
     shadowColor: "#000",
     shadowOffset: {
@@ -387,20 +483,13 @@ const styles = StyleSheet.create({
   },
   editEventsSection: {
     // Style for the content inside the scrollable section
+    flex: 1,
+    marginBottom: RFValue(10),
   },
   sectionTitle: {
     fontSize: RFValue(16),
     fontWeight: "bold",
-    marginBottom: 10,
-  },
-  editDeleteIcons: {
-    position: "relative",
-    elevation: 5,
-    zIndex: 999,
-    top: RFValue(25),
-    right: RFValue(15),
-    flexDirection: "row",
-    justifyContent: "flex-end",
+    marginLeft: RFValue(8),
   },
   attractiveButton: {
     backgroundColor: "#20a963", // Bootstrap primary button color
@@ -412,7 +501,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.23,
     shadowRadius: 2.62,
     elevation: 4,
-    marginBottom: RFValue(15),
+    margin: RFValue(12),
   },
   buttonText: {
     color: "#ffffff",
