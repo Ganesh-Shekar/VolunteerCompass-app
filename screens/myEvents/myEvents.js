@@ -8,6 +8,7 @@ import {
   Modal,
   TouchableWithoutFeedback,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getAllEventsVolunteeredByUser } from "../../backend/getApiRequests";
@@ -22,8 +23,10 @@ import {
 } from "../../backend/getApiRequests";
 import { useNavigation } from "@react-navigation/native";
 import EventRow from "../ngoScreen/EventRow";
+import moment from "moment";
 
 const MyEvents = () => {
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedTab, setSelectedTab] = useState("upcoming");
   const [eventsList, setEventsList] = useState([]);
   const [userType, setUserType] = useState("");
@@ -129,11 +132,19 @@ const MyEvents = () => {
         className={"h-full w-full"}
       >
         {filteredEvents.map((event) => (
-          <EventRow
-            event={event[0]}
-            showVolunteerButton={false}
-            key={event[0].event_id}
-          />
+          <View key={event[0].event_id}>
+            <Text
+              style={{
+                fontSize: RFValue(13),
+                marginLeft: RFValue(8),
+                fontWeight: "bold",
+                marginTop: RFValue(5),
+              }}
+            >
+              {moment(event[0].start_date).format("DD-MM-YYYY")}
+            </Text>
+            <EventRow event={event[0]} showVolunteerButton={false} />
+          </View>
         ))}
       </ScrollView>
     );
@@ -164,11 +175,23 @@ const MyEvents = () => {
         className={"h-full w-full"}
       >
         {filteredEvents.map((event) => (
-          <EventRow
-            event={event[0]}
-            showVolunteerButton={false}
-            key={event[0].event_id}
-          />
+          <View key={event[0].event_id}>
+            <Text
+              style={{
+                fontSize: RFValue(13),
+                marginLeft: RFValue(8),
+                fontWeight: "bold",
+                marginTop: RFValue(8),
+              }}
+            >
+              {moment(event[0].start_date).format("DD-MM-YYYY")}
+            </Text>
+            <EventRow
+              event={event[0]}
+              showVolunteerButton={false}
+              key={event[0].event_id}
+            />
+          </View>
         ))}
       </ScrollView>
     );

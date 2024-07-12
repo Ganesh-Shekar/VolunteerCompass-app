@@ -86,19 +86,19 @@ const ngoSignUpValidationSchema = yup.object().shape({
 
   address: yup
     .string()
-    .min(3, "Address is too short")
+    // .min(3, "Address is too short")
     .required("Address is required"),
 
   city: yup
     .string()
-    .min(2, "City name is too short")
-    .max(50, "City name is too long")
+    // .min(2, "City name is too short")
+    // .max(50, "City name is too long")
     .required("City is required"),
 
   description: yup
     .string()
     .min(2, "Description is too short")
-    .max(50, "Description is too long")
+    .max(300, "Description is too long. Maximum 300 characters allowed")
     .required("Description is required"),
 
   category: yup.string().required("Select a category from the list"),
@@ -119,7 +119,20 @@ const userSignUpValidationSchema = yup.object().shape({
   userEmail: yup
     .string()
     .email("Enter a valid Email")
-    .required("User email is required"),
+    .required("User email is required")
+    .test(
+      "checkUserEmail",
+      "Email already exists",
+      async function checkIfDataExistsApi(value) {
+        try {
+          const response = await checkIfDataExists(value, "email");
+          return response.message !== "Email already exists";
+        } catch (error) {
+          console.error("Error fetching data:", error);
+          return false;
+        }
+      }
+    ),
 
   userPassword: yup
     .string()
@@ -132,6 +145,7 @@ const userSignUpValidationSchema = yup.object().shape({
     .required("Confirm Password is required"),
 
   age: yup.string().required("Age is required"),
+
   number: yup
     .string()
     .min(10, "Phone number must be at least 10 digits")
@@ -143,12 +157,16 @@ const Signup = () => {
   const navigation = useNavigation();
   const [selectedValue, setSelectedValue] = useState("NGO");
   const [data, setData] = useState([]);
-  const [category, setCategory] = useState(null);
   const [searchText, setSearchText] = useState("");
   const [searchCityText, setSearchCityText] = useState("");
   const [predictions, setPredictions] = useState([]);
   const [cityPredictions, setCityPredictions] = useState([]);
   const [currentPlaceId, setCurrentPlaceId] = useState(null);
+  const [categoryListVisible, setCategoryListVisible] = useState(false);
+  const [descriptionHeight, setDescriptionHeight] = useState(30);
+  const handleDescriptionChange = (event) => {
+    setDescriptionHeight(event.nativeEvent.contentSize.height);
+  };
 
   const ngoRequestObject = {
     userName: "",
@@ -165,7 +183,7 @@ const Signup = () => {
   const userRequestObject = {
     firstName: "",
     lastName: "",
-    number: "",
+    phone: "",
     userEmail: "",
     userPassword: "",
     userConfirmPassword: "",
@@ -307,6 +325,9 @@ const Signup = () => {
       });
   };
 
+  const toggleCategoryList = () => {
+    setCategoryListVisible((prevState) => !prevState);
+  };
   return (
     // <KeyboardAvoidingView
     //   behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -396,7 +417,7 @@ const Signup = () => {
               const userRequestObject = {
                 first_name: values.firstName,
                 last_name: values.lastName,
-                contact_phone: values.number,
+                phone: values.number,
                 contact_email: values.userEmail,
                 password: values.userPassword,
                 age: values.age,
@@ -427,13 +448,12 @@ const Signup = () => {
                       }}
                     >
                       <TextInput
-                        placeholder="Username"
+                        placeholder="NGO Name"
                         placeholderTextColor={"gray"}
                         value={values.userName}
                         onChangeText={handleChange("userName")}
                         onBlur={() => {
                           handleChange("userName");
-                          // checkIfDataExistsApi(values.userName, "username");
                         }}
                         style={{ fontSize: RFValue(13) }}
                       />
@@ -634,7 +654,14 @@ const Signup = () => {
                         value={values.description}
                         onChangeText={handleChange("description")}
                         onBlur={handleBlur("description")}
-                        style={{ fontSize: RFValue(13) }}
+                        multiline={true}
+                        onContentSizeChange={(event) =>
+                          handleDescriptionChange(event)
+                        }
+                        style={{
+                          fontSize: RFValue(13),
+                          height: Math.max(40, descriptionHeight),
+                        }}
                       />
                       {touched.description && errors.description && (
                         <Text style={styles.errorTxt}>
@@ -646,7 +673,7 @@ const Signup = () => {
                       className="bg-black/5 p-3 rounded-2xl w-full"
                       style={{ width: width < 450 ? "100%" : 600 }}
                     >
-                      <Dropdown
+                      {/* <Dropdown
                         style={styles.dropdown}
                         placeholderStyle={styles.placeholderStyle}
                         selectedTextStyle={styles.selectedTextStyle}
@@ -664,7 +691,46 @@ const Signup = () => {
                           setFieldValue("category", item.value); // Correctly set the formik field value
                           setCategory(item.value);
                         }}
+                      /> */}
+                      <TextInput
+                        placeholder="NGO Category"
+                        placeholderTextColor={"gray"}
+                        inputMode="text"
+                        value={values.category}
+                        onChangeText={handleChange("description")}
+                        onBlur={handleBlur("description")}
+                        editable={false}
+                        style={{
+                          fontSize: RFValue(13),
+                        }}
+                        onPress={() => toggleCategoryList()}
                       />
+                      {data &&
+                        categoryListVisible &&
+                        data.map((item, index) => (
+                          <ScrollView key={item.value}>
+                            <TouchableOpacity
+                              onPress={() => {
+                                setFieldValue("category", item.value);
+                                toggleCategoryList();
+                              }}
+                            >
+                              <Text style={{ marginTop: RFValue(10) }}>
+                                {item.value}
+                              </Text>
+                            </TouchableOpacity>
+                            {index < data.length - 1 && (
+                              <View
+                                style={{
+                                  borderBottomColor: "black",
+                                  borderBottomWidth: StyleSheet.hairlineWidth,
+                                  marginTop: RFValue(10),
+                                }}
+                              />
+                            )}
+                          </ScrollView>
+                        ))}
+
                       {touched.category && errors.category && (
                         <Text style={styles.errorTxt}>{errors.category}</Text>
                       )}

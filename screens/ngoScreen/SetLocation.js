@@ -2,24 +2,23 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
-  Dimensions,
   StyleSheet,
   TouchableOpacity,
-  Alert,
   Linking,
   Platform,
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { RFValue } from "react-native-responsive-fontsize";
 import axios from "axios";
+import { GOOGLE_PLACES_API_KEY } from "@env";
 
-const GOOGLE_PLACES_API_KEY = "AIzaSyBa27RfXpEKVrSQYIFGlBUs2tKIwaGmcOg";
+const apiKey = GOOGLE_PLACES_API_KEY.replace(/"/g, "").replace(/;$/, "");
 
 const SetLocation = ({ address }) => {
   const geocodeAddress = async (address) => {
     const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
       address
-    )}&key=${GOOGLE_PLACES_API_KEY}`;
+    )}&key=${apiKey}`;
 
     try {
       const response = await axios.get(url);
@@ -96,7 +95,7 @@ const SetLocation = ({ address }) => {
         />
       </MapView>
       <TouchableOpacity style={styles.button} onPress={openInMaps}>
-        <Text style={styles.buttonText}>open in Maps</Text>
+        <Text style={styles.buttonText}>...open in maps</Text>
       </TouchableOpacity>
     </View>
   );

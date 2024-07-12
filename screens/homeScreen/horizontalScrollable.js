@@ -3,20 +3,16 @@ import {
   Text,
   SafeAreaView,
   ScrollView,
-  StatusBar,
+  StyleSheet,
+  ActivityIndicator,
   TouchableOpacity,
   Image,
-  StyleSheet,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
-import {
-  getNgoBasedOnCategory,
-  getAllEventsByNgoId,
-} from "../../backend/getApiRequests";
+import { getNgoBasedOnCategory } from "../../backend/getApiRequests";
 import { RFValue } from "react-native-responsive-fontsize";
 //import { useFonts } from "expo-font";
-import Icon from "react-native-vector-icons/MaterialIcons";
 
 const HorizontalScrollable = ({
   title,
@@ -33,6 +29,7 @@ const HorizontalScrollable = ({
   const handleImagePress = (ngoData) => {
     navigation.navigate("NgoPage", { ngoData });
   };
+  const [loading, setLoading] = useState(true);
 
   async function getCategoryNgo(categoryId = null) {
     try {
@@ -41,6 +38,7 @@ const HorizontalScrollable = ({
         lat_long: lat_long,
       });
       setNgoDetails(response);
+      setLoading(false);
     } catch (error) {
       console.error(error);
       throw error;
@@ -78,7 +76,7 @@ const HorizontalScrollable = ({
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ paddingHorizontal: RFValue(8), flexGrow: 1 }}
         >
-          {ngoDetails
+         {ngoDetails
             .filter((ngo) => {
               return ngo.category_id === categoryId;
             })

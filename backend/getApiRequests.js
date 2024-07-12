@@ -2,9 +2,9 @@ import axios from "axios";
 import * as url from "./constantUrl";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { navigate } from "../NavigationService";
+import { GOOGLE_PLACES_API_KEY, COUNTRY_CODE } from "@env";
 
-const GOOGLE_API_KEY = "AIzaSyBa27RfXpEKVrSQYIFGlBUs2tKIwaGmcOg";
-const COUNTRY_CODE = "IN";
+const apiKey = GOOGLE_PLACES_API_KEY.replace(/"/g, "").replace(/;$/, "");
 
 // Create an Axios instance
 const axiosInstance = axios.create({
@@ -161,6 +161,7 @@ async function createAuthorizedRequestConfigInstance(
 }
 
 // Exporting API functions
+//NGO signup
 export const signUpNgo = async (data) => {
   return axiosInstance(
     await createRequestConfigInstance("POST", url.signupNgo, data)
@@ -171,6 +172,7 @@ export const signUpNgo = async (data) => {
     });
 };
 
+//User sign up
 export const signUpUser = async (data) => {
   return axiosInstance(
     await createRequestConfigInstance("POST", url.signupUser, data)
@@ -224,7 +226,7 @@ export const getNgoBasedOnCategory = async (data) => {
 export const getCityResults = async (data) => {
   try {
     const response = await axios.get(
-      `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${data}&language=en&types=(cities)&key=${GOOGLE_API_KEY}`,
+      `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${data}&language=en&types=(cities)&key=${apiKey}`,
       {
         params: {
           components: `country:${COUNTRY_CODE}`,
@@ -244,7 +246,7 @@ export const getAddressResults = async (data) => {
     const response = await axios.get(
       `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(
         data
-      )}&language=en&key=${GOOGLE_API_KEY}`,
+      )}&language=en&key=${apiKey}`,
       {
         params: {
           components: `country:${COUNTRY_CODE}`,
@@ -263,7 +265,7 @@ export const getAddressResults = async (data) => {
 export const getGeoCode = async (data) => {
   try {
     const response = await axios.get(
-      `https://maps.googleapis.com/maps/api/geocode/json?place_id=${data}&key=${GOOGLE_API_KEY}`
+      `https://maps.googleapis.com/maps/api/geocode/json?place_id=${data}&key=${apiKey}`
     );
     response_data = response.data.results[0].geometry.location;
     return response_data;
@@ -300,7 +302,12 @@ export const getNgoInfo = async (ngoId) => {
 
 export const addNgoEvent = async (data) => {
   return axiosInstance(
-    await createRequestConfigInstance("POST", url.modifyEvent, data)
+    await createAuthorizedRequestConfigInstance(
+      "POST",
+      url.modifyEvent,
+      data,
+      null
+    )
   )
     .then((response) => response.status === 200 && response.data)
     .catch((err) => {
@@ -310,7 +317,12 @@ export const addNgoEvent = async (data) => {
 
 export const updateNgoEvent = async (data) => {
   return axiosInstance(
-    await createRequestConfigInstance("PUT", url.modifyEvent, data)
+    await createAuthorizedRequestConfigInstance(
+      "PUT",
+      url.modifyEvent,
+      data,
+      null
+    )
   )
     .then((response) => response.status === 200 && response.data)
     .catch((err) => {
@@ -320,7 +332,12 @@ export const updateNgoEvent = async (data) => {
 
 export const deleteNgoEvent = async (data) => {
   return axiosInstance(
-    await createRequestConfigInstance("DELETE", url.modifyEvent, data)
+    await createAuthorizedRequestConfigInstance(
+      "DELETE",
+      url.modifyEvent,
+      data,
+      null
+    )
   )
     .then((response) => response.status === 200 && response.data)
     .catch((err) => {
@@ -330,7 +347,7 @@ export const deleteNgoEvent = async (data) => {
 
 export const getNgoEvent = async (eventId) => {
   return axiosInstance(
-    await createRequestConfigInstance("GET", url.modifyEvent, null, {
+    await createAuthorizedRequestConfigInstance("GET", url.modifyEvent, null, {
       event_id: eventId,
     })
   )
@@ -476,9 +493,7 @@ export const logout = async () => {
     await createAuthorizedRequestConfigInstance("DELETE", url.logout, null, {})
   )
     .then((response) => {
-      response.status === 200 && response.data;
-      AsyncStorage.removeItem("jwtToken");
-      AsyncStorage.removeItem("refreshToken");
+      return response.data;
     })
     .catch((error) => {
       throw error;

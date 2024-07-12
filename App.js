@@ -1,15 +1,12 @@
 import React, { useState, useEffect, useLayoutEffect } from "react";
-import { View, Text, Platform, Dimensions } from "react-native";
+import { Dimensions } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
-import AppLoading from "expo-app-loading";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { navigationRef } from "./NavigationService";
-import LoginSignUp from "./screens/logIn/LoginSignUp";
 import HomeScreen from "./screens/homeScreen/homeScreen";
-import AboutUs from "./screens/aboutUs/aboutUs";
 import Account from "./screens/Account/account";
 import NgoScreen from "./screens/ngoScreen/ngoScreen";
 import MyEvents from "./screens/myEvents/myEvents";
@@ -61,7 +58,7 @@ const TabNav = () => {
 
       <Tab.Screen
         name="My Events"
-        component={MyEvents}
+        component={EventsScreen}
         options={{
           tabBarIcon: ({ focused, size }) => (
             <Icon
@@ -92,6 +89,18 @@ const TabNav = () => {
   );
 };
 
+function EventsScreen() {
+  return (
+    <Stack.Navigator
+      initialRouteName="MyEvents"
+      screenOptions={{ headerShown: false }}
+    >
+      <Stack.Screen name="MyEvents" component={MyEvents} />
+      <Stack.Screen name="CreateEditEvent" component={CreateEditEvent} />
+    </Stack.Navigator>
+  );
+}
+
 const HomeNavigator = ({ navigation, route }) => {
   useLayoutEffect(() => {
     const routeName = getFocusedRouteNameFromRoute(route);
@@ -110,8 +119,7 @@ const HomeNavigator = ({ navigation, route }) => {
       <Stack.Screen name="NgoHomeScreen" component={NgoHomeScreen} />
       <Stack.Screen name="Account" component={Account} />
       <Stack.Screen name="NgoPage" component={NgoScreen} />
-      <Stack.Screen name="MyEvents" component={MyEvents} />
-      <Stack.Screen name="CreateEditEvent" component={CreateEditEvent} />
+      <Stack.Screen name="MyEvents" component={EventsScreen} />
       <Stack.Screen name="LoginUser" component={LoginNav} />
     </Stack.Navigator>
   );

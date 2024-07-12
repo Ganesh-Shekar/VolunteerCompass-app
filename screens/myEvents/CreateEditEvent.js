@@ -27,6 +27,14 @@ const CreateEditEvent = ({ navigation }) => {
   );
   const [endDate, setEndDate] = useState(new Date());
   const [endTime, setEndTime] = useState(new Date());
+  const maxDescriptionLength = 200;
+  const maxEventRequirementLength = 210;
+  const [descriptionHeight, setDescriptionHeight] = useState(30);
+  // Adjust this function to handle the content size change
+  const handleDescriptionChange = (event) => {
+    setDescriptionHeight(event.nativeEvent.contentSize.height);
+  };
+
   const [eventInitialValues, setEventInitialValues] = useState({
     title: "",
     description: "",
@@ -49,7 +57,10 @@ const CreateEditEvent = ({ navigation }) => {
     description: yup
       .string()
       .min(3, "Description is too short")
-      .max(100, "Description is too long")
+      .max(
+        maxDescriptionLength,
+        `Description is too long. Maximum length is ${maxDescriptionLength} characters`
+      )
       .required("Description is required"),
 
     start_date: yup.date().required("Start Date is required"),
@@ -74,7 +85,10 @@ const CreateEditEvent = ({ navigation }) => {
     event_requirements: yup
       .string()
       .min(2, "Requirement is too short")
-      .max(30, "Requirement is too long")
+      .max(
+        maxEventRequirementLength,
+        `Event Requirement is too long. Maximum length is ${maxEventRequirementLength} characters`
+      )
       .required("Requirements are required"),
 
     volunteer_limit: yup.number().required("Volunteer count is required"),
@@ -175,6 +189,7 @@ const CreateEditEvent = ({ navigation }) => {
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.scrollViewContent}
+          automaticallyAdjustKeyboardInsets={true}
         >
           <Formik
             key={formKey}
@@ -234,7 +249,14 @@ const CreateEditEvent = ({ navigation }) => {
                     value={values.description}
                     onChangeText={handleChange("description")}
                     onBlur={handleBlur("description")}
-                    style={styles.textInput}
+                    multiline={true}
+                    onContentSizeChange={(event) =>
+                      handleDescriptionChange(event)
+                    }
+                    style={{
+                      ...styles.textInput,
+                      height: Math.max(40, descriptionHeight),
+                    }}
                   />
                   {touched.description && errors.description && (
                     <Text style={styles.errorTxt}>{errors.description}</Text>
@@ -360,6 +382,10 @@ const CreateEditEvent = ({ navigation }) => {
                     value={values.event_requirements}
                     onChangeText={handleChange("event_requirements")}
                     onBlur={handleBlur("event_requirements")}
+                    multiline={true}
+                    onContentSizeChange={(event) =>
+                      handleDescriptionChange(event)
+                    }
                     style={styles.textInput}
                   />
                   {touched.event_requirements && errors.event_requirements && (

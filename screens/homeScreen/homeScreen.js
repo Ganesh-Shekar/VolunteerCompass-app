@@ -1,4 +1,3 @@
-import { StatusBar } from "expo-status-bar";
 import React, { useLayoutEffect, useState, useEffect } from "react";
 import {
   Text,
@@ -37,12 +36,12 @@ const HomeScreen = () => {
     {
       key: "Mumbai",
       name: "Mumbai",
-      lat_long: { lat: 19.076, lng: 72.8777 }
+      lat_long: { lat: 19.076, lng: 72.8777 },
     },
     {
       key: "San Francisco",
       name: "San Francisco",
-      lat_long: { lat: 37.7749, lng: -122.4194 }
+      lat_long: { lat: 37.7749, lng: -122.4194 },
     },
   ];
   const [showModal, setShowModal] = useState(false);
@@ -65,7 +64,6 @@ const HomeScreen = () => {
   async function getGeoCodeFromPlaceId(place_id) {
     try {
       const response = await getGeoCode(place_id);
-      console.log("Response from getGeoCodeFromPlaceId", response);
       setCurrentPlaceId(response);
     } catch (error) {
       console.error("Error fetching predictions:", error);

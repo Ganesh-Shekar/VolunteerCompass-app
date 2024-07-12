@@ -8,6 +8,7 @@ import {
   Modal,
   Image,
   Dimensions,
+  Alert,
 } from "react-native";
 import {
   UserCircleIcon,
@@ -49,14 +50,17 @@ const Account = () => {
   };
 
   async function logOut() {
-    navigation.replace("LoginUser");
     try {
       const response = await logout({});
-      if (response && response.status === 200) {
+      if (response && response.msg === "JWT revoked") {
+        Alert.alert("Logged out successfully");
+        AsyncStorage.removeItem("jwtToken");
+        AsyncStorage.removeItem("refreshToken");
         AsyncStorage.setItem("isLoggedIn", "false");
         AsyncStorage.setItem("token", "");
         AsyncStorage.setItem("user_data", "");
         await AsyncStorage.clear(); // Clears all AsyncStorage data
+        navigation.replace("LoginUser");
       } else {
         console.log("Logout failed or did not return the expected response");
       }
@@ -135,7 +139,20 @@ const Account = () => {
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity style={styles.logoutContainer} onPress={logOut}>
+      <TouchableOpacity
+        style={styles.logoutContainer}
+        onPress={() => {
+          Alert.alert(
+            "Log Out",
+            "Are you sure you want to log out?",
+            [
+              { text: "No", style: "cancel" },
+              { text: "Yes, logout", onPress: () => logOut() },
+            ],
+            { cancelable: false }
+          );
+        }}
+      >
         <ArrowRightOnRectangleIcon style={styles.logoutIcon} />
         <Text style={styles.logoutText}>Log Out</Text>
       </TouchableOpacity>
@@ -262,7 +279,7 @@ const styles = StyleSheet.create({
   logoutContainer: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center", 
+    justifyContent: "center",
     bottom: 0,
     marginBottom: "10%",
     paddingTop: "4%",

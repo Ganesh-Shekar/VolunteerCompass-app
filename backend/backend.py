@@ -8,8 +8,10 @@ import string
 import constant as const
 import uuid
 from datetime import timedelta, datetime, timezone
+import os
+from dotenv import load_dotenv
 
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token 
 from flask_jwt_extended import create_refresh_token
 from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import get_jwt
@@ -18,10 +20,11 @@ from flask_jwt_extended import JWTManager
 
 # Pass word for python anywhere: VolunteerCompass123
 
+load_dotenv()
 # create supabase client
 supabase = create_client(
-    "https://cbmaosiqqzptjtdexbtx.supabase.co",
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNibWFvc2lxcXpwdGp0ZGV4YnR4Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTcwMTQxMTA4MSwiZXhwIjoyMDE2OTg3MDgxfQ.0qt2L2LY2_IxkDrrYFUj65fHIEADMNt_nBzmXCXwQGc",
+    os.getenv("SUPABASE_URL"),
+    os.getenv("SUPABASE_KEY"),
 )
 
 # create server
@@ -32,7 +35,7 @@ bcrypt = Bcrypt(app)
 #ACCESS_EXPIRES= timedelta(hours=1)
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=15)
 app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(days=7)
-app.config["JWT_SECRET_KEY"]= "046b44d6dc978945a75a13d9"
+app.config["JWT_SECRET_KEY"]= os.getenv("JWT_SECRET")
 jwt=JWTManager(app)
 
 #jwt error handlers
@@ -230,18 +233,17 @@ def logIn():
 @app.route("/getCategories", methods=["GET"])
 @cross_origin()
 def getCategories():
-    
-    response = supabase.table("categories").select("*").execute()
-    data = response.data
-    
-    for object in data:
-        name = rename(object["name"], 1)
-        key = "horizontalScrollable/" + object["name"] + ".png"
+        response = supabase.table("categories").select("*").execute()
+        data = response.data
+        
+        for object in data:
+            name = rename(object["name"], 1)
+            key = "horizontalScrollable/" + object["name"] + ".png"
 
-        public_url = supabase.storage.from_("imageBucket").get_public_url(key)
-        object["name"] = name
-        object["url"] = public_url
-    return jsonify(data), 200   
+            public_url = supabase.storage.from_("imageBucket").get_public_url(key)
+            object["name"] = name
+            object["url"] = public_url
+        return jsonify(data), 200   
 
 #used during signup
 @app.route("/check-existing-usernameoremail", methods=["GET"])
@@ -257,9 +259,10 @@ def checkUserName():
         else:
             return jsonify({"message": "Username is available"}), 200
     else:
-        response = supabase.table("user_details").select("contact_email").eq("contact_email", input_data).execute()
-        response = supabase.table("ngo_details").select("contact_email").eq("contact_email", input_data).execute()
-        if response.data:
+        email_address = input_data.lower()
+        user_response = supabase.table("user_details").select("contact_email").eq("contact_email", email_address).execute()
+        ngo_response = supabase.table("ngo_details").select("contact_email").eq("contact_email", email_address).execute()
+        if user_response.data or ngo_response.data:
             return jsonify({"message": "Email already exists"}), 200
         else:
             return jsonify({"message": "Email is available"}), 200
@@ -311,7 +314,7 @@ def get_category():
         categoryId = request.args.get("categoryId")
         latitude = request.args.get("lat_long[lat]")
         longitude= request.args.get("lat_long[lng]")
-        geocode_search= supabase.rpc("fetch_nearby_ngos_new", {"lat": latitude, "long": longitude, "distance": 10000}).execute()
+        geocode_search= supabase.rpc("fetch_nearby_ngos_new", {"lat": latitude, "long": longitude, "distance": os.getenv("DISTANCE")}).execute()
         # print(geocode_search.data[0]['ngo_id'], "geocode_search")
         ngo_ids = [item['ngo_id'] for item in geocode_search.data]
         
@@ -385,26 +388,36 @@ def get_ngo():
 
 # get user details from userId
 @app.route("/userdetails")
+@jwt_required()
 @cross_origin()
 def user_details():
-    userId = request.args.get("user_id")
+    
+    current_user=get_jwt_identity()
+     # Get user details for the current user
+    user_details_response = supabase.table("user_details").select("*").eq("user_id", current_user).execute()
+    ngo_details_response = supabase.table("ngo_details").select("*").eq("ngo_id", current_user).execute()
+    user_details = user_details_response.data 
+    ngo_details= ngo_details_response.data
+    
+    if user_details or ngo_details:
+        userId = request.args.get("user_id")
 
-    if userId:
-        response = (
-            supabase.table("user_details")
-            .select(
-                "user_id",
-                "first_name",
-                "last_name",
-                "contact_email",
+        if userId:
+            response = (
+                supabase.table("user_details")
+                .select(
+                    "user_id",
+                    "first_name",
+                    "last_name",
+                    "contact_email",
+                )
+                .eq("user_id", userId)
+                .execute()
             )
-            .eq("user_id", userId)
-            .execute()
-        )
-        data = response.data
-        return jsonify(data)
-    else:
-        return const.errorMessage105
+            data = response.data
+            return jsonify(data)
+        else:
+            return const.errorMessage105
 
 
 # get all ngos that user has volunteered to
@@ -491,42 +504,48 @@ def ngoVolunteered():
 
 # add events into event_details table
 @app.route("/modify-event", methods=["POST", "DELETE", "PUT", "GET"])
+@cross_origin()
 def modifyEvent():
-    if request.method =="POST":
-        data = request.get_json()
-        if not data:
-            return jsonify({"error": "Missing data"}), 400
-        supabase.table("event_details").insert(data).execute()
-        return const.successMessage200
+    # current_user=get_jwt_identity()
+    # ngo_details_response = supabase.table("ngo_details").select("*").eq("ngo_id", current_user).execute()
+    # ngo_details= ngo_details_response.data
     
-    elif request.method == "PUT": 
-        data = request.get_json()
-        print(data, "data is here")
-        if not data:
-            return jsonify({"error": "Missing data"}), 400
-        else:
-            event_id = data.get("event_id")
-            supabase.table("event_details").update(data).eq("event_id", event_id).execute()
+    # if ngo_details:
+        if request.method =="POST":
+            data = request.get_json()
+            if not data:
+                return jsonify({"error": "Missing data"}), 400
+            supabase.table("event_details").insert(data).execute()
             return const.successMessage200
-    
-    elif request.method == "DELETE":
-        event_id = request.get_json()    
-        if not event_id:
-            return jsonify({"error": "Missing event_id"}), 400
-        supabase.table("event_details").delete().eq("event_id", event_id).execute()
-        return const.successMessage200
-    
-    elif request.method =="GET":
-        event_id = request.args.get("event_id")
-        if not event_id:
-            return jsonify({"error": "Missing event_id"}), 400
-        response = (
-            supabase.table("event_details")
-            .select("*")
-            .eq("event_id", event_id)
-            .execute()
-        ).data
-        return jsonify(response)
+        
+        elif request.method == "PUT": 
+            data = request.get_json()
+            print(data, "data is here")
+            if not data:
+                return jsonify({"error": "Missing data"}), 400
+            else:
+                event_id = data.get("event_id")
+                supabase.table("event_details").update(data).eq("event_id", event_id).execute()
+                return const.successMessage200
+        
+        elif request.method == "DELETE":
+            event_id = request.get_json()    
+            if not event_id:
+                return jsonify({"error": "Missing event_id"}), 400
+            supabase.table("event_details").delete().eq("event_id", event_id).execute()
+            return const.successMessage200
+        
+        elif request.method =="GET":
+            event_id = request.args.get("event_id")
+            if not event_id:
+                return jsonify({"error": "Missing event_id"}), 400
+            response = (
+                supabase.table("event_details")
+                .select("*")
+                .eq("event_id", event_id)
+                .execute()
+            ).data
+            return jsonify(response)
 
 
 # add volunteer to event table
@@ -573,26 +592,34 @@ def removeVolunteer():
 
 # get all volunteers volunteering for an event
 @app.route("/getVounteers", methods=["GET"])
+@jwt_required()
 def getVolunteers():
-    eventId = request.args.get("event_id")
-    response = (
-        supabase.table("event_volunteers")
-        .select("user_id")
-        .eq("event_id", eventId)
-        .execute()
-    ).data
-
-    user_data = []
-
-    for i in range(len(response)):
-        user = (
-            supabase.table("user_details")
-            .select("first_name", "last_name", "contact_email", "age", "id")
-            .eq("user_id", response[i]["user_id"])
+    current_user=get_jwt_identity()
+     # Get user details for the current user
+    ngo_details_response = supabase.table("ngo_details").select("*").eq("ngo_id", current_user).execute()
+    ngo_details= ngo_details_response.data
+    
+    if ngo_details:
+    
+        eventId = request.args.get("event_id")
+        response = (
+            supabase.table("event_volunteers")
+            .select("user_id")
+            .eq("event_id", eventId)
             .execute()
         ).data
-        user_data.append(user)
-    return jsonify(user_data)
+
+        user_data = []
+
+        for i in range(len(response)):
+            user = (
+                supabase.table("user_details")
+                .select("first_name", "last_name", "contact_email", "age", "id")
+                .eq("user_id", response[i]["user_id"])
+                .execute()
+            ).data
+            user_data.append(user)
+        return jsonify(user_data)
 
 
 # get all events a user has volunteered for
@@ -695,7 +722,7 @@ def search():
             query=request.args.get("query")
             latitude = request.args.get("lat_long[lat]")
             longitude= request.args.get("lat_long[lng]")
-            geocode_search= supabase.rpc("fetch_nearby_ngos_new", {"lat": latitude, "long": longitude, "distance": 10000}).execute()
+            geocode_search= supabase.rpc("fetch_nearby_ngos_new", {"lat": latitude, "long": longitude, "distance": os.getenv("DISTANCE")}).execute()
             ngo_ids = [item['ngo_id'] for item in geocode_search.data]
             response = (
                         supabase.table("ngo_details").select("ngo_id", "ngo_display_name", "category_id", "address", "city").ilike("ngo_display_name", f"*{query}*").in_("ngo_id", ngo_ids).execute()

@@ -12,16 +12,14 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { React, useState, useLayoutEffect, useEffect } from "react";
-import { ChevronLeftIcon } from "react-native-heroicons/outline";
 import BackButton from "../../components/backButton";
 import EventRow from "./EventRow";
 import { getNgoInfo, getAllEventsByNgoId } from "../../backend/getApiRequests";
 import ngoimage from "../../assets/ngoimage.jpg";
 import Icon from "react-native-vector-icons/FontAwesome6";
-const { width, height } = Dimensions.get("window");
 import { RFValue } from "react-native-responsive-fontsize";
 import SetLocation from "./SetLocation";
-
+import { ActivityIndicator } from "react-native-paper";
 
 const NgoScreen = ({ route }) => {
   const ngoimage1 = Image.resolveAssetSource(ngoimage).uri;
@@ -32,6 +30,42 @@ const NgoScreen = ({ route }) => {
   const [loading, setLoading] = useState(true);
   const [eventDetails, setEventDetails] = useState([]);
 
+  const [isDescriptionExpanded, setDescriptionExpanded] = useState(false);
+  const maxLength = 100; // Maximum number of characters to display before truncation
+
+  const toggleDescription = () => {
+    setDescriptionExpanded(!isDescriptionExpanded);
+  };
+  const renderDescription = (description) => {
+    if (description.length <= maxLength || isDescriptionExpanded) {
+      return (
+        <Text
+          style={{
+            ...styles.paragraph,
+            color: "black",
+            marginVertical: RFValue(10),
+          }}
+        >
+          {description}
+        </Text>
+      );
+    } else {
+      return (
+        <Text
+          style={{
+            ...styles.paragraph,
+            color: "black",
+            marginVertical: RFValue(10),
+          }}
+        >
+          {`${description.substring(0, maxLength).trim()}... `}
+          <TouchableOpacity onPress={toggleDescription}>
+            <Text style={styles.moreText}>Read more</Text>
+          </TouchableOpacity>
+        </Text>
+      );
+    }
+  };
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -93,18 +127,8 @@ const NgoScreen = ({ route }) => {
         >
           {item.category}
         </Text>
-        <View>
-          <Text
-            style={{
-              ...styles.paragraph,
-              color: "black",
-              marginVertical: RFValue(10),
-              // paddingHorizontal: RFValue(17),
-            }}
-          >
-            {item.description}
-          </Text>
-        </View>
+        {/* NGO Description */}
+        <View>{renderDescription(item.description)}</View>
         {item.address && (
           <View
             style={{
@@ -164,13 +188,19 @@ const NgoScreen = ({ route }) => {
       }}
       key={index}
     >
-      <EventRow key={index} event={item} saved_ngo={ngoData.ngo_id} showVolunteerButton={true} showSlotsCount={false}/>
+      <EventRow
+        key={index}
+        event={item}
+        saved_ngo={ngoData.ngo_id}
+        showVolunteerButton={true}
+        showSlotsCount={false}
+      />
     </View>
   );
 
   return (
     <SafeAreaView className="bg-white pt-5 h-full">
-      {loading && <Text>Loading</Text>}
+      {!loading ? (
       <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
         <FlatList
           data={ngoDetails}
@@ -250,7 +280,11 @@ const NgoScreen = ({ route }) => {
           }
         />
         <StatusBar style="auto" />
-      </SafeAreaView>
+      </SafeAreaView> ) : (
+        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+          <ActivityIndicator size={"large"} color="#20a963" />
+        </View>
+      )}
     </SafeAreaView>
   );
 };
@@ -261,6 +295,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
+  },
+  moreText: {
+    color: "#0056b3",
+    textDecorationLine: "underline",
   },
   title: {
     paddingTop: RFValue(5),
