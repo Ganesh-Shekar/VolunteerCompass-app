@@ -107,7 +107,8 @@ export default function EventRow({
               fontWeight: "400",
             }}
           >
-            <Icon name="location-dot" size={19} color="#f66"/> {event.event_venue}
+            <Icon name="location-dot" size={19} color="#f66" />{" "}
+            {event.event_venue}
           </Text>
           <Text
             style={{

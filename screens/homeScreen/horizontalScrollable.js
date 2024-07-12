@@ -18,8 +18,13 @@ import { RFValue } from "react-native-responsive-fontsize";
 //import { useFonts } from "expo-font";
 import Icon from "react-native-vector-icons/MaterialIcons";
 
-const HorizontalScrollable = ({ title, categoryId, data, city_value }) => {
-  const image_num = 100;
+const HorizontalScrollable = ({
+  title,
+  categoryId,
+  data,
+  city_value,
+  lat_long,
+}) => {
   // const [loadedFonts] = useFonts({
   //   OpenSans: require("../../assets/fonts/Open Sans.ttf"),
   // });
@@ -31,7 +36,10 @@ const HorizontalScrollable = ({ title, categoryId, data, city_value }) => {
 
   async function getCategoryNgo(categoryId = null) {
     try {
-      const response = await getNgoBasedOnCategory({ categoryId: categoryId });
+      const response = await getNgoBasedOnCategory({
+        categoryId: categoryId,
+        lat_long: lat_long,
+      });
       setNgoDetails(response);
     } catch (error) {
       console.error(error);
@@ -46,17 +54,12 @@ const HorizontalScrollable = ({ title, categoryId, data, city_value }) => {
     } else if (data && data.length > 0) {
       setNgoDetails(data);
     }
-  }, [data]);
+  }, [data, lat_long]);
 
   return (
     <View style={{ flex: 1 }}>
       {ngoDetails.filter((ngo) => {
-        return (
-          ngo.category_id === categoryId &&
-          (ngo.city
-            ? ngo.city.trim().toLowerCase() === city_value.trim().toLowerCase()
-            : false)
-        );
+        return ngo.category_id === categoryId;
       }).length > 0 && (
         <Text
           style={{
@@ -77,13 +80,7 @@ const HorizontalScrollable = ({ title, categoryId, data, city_value }) => {
         >
           {ngoDetails
             .filter((ngo) => {
-              return (
-                ngo.category_id === categoryId &&
-                (ngo.city
-                  ? ngo.city.trim().toLowerCase() ===
-                    city_value.trim().toLowerCase()
-                  : false)
-              );
+              return ngo.category_id === categoryId;
             })
             .map((ngo, index) => (
               <TouchableOpacity

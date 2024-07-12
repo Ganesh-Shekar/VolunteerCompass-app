@@ -21,7 +21,7 @@ import Signup from "./screens/logIn/signup2";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { RFValue } from "react-native-responsive-fontsize";
 import CreateEditEvent from "./screens/myEvents/CreateEditEvent";
-const { width, height } = Dimensions.get("window");
+const { width } = Dimensions.get("window");
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -67,7 +67,7 @@ const TabNav = () => {
             <Icon
               name="handshake-o"
               color={focused ? "#20a963" : "gray"}
-              size={width < 450 ? RFValue(20) : RFValue(14)}
+              size={width < 450 ? RFValue(20) : RFValue(10)}
               style={{ marginTop: RFValue(10) }}
             />
           ),

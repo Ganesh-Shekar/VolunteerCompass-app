@@ -10,18 +10,10 @@ import {
   Platform,
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
-import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
-import * as Location from "expo-location";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { RFValue } from "react-native-responsive-fontsize";
 import axios from "axios";
 
-const { width, height } = Dimensions.get("window");
-const ASPECT_RATIO = width / height;
-const LATITUDE_DELTA = 0.01;
-const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
-
-const GOOGLE_PLACES_API_KEY = "AIzaSyCbD48T0Pl-bcxUa8mkuteYRWO094xcFOc";
+const GOOGLE_PLACES_API_KEY = "AIzaSyBa27RfXpEKVrSQYIFGlBUs2tKIwaGmcOg";
 
 const SetLocation = ({ address }) => {
   const geocodeAddress = async (address) => {
@@ -134,7 +126,7 @@ const styles = StyleSheet.create({
   button: {
     // backgroundColor: "#20a963",
     padding: RFValue(2),
-    marginTop : RFValue(1),
+    marginTop: RFValue(1),
     marginRight: RFValue(8),
     borderRadius: 5,
     alignItems: "flex-end",

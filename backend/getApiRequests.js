@@ -3,7 +3,7 @@ import * as url from "./constantUrl";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { navigate } from "../NavigationService";
 
-const GOOGLE_API_KEY = "AIzaSyCbD48T0Pl-bcxUa8mkuteYRWO094xcFOc";
+const GOOGLE_API_KEY = "AIzaSyBa27RfXpEKVrSQYIFGlBUs2tKIwaGmcOg";
 const COUNTRY_CODE = "IN";
 
 // Create an Axios instance
@@ -259,6 +259,20 @@ export const getAddressResults = async (data) => {
   }
 };
 
+//for fetching GeoCode using Place_id
+export const getGeoCode = async (data) => {
+  try {
+    const response = await axios.get(
+      `https://maps.googleapis.com/maps/api/geocode/json?place_id=${data}&key=${GOOGLE_API_KEY}`
+    );
+    response_data = response.data.results[0].geometry.location;
+    return response_data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
 export const getCategories = async () => {
   return axiosInstance(
     await createAuthorizedRequestConfigInstance("GET", url.getAllCategories)
@@ -285,7 +299,6 @@ export const getNgoInfo = async (ngoId) => {
 };
 
 export const addNgoEvent = async (data) => {
-  console.log(data, "adding");
   return axiosInstance(
     await createRequestConfigInstance("POST", url.modifyEvent, data)
   )
@@ -296,7 +309,6 @@ export const addNgoEvent = async (data) => {
 };
 
 export const updateNgoEvent = async (data) => {
-  console.log(data, "updating");
   return axiosInstance(
     await createRequestConfigInstance("PUT", url.modifyEvent, data)
   )
@@ -320,6 +332,19 @@ export const getNgoEvent = async (eventId) => {
   return axiosInstance(
     await createRequestConfigInstance("GET", url.modifyEvent, null, {
       event_id: eventId,
+    })
+  )
+    .then((response) => response.status === 200 && response.data)
+    .catch((err) => {
+      throw err;
+    });
+};
+
+export const checkIfDataExists = async (data, type) => {
+  return axiosInstance(
+    await createRequestConfigInstance("GET", url.checkIfDataExists, null, {
+      data: data,
+      type: type,
     })
   )
     .then((response) => response.status === 200 && response.data)
@@ -407,10 +432,11 @@ export const getAllEventsByNgoId = async (ngo_id) => {
     });
 };
 
-export const getNgoNames = async (query) => {
+export const getNgoNames = async (query, lat_long) => {
   return axiosInstance(
     await createAuthorizedRequestConfigInstance("GET", url.getNgoNames, null, {
       query,
+      lat_long,
     })
   )
     .then((response) => response.status === 200 && response.data)

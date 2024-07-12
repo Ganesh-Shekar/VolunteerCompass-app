@@ -8,7 +8,6 @@ import string
 import constant as const
 import uuid
 from datetime import timedelta, datetime, timezone
-import traceback
 
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import create_refresh_token
@@ -131,29 +130,35 @@ def signUpNgo():
     )
     data["category_id"] = categoryId.data[0].get("category_id")
     
-   
+    lat_lng = data["lat_long"]
+    latitude = lat_lng["lat"]
+    longitude = lat_lng["lng"] 
+    location_data_str = f"SRID=4326;POINT({longitude} {latitude})"
+    del data["lat_long"]
+    data["location"] = location_data_str
     supabase.table("ngo_details").insert(data).execute()
 
     return const.successMessage200
 
-#update the location column of NGO
+#update the location column of NGO --testing
 @app.route("/updateLocation", methods=["POST"])
 def updateLocation():
-    data = request.get_json()
-    ngo_id = data["ngo_id"]
-    latitude = 40.7227
-    longitude = -73.9976
+    # data = request.get_json()
+    # ngo_id = data["774dc6a1-9a43-41af-8f81-82031061f54c"]
+    ngo_id = "47580f4f-dad9-4c33-8358-f15229f73620"
+    latitude = 28.7041
+    longitude = 77.1025
     location_data_str = f"SRID=4326;POINT({longitude} {latitude})"
     
     response = supabase.table("ngo_details").update({"location": location_data_str}).eq("ngo_id", ngo_id).execute()
     data = response.data
     return jsonify(data)
 
-#fetch nearby NGOs
+#fetch nearby NGOs --testing
 @app.route("/fetchNearbyNgo", methods=["GET"])
 def fetchNearbyNgo():
-    latitude = 40.7128 
-    longitude = -74.0060
+    latitude =  12.9715987 
+    longitude = 77.5945627
     distance = 1000  
     #supabase remote procedure call
     response = supabase.rpc("fetch_nearby_ngos_new", {"lat": latitude, "long": longitude, "distance": distance}).execute()
@@ -238,6 +243,26 @@ def getCategories():
         object["url"] = public_url
     return jsonify(data), 200   
 
+#used during signup
+@app.route("/check-existing-usernameoremail", methods=["GET"])
+@cross_origin()
+def checkUserName():
+    input_data = request.args.get("data")
+    type= request.args.get("type")
+    if input_data is not None and type=="username":
+        username_without_space = rename(input_data, 2)
+        response = supabase.table("ngo_details").select("ngo_user_name").eq("ngo_user_name", username_without_space).execute()
+        if response.data:
+            return jsonify({"message": "Username already exists"}), 200
+        else:
+            return jsonify({"message": "Username is available"}), 200
+    else:
+        response = supabase.table("user_details").select("contact_email").eq("contact_email", input_data).execute()
+        response = supabase.table("ngo_details").select("contact_email").eq("contact_email", input_data).execute()
+        if response.data:
+            return jsonify({"message": "Email already exists"}), 200
+        else:
+            return jsonify({"message": "Email is available"}), 200
 
 # HAVE TO WORK ON CHECKING WHETHER IMAGE EXISTS TO CREATE URL
 
@@ -270,12 +295,11 @@ def checkUserRegistration():
         
 
 
-# getting all the NGOs under a category (used in Home screen todisplay as horizontal list)
+# getting all the NGOs under a category (used in Home screen to display as horizontal list using location
 @app.route("/category", methods=["GET"])
 @jwt_required()
 @cross_origin()
 def get_category():
-    
     current_user=get_jwt_identity()
      # Get user details for the current user
     user_details_response = supabase.table("user_details").select("*").eq("user_id", current_user).execute()
@@ -285,7 +309,12 @@ def get_category():
     
     if user_details or ngo_details:
         categoryId = request.args.get("categoryId")
-
+        latitude = request.args.get("lat_long[lat]")
+        longitude= request.args.get("lat_long[lng]")
+        geocode_search= supabase.rpc("fetch_nearby_ngos_new", {"lat": latitude, "long": longitude, "distance": 10000}).execute()
+        # print(geocode_search.data[0]['ngo_id'], "geocode_search")
+        ngo_ids = [item['ngo_id'] for item in geocode_search.data]
+        
     if categoryId:
         response = (
             supabase.table("ngo_details")
@@ -298,11 +327,13 @@ def get_category():
                 "city",
                 "event_count"
             )
+            .in_("ngo_id", ngo_ids)
             .eq("category_id", categoryId)
             .execute()
-        )
+        )    
     else:
-        response = supabase.table("ngo_details").select("*").execute()
+        response = supabase.table("ngo_details").select("*").in_("ngo_id", ngo_ids).execute()
+    
     data = response.data
     return jsonify(data)
 
@@ -470,11 +501,13 @@ def modifyEvent():
     
     elif request.method == "PUT": 
         data = request.get_json()
+        print(data, "data is here")
         if not data:
             return jsonify({"error": "Missing data"}), 400
-        event_id = data.get("event_id")
-        supabase.table("event_details").update(data).eq("event_id", event_id).execute()
-        return const.successMessage200
+        else:
+            event_id = data.get("event_id")
+            supabase.table("event_details").update(data).eq("event_id", event_id).execute()
+            return const.successMessage200
     
     elif request.method == "DELETE":
         event_id = request.get_json()    
@@ -660,8 +693,12 @@ def search():
 
         if (user_details or ngo_details):
             query=request.args.get("query")
+            latitude = request.args.get("lat_long[lat]")
+            longitude= request.args.get("lat_long[lng]")
+            geocode_search= supabase.rpc("fetch_nearby_ngos_new", {"lat": latitude, "long": longitude, "distance": 10000}).execute()
+            ngo_ids = [item['ngo_id'] for item in geocode_search.data]
             response = (
-                        supabase.table("ngo_details").select("ngo_id", "ngo_display_name", "category_id", "address", "city").ilike("ngo_display_name", f"*{query}*").execute()
+                        supabase.table("ngo_details").select("ngo_id", "ngo_display_name", "category_id", "address", "city").ilike("ngo_display_name", f"*{query}*").in_("ngo_id", ngo_ids).execute()
                     ).data
             response_data = response
             return jsonify(response_data)

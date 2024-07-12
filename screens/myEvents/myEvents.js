@@ -6,9 +6,7 @@ import {
   StyleSheet,
   ScrollView,
   Modal,
-  Touchable,
   TouchableWithoutFeedback,
-  Button,
   Alert,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -41,9 +39,14 @@ const MyEvents = () => {
   async function deleteEvent(event_id) {
     try {
       const response = await deleteNgoEvent(event_id);
-      setNgoEventDetails((prevDetails) =>
-        prevDetails.filter((event) => event.event_id !== event_id)
-      );
+      console.log(response);
+      if (response === "Success") {
+        Alert.alert("Event deleted successfully");
+        setNgoEventDetails((prevDetails) =>
+          prevDetails.filter((event) => event.event_id !== event_id)
+        );
+        await fetchEvents();
+      }
     } catch (error) {
       throw error;
     }
@@ -82,7 +85,6 @@ const MyEvents = () => {
   async function getDetailsofEvent(eventId) {
     try {
       const response = await getNgoEvent(eventId);
-      // console.log(response)
       return response;
     } catch (error) {
       throw error;
@@ -116,7 +118,7 @@ const MyEvents = () => {
           }}
           className={"h-full w-full bg-white"}
         >
-          No Past Events
+          No past events
         </Text>
       );
     }
@@ -151,7 +153,7 @@ const MyEvents = () => {
           }}
           className={"h-full w-full bg-white"}
         >
-          No Upcoming Events
+          No upcoming events
         </Text>
       );
     }
@@ -203,13 +205,13 @@ const MyEvents = () => {
                     );
                   }}
                 >
-                  <Icon name="pen" size={20}></Icon>
+                  <Icon name="pen" size={RFValue(15)}></Icon>
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => {
                     Alert.alert(
                       "Delete Event",
-                      "Are you sure you want to delete this?",
+                      "Are you sure you want to delete event?",
                       [
                         {
                           text: "Cancel",
@@ -225,18 +227,19 @@ const MyEvents = () => {
                 >
                   <Icon
                     name="trash"
-                    size={20}
+                    size={RFValue(15)}
                     color={"red"}
                     style={{ marginLeft: RFValue(10) }}
                   ></Icon>
                 </TouchableOpacity>
               </View>
-              <EventRow
-                event={events}
-                showVolunteerLimit={true}
-                style={{ flexDirection: "row", flex: 1 }}
-                showSlotsCount={true}
-              />
+              <View style={{ marginBottom: RFValue(10) }}>
+                <EventRow
+                  event={events}
+                  showVolunteerLimit={false}
+                  showSlotsCount={false}
+                />
+              </View>
             </View>
           )
       )}
@@ -254,12 +257,11 @@ const MyEvents = () => {
       getType();
       getEventDetails();
       UpcomingEventsforNGO();
-    }, [selectedTab])
+    }, [])
   );
 
   return (
     <SafeAreaView style={{ backgroundColor: "#20a963" }}>
-      {/* <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}> */}
       <View style={styles.tabContainer}>
         <TouchableOpacity
           style={[styles.tab, selectedTab === "past" && styles.activeTab]}
@@ -315,9 +317,6 @@ const MyEvents = () => {
           <View style={styles.modalOverlay} />
         </TouchableWithoutFeedback>
         <View style={styles.modalContent}>
-          {/* Modal's inner content goes here */}
-
-          {/* Non-scrollable "Add Event" section */}
           <View style={styles.addEventSection}>
             <TouchableOpacity
               style={styles.attractiveButton}
@@ -332,7 +331,17 @@ const MyEvents = () => {
             {ngoEventDetails != "" ? (
               <UpcomingEventsforNGO />
             ) : (
-              <Text>No events for this NGO </Text>
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Text style={{ fontSize: RFValue(16) }}>
+                  No events for this NGO{" "}
+                </Text>
+              </View>
             )}
           </View>
           {/* </ScrollView> */}
@@ -409,9 +418,9 @@ const styles = StyleSheet.create({
     right: RFValue(20),
     bottom: RFValue(60),
     backgroundColor: "#20a963",
-    width: 56, // Diameter of the circle
-    height: 56, // Diameter of the circle
-    borderRadius: 28, // Half the diameter to make it a perfect circle
+    width: RFValue(46), // Diameter of the circle
+    height: RFValue(46), // Diameter of the circle
+    borderRadius: RFValue(46), // Half the diameter to make it a perfect circle
     justifyContent: "center",
     alignItems: "center",
     elevation: 4, // Shadow for Android
@@ -452,10 +461,12 @@ const styles = StyleSheet.create({
   editEventsSection: {
     // Style for the content inside the scrollable section
     flex: 1,
+    marginBottom: RFValue(10),
   },
   sectionTitle: {
     fontSize: RFValue(16),
     fontWeight: "bold",
+    marginLeft: RFValue(8),
   },
   attractiveButton: {
     backgroundColor: "#20a963", // Bootstrap primary button color

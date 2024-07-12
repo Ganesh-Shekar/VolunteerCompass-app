@@ -2,37 +2,31 @@
 import {
   View,
   Text,
-  Image,
   TextInput,
   TouchableOpacity,
   ScrollView,
   StyleSheet,
-  Platform,
   Alert,
-  KeyboardAvoidingView,
   Dimensions,
-  FlatList,
-  TouchableWithoutFeedback,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 import { useNavigation } from "@react-navigation/native";
 import { RadioButton } from "react-native-paper";
-import { SearchBar } from "@rneui/themed";
 import { Dropdown } from "react-native-element-dropdown";
 import {
   signUpNgo,
   signUpUser,
   getCategories,
+  getGeoCode,
 } from "../../backend/getApiRequests";
-import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import { Formik } from "formik";
 import * as yup from "yup";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { RFValue } from "react-native-responsive-fontsize";
 import {
   getAddressResults,
   getCityResults,
+  checkIfDataExists,
 } from "../../backend/getApiRequests";
 const { width } = Dimensions.get("window");
 
@@ -41,12 +35,38 @@ const ngoSignUpValidationSchema = yup.object().shape({
     .string()
     .min(3, "Username is too short")
     .max(50, "Username is too long")
-    .required("Username is required"),
+    .required("Username is required")
+    .test(
+      "checkUsername",
+      "Username already exists",
+      async function checkIfDataExistsApi(value) {
+        try {
+          const response = await checkIfDataExists(value, "username");
+          return response.message !== "Username already exists";
+        } catch (error) {
+          console.error("Error fetching data:", error);
+          return false;
+        }
+      }
+    ),
 
   ngoEmail: yup
     .string()
     .email("Enter a valid Email Address")
-    .required("Email is required"),
+    .required("Email is required")
+    .test(
+      "checkEmail",
+      "Email already exists",
+      async function checkIfDataExistsApi(value) {
+        try {
+          const response = await checkIfDataExists(value, "email");
+          return response.message !== "Email already exists";
+        } catch (error) {
+          console.error("Error fetching data:", error);
+          return false;
+        }
+      }
+    ),
 
   number: yup
     .string()
@@ -112,17 +132,23 @@ const userSignUpValidationSchema = yup.object().shape({
     .required("Confirm Password is required"),
 
   age: yup.string().required("Age is required"),
+  number: yup
+    .string()
+    .min(10, "Phone number must be at least 10 digits")
+    .max(19, "Phone number can be maximum 19 digits")
+    .required("Phone number is required"),
 });
 
 const Signup = () => {
   const navigation = useNavigation();
-  const [selectedValue, setSelectedValue] = useState("NGO"); // for radio buttons
+  const [selectedValue, setSelectedValue] = useState("NGO");
   const [data, setData] = useState([]);
   const [category, setCategory] = useState(null);
   const [searchText, setSearchText] = useState("");
   const [searchCityText, setSearchCityText] = useState("");
   const [predictions, setPredictions] = useState([]);
   const [cityPredictions, setCityPredictions] = useState([]);
+  const [currentPlaceId, setCurrentPlaceId] = useState(null);
 
   const ngoRequestObject = {
     userName: "",
@@ -139,6 +165,7 @@ const Signup = () => {
   const userRequestObject = {
     firstName: "",
     lastName: "",
+    number: "",
     userEmail: "",
     userPassword: "",
     userConfirmPassword: "",
@@ -149,15 +176,41 @@ const Signup = () => {
     fetchCategories();
   }, []);
 
+  //fetch geo code from place id
+  async function getGeoCodeFromPlaceId(place_id) {
+    try {
+      const response = await getGeoCode(place_id);
+      setCurrentPlaceId(response);
+    } catch (error) {
+      console.error("Error fetching predictions:", error);
+    }
+  }
+
+  // async function checkIfDataExistsApi(data, type) {
+  //   try {
+  //     const response = await checkIfDataExists(data, type);
+  //     if(response.message=='Email already exists')
+  //     {
+  //       Alert.alert("Email already exists");
+  //       ngoRequestObject.ngoEmail="";
+  //     }
+  //     return response;
+  //   } catch (error) {
+  //     console.error("Error fetching predictions:", error);
+  //   }
+  // }
+
   //fetch address predictions
   async function fetchPredictions(text) {
     setSearchText(text); // Ensure state is updated here
+
     if (text) {
       try {
         const response = await getAddressResults(text);
         let tempPredicts = response.predictions.map((prediction) => ({
           key: `${prediction.description}-${prediction.place_id}`,
           name: prediction.description,
+          place_id: prediction.place_id,
         }));
         setPredictions(tempPredicts);
       } catch (error) {
@@ -260,12 +313,11 @@ const Signup = () => {
     //   className="bg-white h-full w-full"
     // >
 
-    <View style={{ flex: 1 }} >
+    <View style={{ flex: 1 }}>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.container}
         automaticallyAdjustKeyboardInsets={true}
-        
       >
         {/* handshake */}
         {/* <View className="flex-row justify-around w-full absolute">
@@ -289,6 +341,7 @@ const Signup = () => {
                 fontSize: RFValue(14),
                 textAlign: "center",
                 textAlignVertical: "center",
+                fontWeight: "bold",
               }}
             >
               Who are you?
@@ -303,7 +356,7 @@ const Signup = () => {
                   <View style={styles.radioButton}>
                     <RadioButton value="NGO" color="green" />
                   </View>
-                  <Text className="text-lg">NGO</Text>
+                  <Text className="text-lg bold">NGO</Text>
                 </View>
                 <View className="flex-row items-center mx-4">
                   <View style={styles.radioButton}>
@@ -328,7 +381,7 @@ const Signup = () => {
             } // Validation schema
             onSubmit={(values, actions) => {
               // Handle form submission
-              console.log(JSON.stringify(values)); // You can replace this with your submission logic
+              console.log(currentPlaceId); // You can replace this with your submission logic
               const tempRequestObject = {
                 ngo_display_name: values.userName,
                 contact_email: values.ngoEmail,
@@ -338,10 +391,12 @@ const Signup = () => {
                 city: values.city,
                 description: values.description,
                 category: values.category,
+                lat_long: currentPlaceId,
               };
               const userRequestObject = {
                 first_name: values.firstName,
                 last_name: values.lastName,
+                contact_phone: values.number,
                 contact_email: values.userEmail,
                 password: values.userPassword,
                 age: values.age,
@@ -376,7 +431,10 @@ const Signup = () => {
                         placeholderTextColor={"gray"}
                         value={values.userName}
                         onChangeText={handleChange("userName")}
-                        onBlur={handleBlur("userName")}
+                        onBlur={() => {
+                          handleChange("userName");
+                          // checkIfDataExistsApi(values.userName, "username");
+                        }}
                         style={{ fontSize: RFValue(13) }}
                       />
                       {touched.userName && errors.userName && (
@@ -393,7 +451,10 @@ const Signup = () => {
                         inputMode="email"
                         value={values.ngoEmail}
                         onChangeText={handleChange("ngoEmail")}
-                        onBlur={handleBlur("ngoEmail")}
+                        onBlur={() => {
+                          handleChange("userName");
+                          // checkIfDataExistsApi(values.ngoEmail, "email");
+                        }}
                         style={{ fontSize: RFValue(13) }}
                       />
                       {touched.ngoEmail && errors.ngoEmail && (
@@ -460,7 +521,7 @@ const Signup = () => {
                       style={{ width: width < 450 ? "100%" : 600 }}
                     >
                       <TextInput
-                        placeholder="Address"
+                        placeholder="NGO Address"
                         placeholderTextColor={"gray"}
                         value={searchText}
                         onChangeText={fetchPredictions}
@@ -479,10 +540,10 @@ const Signup = () => {
                               onPress={() => {
                                 setFieldValue("address", item.name);
                                 setSearchText(item.name);
+                                getGeoCodeFromPlaceId(item.place_id);
                                 setPredictions([]);
                               }}
                               style={{
-                                // padding: RFValue(8),
                                 marginTop: RFValue(10),
                               }}
                               key={item.key}
@@ -681,6 +742,23 @@ const Signup = () => {
                       style={{ width: width < 450 ? "100%" : 600 }}
                     >
                       <TextInput
+                        placeholder="Phone Number"
+                        placeholderTextColor={"gray"}
+                        inputMode="numeric"
+                        value={values.number}
+                        onChangeText={handleChange("number")}
+                        onBlur={handleBlur("number")}
+                        style={{ fontSize: RFValue(13) }}
+                      />
+                      {touched.number && errors.number && (
+                        <Text style={styles.errorTxt}>{errors.number}</Text>
+                      )}
+                    </View>
+                    <View
+                      className="bg-black/5 p-3 rounded-2xl w-full"
+                      style={{ width: width < 450 ? "100%" : 600 }}
+                    >
+                      <TextInput
                         placeholder="Password"
                         placeholderTextColor={"gray"}
                         value={values.userPassword}
@@ -763,7 +841,7 @@ const Signup = () => {
                 onPress={() => navigation.replace("Login")}
                 className="pr-1 pb-1"
               >
-                <Text style={{ color: "#20a963", fontSize: RFValue(14) }}>
+                <Text style={{ color: "blue", fontSize: RFValue(14) }}>
                   Login
                 </Text>
               </TouchableOpacity>
@@ -796,7 +874,7 @@ const styles = StyleSheet.create({
   },
 
   placeholderStyle: {
-    fontSize: RFValue(14.5),
+    fontSize: RFValue(13),
     color: "gray",
   },
 
@@ -815,25 +893,11 @@ const styles = StyleSheet.create({
   },
 
   radioButton: {
-    borderWidth: 2.5,
+    borderWidth: 3.5,
     borderColor: "black",
     transform: [{ scale: 0.6 }],
     borderRadius: 50,
     marginRight: 5,
     padding: 0.1,
   },
-  // predictionContainer: {
-  //   flexDirection: "column",
-  // },
-  // predictionItem: {
-  //   flexDirection: "column",
-  //   flex: 1,
-  // },
-  // locationTextStyle: {
-  //   fontSize: 16,
-  // },
-  // divider: {
-  //   borderBottomColor: "black",
-  //   borderBottomWidth: StyleSheet.hairlineWidth,
-  // },
 });
