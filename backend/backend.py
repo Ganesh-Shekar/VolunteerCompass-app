@@ -143,30 +143,31 @@ def signUpNgo():
 
     return const.successMessage200
 
-#update the location column of NGO --testing
-@app.route("/updateLocation", methods=["POST"])
-def updateLocation():
-    # data = request.get_json()
-    # ngo_id = data["774dc6a1-9a43-41af-8f81-82031061f54c"]
-    ngo_id = "47580f4f-dad9-4c33-8358-f15229f73620"
-    latitude = 28.7041
-    longitude = 77.1025
-    location_data_str = f"SRID=4326;POINT({longitude} {latitude})"
+#update the location column of NGO --used for testing
+# @app.route("/updateLocation", methods=["POST"])
+# def updateLocation():
+#     data = request.get_json()
+#     # ngo_id = data["774dc6a1-9a43-41af-8f81-82031061f54c"]
+#     # ngo_id = "47580f4f-dad9-4c33-8358-f15229f73620"
+#     ngo_id = data["ngo_id"] 
+#     latitude = data.get("lat")  
+#     longitude = data.get("long")
+#     location_data_str = f"SRID=4326;POINT({longitude} {latitude})"
     
-    response = supabase.table("ngo_details").update({"location": location_data_str}).eq("ngo_id", ngo_id).execute()
-    data = response.data
-    return jsonify(data)
+#     response = supabase.table("ngo_details").update({"location": location_data_str}).eq("ngo_id", ngo_id).execute()
+#     data = response.data
+#     return jsonify(data)
 
-#fetch nearby NGOs --testing
-@app.route("/fetchNearbyNgo", methods=["GET"])
-def fetchNearbyNgo():
-    latitude =  12.9715987 
-    longitude = 77.5945627
-    distance = 1000  
-    #supabase remote procedure call
-    response = supabase.rpc("fetch_nearby_ngos_new", {"lat": latitude, "long": longitude, "distance": distance}).execute()
-    data = response.data
-    return jsonify(data), 200
+# #fetch nearby NGOs -- used for testing
+# @app.route("/fetchNearbyNgo", methods=["GET"])
+# def fetchNearbyNgo():
+#     latitude =  12.9715987 
+#     longitude = 77.5945627
+#     distance = 1000  
+#     #supabase remote procedure call
+#     response = supabase.rpc("fetch_nearby_ngos_new", {"lat": latitude, "long": longitude, "distance": distance}).execute()
+#     data = response.data
+#     return jsonify(data), 200
 
 
 # log in API
@@ -504,13 +505,16 @@ def ngoVolunteered():
 
 # add events into event_details table
 @app.route("/modify-event", methods=["POST", "DELETE", "PUT", "GET"])
+@jwt_required()
 @cross_origin()
 def modifyEvent():
-    # current_user=get_jwt_identity()
-    # ngo_details_response = supabase.table("ngo_details").select("*").eq("ngo_id", current_user).execute()
-    # ngo_details= ngo_details_response.data
+    current_user=get_jwt_identity()
+    ngo_details_response = supabase.table("ngo_details").select("*").eq("ngo_id", current_user).execute()
+    ngo_details= ngo_details_response.data
+    user_details_response = supabase.table("user_details").select("*").eq("user_id", current_user).execute()
+    user_details = user_details_response.data    
     
-    # if ngo_details:
+    if ngo_details:
         if request.method =="POST":
             data = request.get_json()
             if not data:
@@ -535,7 +539,7 @@ def modifyEvent():
             supabase.table("event_details").delete().eq("event_id", event_id).execute()
             return const.successMessage200
         
-        elif request.method =="GET":
+    elif user_details and request.method =="GET":  
             event_id = request.args.get("event_id")
             if not event_id:
                 return jsonify({"error": "Missing event_id"}), 400

@@ -13,7 +13,6 @@ import React, { useState, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 import { useNavigation } from "@react-navigation/native";
 import { RadioButton } from "react-native-paper";
-import { Dropdown } from "react-native-element-dropdown";
 import {
   signUpNgo,
   signUpUser,
@@ -697,8 +696,8 @@ const Signup = () => {
                         placeholderTextColor={"gray"}
                         inputMode="text"
                         value={values.category}
-                        onChangeText={handleChange("description")}
-                        onBlur={handleBlur("description")}
+                        onChangeText={handleChange("category")}
+                        onBlur={handleBlur("category")}
                         editable={false}
                         style={{
                           fontSize: RFValue(13),

@@ -209,7 +209,7 @@ const HomeScreen = () => {
               <Icon
                 name="location-arrow"
                 size={RFValue(16)}
-                color="#F5F5DC"
+                color="white"
                 style={{ padding: RFValue(7) }}
               />
               <View style={{ marginTop: RFValue(7) }}>
@@ -361,7 +361,7 @@ const HomeScreen = () => {
                   <Text
                     style={{
                       fontSize: RFValue(16),
-                      color: "#F5F5DC",
+                      color: "white",
                       marginRight: 10,
                     }}
                   >
@@ -370,7 +370,7 @@ const HomeScreen = () => {
                   <Icon
                     name="chevron-down"
                     size={RFValue(12)}
-                    color="#F5F5DC"
+                    color="white"
                   />
                 </TouchableOpacity>
               </View>
