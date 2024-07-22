@@ -278,23 +278,24 @@ def checkUserRegistration():
     current_user = get_jwt_identity()
     user_details_response = supabase.table("user_details").select("*").eq("user_id", current_user).execute()
     ngo_details_response = supabase.table("ngo_details").select("*").eq("ngo_id", current_user).execute()
-    user_details = user_details_response.data 
+    user_details = user_details_response.data
     ngo_details= ngo_details_response.data
 
     if (user_details or ngo_details):
         data =request.get_json()
-        get_user_id= user_details[0]["user_id"]
-        user_id = get_user_id
-        ngo_id = data["ngo_id"]
-        event_id = data["event_id"]
-        if user_id and ngo_id and event_id:
-            response = supabase.table("event_volunteers").select("*").eq("user_id", user_id).eq("ngo_id", ngo_id).eq("event_id", event_id).execute()
-            if response.data == []:
-                return jsonify({"registered": False})
+        if len(user_details)> 0:
+            get_user_id= user_details[0]["user_id"]
+            user_id = get_user_id
+            ngo_id = data["ngo_id"]
+            event_id = data["event_id"]
+            if user_id and ngo_id and event_id:
+                response = supabase.table("event_volunteers").select("*").eq("user_id", user_id).eq("ngo_id", ngo_id).eq("event_id", event_id).execute()
+                if response.data == []:
+                    return jsonify({"registered": False})
+                else:
+                    return jsonify({"registered": True})
             else:
-                return jsonify({"registered": True})
-        else:
-            return jsonify({"registered": False})
+                return jsonify({"registered": False})
     return const.errorMessage105
         
 

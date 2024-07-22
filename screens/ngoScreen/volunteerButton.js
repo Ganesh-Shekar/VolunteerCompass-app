@@ -48,8 +48,7 @@ const VolunteerButton = ({ event, saved_ngo }) => {
         if (!isRegistered) {
           Alert.alert("Registration successful");
         }
-      }
-      else{
+      } else {
         Alert.alert("Registration failed");
       }
     } catch (error) {
@@ -93,7 +92,6 @@ const VolunteerButton = ({ event, saved_ngo }) => {
                 setShowModal(false);
                 isRegistered ? removeVolunteer() : setVounteer();
               }}
-              stt
             />
             <Button
               title="No, take me back"
