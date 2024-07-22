@@ -19,6 +19,7 @@ const { width } = Dimensions.get("window");
 import { addNgoEvent, updateNgoEvent } from "../../backend/getApiRequests";
 import { RFValue } from "react-native-responsive-fontsize";
 import { useRoute } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const CreateEditEvent = ({ navigation }) => {
   const [startDate, setStartDate] = useState(new Date());
@@ -91,7 +92,10 @@ const CreateEditEvent = ({ navigation }) => {
       )
       .required("Requirements are required"),
 
-    volunteer_limit: yup.number().required("Volunteer count is required"),
+    volunteer_limit: yup
+      .number()
+      .typeError("Please enter a number")
+      .required("Volunteer count is required"),
   });
   const route = useRoute();
   const { event_details } = route.params;
@@ -207,10 +211,20 @@ const CreateEditEvent = ({ navigation }) => {
                 });
               }
 
+              (async () => {
+                try {
+                  const value = await AsyncStorage.getItem("token");
+                  if (value !== null) {
+                    values.ngo_id = value;
+                  }
+                } catch (e) {
+                  console.log(e);
+                }
+              })();
+
               values.start_time = formatTime(values.start_time);
               values.end_time = formatTime(values.end_time);
-
-              values.ngo_id = "774dc6a1-9a43-41af-8f81-82031061f54c";
+              // values.ngo_id = "774dc6a1-9a43-41af-8f81-82031061f54c";
 
               if (event_details !== undefined) {
                 updateEvent(values);

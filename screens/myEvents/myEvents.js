@@ -57,9 +57,8 @@ const MyEvents = () => {
 
   async function getEventDetails() {
     try {
-      const events_per_ngo = await getAllEventsByNgoId(
-        "774dc6a1-9a43-41af-8f81-82031061f54c"
-      );
+      const ngo_id = await AsyncStorage.getItem("token");
+      const events_per_ngo = await getAllEventsByNgoId(ngo_id);
       setNgoEventDetails(events_per_ngo);
     } catch (error) {
       throw error;
@@ -318,7 +317,7 @@ const MyEvents = () => {
       </View>
       {selectedTab === "past" ? <PastEvents /> : <UpcomingEvents />}
 
-      {userType !== "ngo" ? (
+      {userType !== "user" ? (
         <TouchableOpacity
           style={styles.plusIcon}
           onPress={() => {
