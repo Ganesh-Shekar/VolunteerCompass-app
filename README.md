@@ -44,7 +44,9 @@ VolunteerCompass is designed for individuals who want to make a positive impact 
 ## Screenshot
 Preview of the app UI.
 
-<img src="./app-screenshot.png" alt="App Screenshot" width="300" height="400" />
+<p align="center">
+  <img src="app-screenshot.png" alt="App Screenshot" width="300" />
+</p>
 
 ---
 
