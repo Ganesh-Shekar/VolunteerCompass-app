@@ -1,7 +1,5 @@
 # VolunteerCompass
 
-![App Screenshot](./app-screenshot.png)
-
 ## Overview
 
 VolunteerCompass is a mobile platform that connects volunteers with NGOs and their events. The app makes it easy for users to discover, join, and manage volunteering opportunities in their city or area of interest.
@@ -44,8 +42,9 @@ VolunteerCompass is designed for individuals who want to make a positive impact 
 - Various React Native libraries for navigation, storage, and UI
 
 ## Screenshot
+Preview of the app UI.
 
-See above for a preview of the app UI.
+<img src="./app-screenshot.png" alt="App Screenshot" width="300" height="400" />
 
 ---
 
